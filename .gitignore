@@ -1,0 +1,25 @@
+# Compiled python files
+*.pyc
+
+# Package directories
+__pycache__/
+env/
+.venv/
+.idea/
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Local configuration file
+.env
+
+# Folder for virtual environment
+venv/
+
+# Node modules
+node_modules/
+
+# Build output
+dist/
