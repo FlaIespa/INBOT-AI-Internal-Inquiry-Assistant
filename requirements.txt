@@ -1,0 +1,32 @@
+# AI and Machine Learning
+torch==1.8.1
+transformers==4.5.1
+tensorflow==2.4.1
+spacy==3.0.6
+
+# Web Frameworks
+flask==1.1.2
+fastapi==0.63.0
+uvicorn==0.13.4 # ASGI server for FastAPI
+
+# Database Drivers
+psycopg2-binary==2.8.6  # PostgreSQL adapter for Python
+pymongo==3.11.3         # MongoDB driver for Python
+
+# Communication Platforms Integration
+slackclient==2.9.3 # For Slack Integration
+botbuilder-core==4.13.0 # For Microsoft Teams integration
+
+# Data Manipulation
+pandas==1.2.4
+
+# Utilities
+python-dotenv==0.17.0   # To manage environment variables from .env file
+requests==2.25.1        # To make HTTP requests
+
+# Security
+authlib==0.15.3         # For OAuth support
+
+# Logging and Monitoring (optional, depending on deployment)
+# Replace or remove these based on your deployment and monitoring setup
+prometheus-client==0.10.1

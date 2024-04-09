@@ -32,6 +32,21 @@ To ensure the successful deployment and optimal functioning of the AI-Driven Int
 ### Integration Support
 - **Custom Integration Solutions**: Should any challenges arise in integrating the chatbot with specific communication tools, the project team is prepared to create bespoke integration modules to accommodate the unique needs of different corporate environments.
 
+## Technical Stack and Dependencies
+
+This project utilizes a variety of technologies and Python libraries to ensure its effectiveness and efficiency:
+- **Programming Language**: Python 3.7+
+- **NLP and AI Framework**: Transformers (Hugging Face), TensorFlow, PyTorch
+- **Web Frameworks**: Flask or FastAPI for API development
+- **Database**: PostgreSQL or MongoDB for data storage
+- **Communication Platforms Integration**: Libraries for Slack and Microsoft Teams integration
+- **Version Control**: Git & GitHub for collaborative development
+- **Cloud Services**: AWS or Google Cloud Platform for hosting and computational resources
+- **Containerization**: Docker for environment consistency
+- **CI/CD**: GitHub Actions or Jenkins for automated testing and deployment
+- **Security**: Authlib for OAuth authentication
+- **Data Preparation and Annotation**: spaCy and Pandas for handling and preparing datasets
+
 ## Getting Started
 Please refer to our `installation.md` for a step-by-step guide on setting up the AI-Driven Internal Inquiry Assistant in your environment.
 
