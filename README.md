@@ -1,4 +1,4 @@
-# AI-Driven Internal Inquiry Assistant
+# INBOT: AI-Driven Internal Inquiry Assistant
 
 ## Overview
 The AI-Driven Internal Inquiry Assistant is a transformative chatbot library designed to facilitate seamless access to corporate knowledge bases. Leveraging advanced natural language processing, this tool provides timely and context-aware support to employees, enhancing efficiency and engagement within the workplace.
