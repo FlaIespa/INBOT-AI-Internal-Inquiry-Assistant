@@ -52,9 +52,6 @@ Please refer to our `installation.md` for a step-by-step guide on setting up the
 
 For detailed information on contribution guidelines, data handling, and other documentation, please explore our `docs` directory.
 
-## License
-This project is made available under the [INSERT LICENSE HERE] license. See the LICENSE file for more details.
-
 ## Support and Contact
 If you require assistance or wish to provide feedback, please file an issue on this repository or reach out to the project maintainers.
 
