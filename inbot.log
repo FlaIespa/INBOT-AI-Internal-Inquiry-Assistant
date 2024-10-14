@@ -1,0 +1,47 @@
+2024-10-14 12:47:16,213 - INFO - Indexing documents for faster search.
+2024-10-14 12:47:16,252 - INFO - Successfully parsed PDF document 'data/Flavia Iespa - SWE2024.pdf'.
+2024-10-14 12:47:16,253 - INFO - Text cleaned successfully.
+2024-10-14 12:47:16,253 - WARNING - Unsupported file format for 'data/README.md'.
+2024-10-14 12:47:16,253 - INFO - Text cleaned successfully.
+2024-10-14 12:47:16,253 - INFO - Indexed 2 documents successfully.
+2024-10-14 12:47:16,255 - INFO - Document 'Flavia Iespa - SWE2024.pdf' uploaded successfully.
+2024-10-14 12:47:16,301 - INFO - Successfully parsed PDF document 'data/Flavia Iespa - SWE2024.pdf'.
+2024-10-14 12:47:16,301 - INFO - Text cleaned successfully.
+2024-10-14 12:47:16,301 - INFO - Document 'Flavia Iespa - SWE2024.pdf' parsed, cleaned, and indexed successfully.
+2024-10-14 12:47:16,338 - INFO - Successfully parsed PDF document '/Users/flaviaiespa/Documents/Flavia Iespa - SWE2024.pdf'.
+2024-10-14 12:47:16,338 - INFO - Text cleaned successfully.
+2024-10-14 12:47:16,663 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-14 12:47:16,666 - INFO - Question asked to Groq API: fláviadasilvaiespasanfrancisco ,california - +1(415)235-2389 - flavia .iespa@uni .minerva .edu - linkedin - github - portfolioeducationminervauniversitysanfrancisco ,californiabachelorofscienceincomputerscience&cognitiveneurosciencesep2021-may2025 - focusedonactivelearningthrougha7citiesglobalrotationprogram . - ranked#1mostinnovativeuniversityintheworldbywuri2022 .~1 %acceptancerate . - partofthepsychologylabinitiative . - coursework:datastructures&algorithms ,softwaredevelopment ,calculusi ,ii
+2024-10-14 12:47:16,705 - INFO - Successfully parsed PDF document 'data/Flavia Iespa - SWE2024.pdf'.
+2024-10-14 12:47:16,707 - WARNING - Unsupported file format for 'data/README.md'.
+2024-10-14 12:47:16,707 - INFO - Search for 'Python' completed. 1 matches found.
+2024-10-14 12:48:20,643 - INFO - Indexing documents for faster search.
+2024-10-14 12:48:20,729 - INFO - Successfully parsed PDF document 'data/Flavia Iespa - SWE2024.pdf'.
+2024-10-14 12:48:20,733 - INFO - Text cleaned successfully.
+2024-10-14 12:48:20,733 - WARNING - Unsupported file format for 'data/README.md'.
+2024-10-14 12:48:20,733 - INFO - Text cleaned successfully.
+2024-10-14 12:48:20,733 - INFO - Indexed 2 documents successfully.
+2024-10-14 12:48:20,755 - INFO - Document 'Flavia Iespa - SWE2024.pdf' uploaded successfully.
+2024-10-14 12:48:20,813 - INFO - Successfully parsed PDF document 'data/Flavia Iespa - SWE2024.pdf'.
+2024-10-14 12:48:20,813 - INFO - Text cleaned successfully.
+2024-10-14 12:48:20,813 - INFO - Document 'Flavia Iespa - SWE2024.pdf' parsed, cleaned, and indexed successfully.
+2024-10-14 12:48:21,167 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-14 12:48:21,178 - INFO - Question asked to Groq API: fláviadasilvaiespasanfrancisco ,california - +1(415)235-2389 - flavia .iespa@uni .minerva .edu - linkedin - github - portfolioeducationminervauniversitysanfrancisco ,californiabachelorofscienceincomputerscience&cognitiveneurosciencesep2021-may2025 - focusedonactivelearningthrougha7citiesglobalrotationprogram . - ranked#1mostinnovativeuniversityintheworldbywuri2022 .~1 %acceptancerate . - partofthepsychologylabinitiative . - coursework:datastructures&algorithms ,softwaredevelopment ,calculusi ,ii
+2024-10-14 12:48:21,259 - INFO - Successfully parsed PDF document 'data/Flavia Iespa - SWE2024.pdf'.
+2024-10-14 12:48:21,261 - WARNING - Unsupported file format for 'data/README.md'.
+2024-10-14 12:48:21,261 - INFO - Search for 'Python' completed. 1 matches found.
+2024-10-14 12:58:59,321 - INFO - Indexing documents for faster search.
+2024-10-14 12:58:59,366 - INFO - Successfully parsed PDF document 'data/Flavia Iespa - SWE2024.pdf'.
+2024-10-14 12:58:59,366 - INFO - Text cleaned successfully.
+2024-10-14 12:58:59,366 - WARNING - Unsupported file format for 'data/README.md'.
+2024-10-14 12:58:59,366 - INFO - Text cleaned successfully.
+2024-10-14 12:58:59,366 - INFO - Indexed 2 documents successfully.
+2024-10-14 12:58:59,367 - INFO - Document 'Flavia Iespa - SWE2024.pdf' already exists in 'data/', skipping copy.
+2024-10-14 12:58:59,423 - INFO - Successfully parsed PDF document 'data/Flavia Iespa - SWE2024.pdf'.
+2024-10-14 12:58:59,423 - INFO - Text cleaned successfully.
+2024-10-14 12:58:59,423 - INFO - Document 'Flavia Iespa - SWE2024.pdf' parsed, cleaned, and indexed successfully.
+2024-10-14 12:58:59,862 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-14 12:58:59,915 - INFO - Question asked to Groq API: fláviadasilvaiespasanfrancisco ,california - +1(415)235-2389 - flavia .iespa@uni .minerva .edu - linkedin - github - portfolioeducationminervauniversitysanfrancisco ,californiabachelorofscienceincomputerscience&cognitiveneurosciencesep2021-may2025 - focusedonactivelearningthrougha7citiesglobalrotationprogram . - ranked#1mostinnovativeuniversityintheworldbywuri2022 .~1 %acceptancerate . - partofthepsychologylabinitiative . - coursework:datastructures&algorithms ,softwaredevelopment ,calculusi ,ii
+2024-10-14 12:59:00,022 - INFO - Successfully parsed PDF document 'data/Flavia Iespa - SWE2024.pdf'.
+2024-10-14 12:59:00,028 - WARNING - Unsupported file format for 'data/README.md'.
+2024-10-14 12:59:00,030 - INFO - Search for 'Python' completed. 1 matches found.
