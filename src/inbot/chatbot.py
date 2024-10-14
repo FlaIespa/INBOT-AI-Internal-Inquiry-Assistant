@@ -7,6 +7,7 @@ import nltk
 from nltk.stem import PorterStemmer
 from fuzzywuzzy import fuzz, process
 import logging
+import shutil
 
 logging.basicConfig(filename='inbot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
