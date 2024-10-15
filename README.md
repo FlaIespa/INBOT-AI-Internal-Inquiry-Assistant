@@ -1,60 +1,160 @@
-# INBOT: AI-Driven Internal Inquiry Assistant
+# INBOT AI Library
 
-## Overview
-The AI-Driven Internal Inquiry Assistant is a transformative chatbot library designed to facilitate seamless access to corporate knowledge bases. Leveraging advanced natural language processing, this tool provides timely and context-aware support to employees, enhancing efficiency and engagement within the workplace.
+Welcome to the **INBOT AI Library**, an AI-powered internal knowledge management chatbot designed to help organizations streamline internal document retrieval, answer queries based on document content, and provide intelligent insights into company knowledge. This project supports integration with various platforms and APIs, making it easy to connect to services like Slack for a more interactive experience.
 
-## Company Requirements
-
-To ensure the successful deployment and optimal functioning of the AI-Driven Internal Inquiry Assistant, companies must meet the following requirements:
-
-### Database System
-- **Structured Database**: A structured database system, such as SQL or NoSQL, is essential for storing critical data such as HR policies, technical support information, and project management resources.
-- **Accessibility**: The database must permit secure querying by the AI model to fetch and process information as needed by the chatbot.
-
-### Communication Platform Integration
-- **Corporate Tools**: The library is crafted to integrate seamlessly with established corporate communication platforms including Slack, Microsoft Teams, and other comparable internal messaging systems.
-- **Employee Access**: Integration ensures that the chatbot is readily accessible to employees, facilitating a more dynamic and interactive communication environment.
-
-### Data Preparation Methodology
-- **Data Handling**: A comprehensive methodology for data preparation, including data cleansing and annotation processes, is incorporated to align with stringent data protection laws.
-- **Compliance**: Companies are required to adhere to the Data Preparation Report guidelines, ensuring that sensitive information is managed in accordance with GDPR and other relevant standards.
-
-### Computational Resources
-- **Hardware**: Sufficient computational resources, potentially entailing cloud-based AI services or on-premise servers, are required to support the demands of model training and machine learning workloads.
-
-### Collaboration and Compliance
-- **IT Collaboration**: Effective deployment hinges on the collaborative efforts between the project team and corporate IT departments to assure smooth integration and data accessibility.
-- **Legal and Ethical Standards**: Companies must commit to using the library in compliance with all pertinent legal and ethical policies.
-
-### Support for Limited Database Access
-- **Synthetic Data Generation**: In instances where direct access to the corporate database is restricted or involves sensitive data, the library provides tools to generate synthetic data to aid in model training.
-
-### Integration Support
-- **Custom Integration Solutions**: Should any challenges arise in integrating the chatbot with specific communication tools, the project team is prepared to create bespoke integration modules to accommodate the unique needs of different corporate environments.
-
-## Technical Stack and Dependencies
-
-This project utilizes a variety of technologies and Python libraries to ensure its effectiveness and efficiency:
-- **Programming Language**: Python 3.7+
-- **NLP and AI Framework**: Transformers (Hugging Face), TensorFlow, PyTorch
-- **Web Frameworks**: Flask or FastAPI for API development
-- **Database**: PostgreSQL or MongoDB for data storage
-- **Communication Platforms Integration**: Libraries for Slack and Microsoft Teams integration
-- **Version Control**: Git & GitHub for collaborative development
-- **Cloud Services**: AWS or Google Cloud Platform for hosting and computational resources
-- **Containerization**: Docker for environment consistency
-- **CI/CD**: GitHub Actions or Jenkins for automated testing and deployment
-- **Security**: Authlib for OAuth authentication
-- **Data Preparation and Annotation**: spaCy and Pandas for handling and preparing datasets
-
-## Getting Started
-Please refer to our `installation.md` for a step-by-step guide on setting up the AI-Driven Internal Inquiry Assistant in your environment.
-
-For detailed information on contribution guidelines, data handling, and other documentation, please explore our `docs` directory.
-
-## Support and Contact
-If you require assistance or wish to provide feedback, please file an issue on this repository or reach out to the project maintainers.
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Basic Usage](#basic-usage)
+- [Integration](#integration)
+- [Documentation](#documentation)
+- [Development Setup](#development-setup)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-*This README is a living document and will be updated as the project evolves. All users and contributors are encouraged to refer back regularly for the latest information.*
+## Features
+- **Document Upload and Parsing**: Upload and parse documents in formats like PDF and DOCX.
+- **Context-Aware Responses**: Use Groq's API to generate responses based on document content.
+- **Slack Integration**: Easily connect the chatbot to Slack and interact with it in your workspace.
+- **Search Optimization**: Includes fuzzy matching and optimized text search using NLTK and RapidFuzz.
+- **Error Handling**: Robust error handling and logging.
+- **Extensible Design**: Can be extended to support other communication platforms and APIs.
+
+---
+
+## Installation
+
+### Requirements:
+- Python 3.7+
+- A valid [Groq API Key](https://groq.com/docs)
+- Slack API Key (if Slack integration is used)
+
+### Installing the INBOT AI Library
+
+To install the **INBOT AI Library**, run the following command in your terminal:
+
+```bash
+pip install INBOT_AI_Library
+```
+
+### Using a Virtual Environment (Recommended)
+It is recommended to use a virtual environment to manage dependencies:
+
+Create and activate a virtual environment:
+
+```bash
+python -m venv venv
+source venv/bin/activate  # For Windows: venv\Scripts\activate
+```
+
+Install the library:
+
+```bash
+pip install INBOT_AI_Library
+```
+
+Verify installation:
+
+```bash
+pip freeze
+```
+
+---
+
+## Basic Usage
+
+```python
+from inbot import INBOTChatbot
+
+# Initialize the chatbot with your Groq API key
+chatbot = INBOTChatbot(api_key='your-api-key')
+
+# Upload and parse a document
+chatbot.upload_document('path/to/document.pdf')
+parsed_text = chatbot.parse_document('path/to/document.pdf')
+
+# Ask a question based on the document
+response = chatbot.ask_question(parsed_text)
+print(response)
+```
+
+---
+
+## Integration
+
+### Slack Integration
+You can easily integrate the INBOT AI Library into your Slack workspace. To set up the integration:
+
+1. Create a Slack App and enable bot functionality in your workspace. You can follow Slack's official guide [here](https://api.slack.com/start).
+2. Set up environment variables for your Slack credentials:
+
+   ```bash
+   export SLACK_API_TOKEN='your-slack-api-token'
+   ```
+
+3. Use the provided SlackIntegration component to connect your bot:
+
+   ```python
+   from inbot.integrations import SlackIntegration
+
+   slack_bot = SlackIntegration(token='your-slack-api-token')
+   slack_bot.connect(chatbot)
+   ```
+
+For detailed steps and advanced configurations, check out the full Integration Guide.
+
+---
+
+## Documentation
+Full documentation for the INBOT AI Library can be found [here](https://github.com/FlaIespa/INBOT-AI-Internal-Inquiry-Assistant). The documentation covers:
+
+- Installation
+- Usage examples
+- API Reference
+- Integration with Slack and other platforms
+
+For contributing or reporting issues, please visit our GitHub Issues page.
+
+---
+
+## Development Setup
+To set up the development environment:
+
+Clone the repository:
+
+```bash
+git clone https://github.com/FlaIespa/INBOT-AI-Internal-Inquiry-Assistant.git
+cd INBOT-AI-Internal-Inquiry-Assistant
+```
+
+Install the necessary Python dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+If you’re working on the React web app for documentation or UI, navigate to the respective directory (websites/documentation or websites/user-interface) and install the dependencies:
+
+```bash
+npm install
+```
+
+---
+
+## Contributing
+We welcome contributions! To contribute, follow these steps:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/your-feature`).
+3. Commit your changes (`git commit -m 'Add feature'`).
+4. Push to the branch (`git push origin feature/your-feature`).
+5. Open a Pull Request.
+
+For more details, please refer to our Contribution Guidelines.
+
+---
+
+## License
+This project is licensed under the MIT License. See the LICENSE file for details.
