@@ -150,9 +150,27 @@ class INBOTChatbot:
 
 
     def ask_question(self, question):
-        """Ask a question to the Groq API"""
+        """Answer a question using document search with fallback to Groq API."""
         try:
-            # Interact with the Groq API
+            # Step 1: Search indexed documents for relevant information
+            search_results = self.search_documents(query=question)
+
+            if search_results and "No matches found" not in search_results:
+                logging.info(f"Answer found in documents for question: {question}")
+
+                # Clean and beautify the document search results
+                formatted_response = "📂 **Here’s what I found in the uploaded documents:**\n\n"
+
+                for line in search_results.splitlines():
+                    # Format results into bullet points with proper indentation
+                    if line.strip():
+                        formatted_response += f"   • {line.strip()}\n"
+
+                # Add a friendly closing remark
+                formatted_response += "\n✏️ **Feel free to ask more questions or request specific details!**"
+                return formatted_response
+
+            # Step 2: Fallback to Groq API if no document matches are found
             chat_completion = client.chat.completions.create(
                 messages=[
                     {
@@ -160,18 +178,20 @@ class INBOTChatbot:
                         "content": question,
                     }
                 ],
-                model="llama3-8b-8192",  # Keep the Groq model
+                model="llama3-8b-8192",  # Groq model
             )
-            
+
+            api_response = chat_completion.choices[0].message.content.strip()
             logging.info(f"Question asked to Groq API: {question}")
-            return chat_completion.choices[0].message.content
+
+            return f"🤖 **AI Assistant’s Response:**\n\n{api_response}\n\n✏️ **Let me know if there’s anything else I can assist with!**"
 
         except Exception as e:
-            logging.error(f"Error during Groq API request: {e}")
-            return f"Error during Groq API request: {e}"
+            logging.error(f"Error during question answering: {e}")
+            return "⚠️ **Error:** Unable to process your question at the moment. Please try again later."
 
-    
-    def search_documents(self, query, threshold=80):
+
+    def search_documents(self, query, threshold=30):
         """Searches through all documents for the query with fuzzy matching and highlights the term."""
         results = []
         try:
@@ -192,14 +212,14 @@ class INBOTChatbot:
                     # Highlight the matched term
                     highlighted_snippet = snippet.replace(match_term, f"**{match_term}**")
 
-                    results.append(f"Match found in {file_name}:\n...{highlighted_snippet}...\n")
+                    results.append(f"📄 **Match found in** `{file_name}`:\n\n   - {highlighted_snippet.strip()}")
 
             if results:
-                logging.info(f"Search for '{query}' completed. {len(results)} matches found.")
-                return "\n".join(results)
+                response = "\n\n".join(results)
+                return response
             else:
-                logging.info(f"Search for '{query}' found no matches.")
                 return "No matches found in uploaded documents."
+
         except Exception as e:
             logging.error(f"Error during document search for '{query}': {e}")
             return f"Error during document search: {e}"

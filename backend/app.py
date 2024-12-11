@@ -69,13 +69,10 @@ def ask_chatbot():
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
     try:
-        # Check if a file part exists in the request
         if 'file' not in request.files:
             return jsonify({"error": "No file part"}), 400
 
         file = request.files['file']
-
-        # Check if the file has a name
         if file.filename == '':
             return jsonify({"error": "No selected file"}), 400
 
@@ -91,10 +88,14 @@ def upload_file():
         db.session.add(uploaded_file)
         db.session.commit()
 
-        return jsonify({"message": f"File '{file.filename}' uploaded successfully!"}), 201
+        # Index the document in the chatbot
+        indexing_result = chatbot.upload_document(filepath)
+
+        return jsonify({"message": indexing_result}), 201
     except Exception as e:
         logging.error(f"Error during file upload: {e}")
         return jsonify({"error": "Internal server error"}), 500
+
 
 @app.route('/api/files', methods=['GET'])
 def list_files():
@@ -127,6 +128,105 @@ def delete_file(filename):
         return jsonify({"message": f"File '{filename}' deleted successfully"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/chat', methods=['POST'])
+def chat_with_bot():
+    """Endpoint to interact with the chatbot."""
+    try:
+        data = request.get_json()
+        question = data.get("question")
+        
+        if not question or not isinstance(question, str) or question.strip() == "":
+            return jsonify({"error": "Invalid question format"}), 400
+
+        # Use the chatbot to get a response
+        response = chatbot.ask_question(question)
+        return jsonify({"response": response})
+    
+    except Exception as e:
+        logging.error(f"Error in /api/chat: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
+# Fetch user profile
+@app.route('/auth/user-profile', methods=['GET'])
+def get_user_profile():
+    # Replace with the actual user authentication logic
+    user_email = request.headers.get('X-User-Email')  # Example of how to pass user's email
+    user = User.query.filter_by(email=user_email).first()
+    
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({
+        "name": user.name,
+        "email": user.email,
+        "bio": user.bio if hasattr(user, "bio") else "",  # Ensure 'bio' field exists in the database
+        "avatar": user.avatar if hasattr(user, "avatar") else "",  # Ensure 'avatar' field exists
+    })
+
+# Update user profile
+@app.route('/auth/update-profile', methods=['POST'])
+def update_user_profile():
+    data = request.json
+    user_email = request.headers.get('X-User-Email')  # Example of how to pass user's email
+    user = User.query.filter_by(email=user_email).first()
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    try:
+        user.name = data.get("name", user.name)
+        user.bio = data.get("bio", user.bio)
+        user.avatar = data.get("avatar", user.avatar)  # This assumes avatar is a URL or base64 string
+
+        db.session.commit()
+        return jsonify({"message": "Profile updated successfully!"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Failed to update profile: {str(e)}"}), 500
+
+# Fetch user stats
+@app.route('/api/user-stats', methods=['GET'])
+def get_user_stats():
+    user_email = request.headers.get('X-User-Email')  # Example of how to pass user's email
+    user = User.query.filter_by(email=user_email).first()
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Example static stats; replace with real calculations if needed
+    stats = {
+        "interactions": 125,  # Example: Count chatbot interactions for this user
+        "documentsUploaded": 50,  # Example: Count documents uploaded by this user
+        "editsMade": 10,  # Example: Count edits made by this user
+    }
+
+    return jsonify(stats)
+
+@app.route('/auth/upload-avatar', methods=['POST'])
+def upload_avatar():
+    user_email = request.headers.get('X-User-Email')
+    user = User.query.filter_by(email=user_email).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if 'avatar' not in request.files:
+        return jsonify({"error": "No avatar file provided"}), 400
+
+    avatar = request.files['avatar']
+    avatar_filename = f"{user.id}_avatar.png"
+    avatar_path = os.path.join(app.config['UPLOAD_FOLDER'], avatar_filename)
+
+    try:
+        avatar.save(avatar_path)
+        user.avatar = f"/static/uploads/{avatar_filename}"
+        db.session.commit()
+        return jsonify({"message": "Avatar uploaded successfully!", "avatar": user.avatar})
+    except Exception as e:
+        logging.error(f"Error uploading avatar: {e}")
+        db.session.rollback()
+        return jsonify({"error": "Failed to upload avatar"}), 500
+
 
 # Main server entry point
 if __name__ == '__main__':
