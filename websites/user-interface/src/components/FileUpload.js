@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CloudUploadIcon } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
 
-function FileUpload() {
+function FileUpload({ onFileUpload }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState('');
 
@@ -28,6 +28,12 @@ function FileUpload() {
       const data = await response.json();
       if (response.ok) {
         setUploadMessage(data.message);
+        setSelectedFile(null);
+
+        // Trigger parent function to refresh the file list
+        if (onFileUpload) {
+          onFileUpload();
+        }
       } else {
         setUploadMessage(`Error: ${data.error}`);
       }

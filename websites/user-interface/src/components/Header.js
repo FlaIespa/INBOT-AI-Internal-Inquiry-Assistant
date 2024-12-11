@@ -8,7 +8,7 @@ function Header({ darkMode, toggleDarkMode }) {
         <div className="flex items-center">
           <ChatAlt2Icon className="h-8 w-8 text-blue-600 dark:text-blue-300" />
           <h1 className="ml-3 text-3xl font-bold text-gray-800 dark:text-gray-100">
-            INBOT Chatbot Interface
+            INBOT 
           </h1>
         </div>
 

@@ -27,7 +27,7 @@ function Sidebar() {
         <nav>
           <ul className="space-y-4">
             <li>
-              <Link to="/" className="flex items-center space-x-2 hover:bg-gray-700 p-3 rounded-lg">
+              <Link to="/home" className="flex items-center space-x-2 hover:bg-gray-700 p-3 rounded-lg">
                 <HomeIcon className="h-6 w-6" />
                 {!isCollapsed && <span>Home</span>}
               </Link>

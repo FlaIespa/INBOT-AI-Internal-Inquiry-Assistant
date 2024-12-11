@@ -1,71 +1,53 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from auth import auth_bp, db, bcrypt  # Import the auth Blueprint, database, and bcrypt
+from auth.models import UploadedFile  # Import the UploadedFile model
 from chatbot import INBOTChatbot
 import logging
 import os
-
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from chatbot import INBOTChatbot
-import logging
-import os
-import socket
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS
 
+# Ensure the 'instance' directory exists
+os.makedirs('instance', exist_ok=True)
+
+# Configure SQLite database
+basedir = os.path.abspath(os.path.dirname(__file__))  # Get the base directory of the project
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'instance', 'inbot.db')}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize SQLAlchemy and Bcrypt
+db.init_app(app)
+bcrypt.init_app(app)
+
+# Chatbot-related configurations
 UPLOAD_FOLDER = './data/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+chatbot = INBOTChatbot(documents_dir=UPLOAD_FOLDER)
 
+# Logging
 logging.basicConfig(level=logging.INFO)
 
-# Initialize the chatbot
-chatbot = INBOTChatbot(documents_dir=UPLOAD_FOLDER)..
+# Register Blueprints
+app.register_blueprint(auth_bp, url_prefix='/auth')
 
-def find_free_port():
-    """Find a free port for the server to use."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(('', 0))
-        s.listen(1)
-        port = s.getsockname()[1]
-    return port
-
-if __name__ == '__main__':
-    # Determine port (use environment variable or find a free port)
-    port = int(os.getenv('PORT', find_free_port()))
-    host = os.getenv('HOST', '127.0.0.1')
-    
-    # Logging server startup information
-    print(f"🚀 INBOT AI Backend Starting...")
-    print(f"   Host: {host}")
-    print(f"   Port: {port}")
-    print(f"   Upload Directory: {UPLOAD_FOLDER}")
-    print("\n📋 Available Endpoints:")
-    print("   - GET  / : Home route")
-    print("   - POST /api/ask : Ask chatbot a question")
-    print("   - POST /api/upload : Upload a document")
-    print("   - GET  /api/files : List uploaded files")
-    print("   - DELETE /api/files/<filename> : Delete a specific file")
-    
+# Ensure database tables are created
+with app.app_context():
     try:
-        # Start the Flask development server
-        app.run(
-            host=host, 
-            port=port, 
-            debug=False, 
-            use_reloader=False
-        )
+        db.create_all()
+        print("✅ Database tables created successfully.")
     except Exception as e:
-        print(f"❌ Error starting server: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"❌ Error creating database tables: {e}")
 
+# Home route
 @app.route('/')
 def home():
     return "Welcome to the INBOT API!"
 
+# Chatbot ask route
 @app.route('/api/ask', methods=['POST'])
 def ask_chatbot():
     try:
@@ -83,31 +65,48 @@ def ask_chatbot():
         logging.error(f"Error in /api/ask: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
+# File upload route
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
     try:
+        # Check if a file part exists in the request
         if 'file' not in request.files:
             return jsonify({"error": "No file part"}), 400
+
         file = request.files['file']
+
+        # Check if the file has a name
         if file.filename == '':
             return jsonify({"error": "No selected file"}), 400
 
+        # Save the file to the upload directory
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(filepath)  # Save file to the upload directory
-        chatbot.upload_document(filepath)  # Index the uploaded document
-        return jsonify({"message": f"File '{file.filename}' uploaded successfully!"})
+        file.save(filepath)
+
+        # Add file details to the database
+        uploaded_file = UploadedFile(
+            filename=file.filename,
+            filepath=filepath
+        )
+        db.session.add(uploaded_file)
+        db.session.commit()
+
+        return jsonify({"message": f"File '{file.filename}' uploaded successfully!"}), 201
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logging.error(f"Error during file upload: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
 @app.route('/api/files', methods=['GET'])
 def list_files():
-    """List all uploaded files."""
     try:
-        files = os.listdir(app.config['UPLOAD_FOLDER'])
-        return jsonify({"files": [{"name": f} for f in files]})
+        files = UploadedFile.query.all()
+        return jsonify({"files": [{"name": f.filename} for f in files]})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logging.error(f"Error listing files: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
+
+# Delete file route
 @app.route('/api/files/<filename>', methods=['DELETE'])
 def delete_file(filename):
     """Delete a specific file."""
@@ -129,6 +128,21 @@ def delete_file(filename):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Main server entry point
 if __name__ == '__main__':
-    debug_mode = os.getenv("FLASK_DEBUG", "false").lower() == "true"
-    app.run(host="127.0.0.1", port=5000, debug=False, use_reloader=False)
+    try:
+        print(f"🚀 INBOT AI Backend Starting on Port 5000...")
+        print(f"   Upload Directory: {UPLOAD_FOLDER}")
+        print("\n📋 Available Endpoints:")
+        print("   - GET  / : Home route")
+        print("   - POST /api/ask : Ask chatbot a question")
+        print("   - POST /api/upload : Upload a document")
+        print("   - GET  /api/files : List uploaded files")
+        print("   - DELETE /api/files/<filename> : Delete a specific file")
+        print("   - POST /auth/signup : Signup for an account")
+        print("   - POST /auth/login : Login to your account")
+
+        # Start the Flask development server
+        app.run(host="127.0.0.1", port=5000, debug=False)
+    except Exception as e:
+        print(f"❌ Error starting server: {e}")

@@ -1,23 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { ChatAlt2Icon, TrashIcon } from '@heroicons/react/solid';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
-function UploadedFiles() {
-  const [files, setFiles] = useState([]);
+function UploadedFiles({ files, onFileDelete }) {
+  const [highlightedFile, setHighlightedFile] = useState(null);
 
+  // Highlight the newly added file whenever the list updates
   useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:5000/api/files');
-        const data = await response.json();
-        setFiles(data.files || []);
-      } catch (error) {
-        console.error('Error fetching files:', error);
-      }
-    };
+    if (files.length > 0) {
+      const latestFile = files[files.length - 1];
+      setHighlightedFile(latestFile.name);
 
-    fetchFiles();
-  }, []);
+      // Clear the highlight after a short delay
+      const timer = setTimeout(() => {
+        setHighlightedFile(null);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [files]);
+
+  const handleDelete = async (filename) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/files/${filename}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Trigger parent function to refresh the file list
+        if (onFileDelete) {
+          onFileDelete();
+        }
+      } else {
+        console.error('Failed to delete file:', response.statusText);
+      }
+    } catch (error) {
+      console.error('An error occurred while deleting the file:', error);
+    }
+  };
 
   return (
     <motion.div
@@ -37,17 +57,30 @@ function UploadedFiles() {
         {files.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400 text-center">No files uploaded yet.</p>
         ) : (
-          files.map((file) => (
-            <li key={file.name} className="flex justify-between items-center mb-3">
-              <span className="text-gray-700 dark:text-gray-300">{file.name}</span>
-              <button
-                className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-600"
-                onClick={() => console.log('Delete not implemented yet!')}
+          <AnimatePresence>
+            {files.map((file) => (
+              <motion.li
+                key={file.name}
+                initial={highlightedFile === file.name ? { scale: 1.1, opacity: 0.8 } : { opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 300,
+                  damping: 20,
+                }}
+                exit={{ opacity: 0 }}
+                className="flex justify-between items-center mb-3"
               >
-                <TrashIcon className="h-5 w-5" />
-              </button>
-            </li>
-          ))
+                <span className="text-gray-700 dark:text-gray-300">{file.name}</span>
+                <button
+                  className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-600"
+                  onClick={() => handleDelete(file.name)}
+                >
+                  <TrashIcon className="h-5 w-5" />
+                </button>
+              </motion.li>
+            ))}
+          </AnimatePresence>
         )}
       </ul>
     </motion.div>
