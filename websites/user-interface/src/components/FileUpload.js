@@ -1,12 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CloudUploadIcon } from '@heroicons/react/solid';
+import { motion } from 'framer-motion';
 
 function FileUpload() {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadMessage, setUploadMessage] = useState('');
+
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      setUploadMessage('Please select a file to upload.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setUploadMessage(data.message);
+      } else {
+        setUploadMessage(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      setUploadMessage('Failed to upload the file. Please try again.');
+    }
+  };
+
   return (
-    <div className="file-upload-container bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      className="file-upload-container bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg mx-auto"
+    >
       <header className="flex items-center justify-center mb-4">
-        <CloudUploadIcon className="h-8 w-8 text-gray-600 dark:text-gray-300" />
-        <h2 className="text-xl font-bold text-gray-700 dark:text-gray-100 ml-2">
+        <CloudUploadIcon className="h-10 w-10 text-gray-600 dark:text-gray-300" />
+        <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-100 ml-2">
           Upload a Document
         </h2>
       </header>
@@ -15,14 +54,22 @@ function FileUpload() {
         <label className="block mb-2 text-gray-600 dark:text-gray-300">Choose File</label>
         <input
           type="file"
-          className="block w-full text-gray-700 dark:text-gray-200 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+          onChange={handleFileChange}
+          className="block w-full text-gray-700 dark:text-gray-200 p-3 border rounded-md dark:bg-gray-700 dark:border-gray-600"
         />
       </div>
 
-      <button className="w-full bg-blue-500 dark:bg-blue-700 text-white py-2 rounded-lg shadow-md hover:bg-blue-600 dark:hover:bg-blue-800">
+      <button
+        onClick={handleUpload}
+        className="w-full bg-blue-500 dark:bg-blue-700 text-white py-2 rounded-lg shadow-md hover:bg-blue-600 dark:hover:bg-blue-800"
+      >
         Upload File
       </button>
-    </div>
+
+      {uploadMessage && (
+        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">{uploadMessage}</p>
+      )}
+    </motion.div>
   );
 }
 

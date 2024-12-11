@@ -4,21 +4,52 @@ import { PaperAirplaneIcon, ChatAlt2Icon } from '@heroicons/react/solid';
 function Chatbot() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false); // To show a loading indicator
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
 
+    // Add user message to chat
     setMessages([...messages, { type: 'user', text: input }]);
 
-    setTimeout(() => {
+    // Clear input field
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      // Send message to the backend API
+      const response = await fetch('http://127.0.0.1:5000/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: input }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Add bot's response to chat
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { type: 'bot', text: data.response },
+        ]);
+      } else {
+        // Handle API error
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { type: 'bot', text: 'Something went wrong. Please try again later.' },
+        ]);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      // Add error message to chat
       setMessages((prevMessages) => [
         ...prevMessages,
-        { type: 'bot', text: `You said: "${input}"` },
+        { type: 'bot', text: 'Failed to connect to the server. Please try again.' },
       ]);
-    }, 1000);
-
-    setInput('');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -38,6 +69,13 @@ function Chatbot() {
             </p>
           </div>
         ))}
+        {isLoading && (
+          <div className="message text-left">
+            <p className="inline-block p-3 rounded-3xl bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100">
+              Typing...
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Input field and send button */}

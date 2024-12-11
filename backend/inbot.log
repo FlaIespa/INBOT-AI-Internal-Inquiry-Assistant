@@ -1,0 +1,194 @@
+2024-12-10 16:12:41,678 - INFO - Indexing documents for faster search.
+2024-12-10 16:12:41,678 - WARNING - Unsupported file format for 'data/uploads'.
+2024-12-10 16:12:41,678 - INFO - Text cleaned successfully.
+2024-12-10 16:12:41,678 - WARNING - Unsupported file format for 'data/processed'.
+2024-12-10 16:12:41,679 - INFO - Text cleaned successfully.
+2024-12-10 16:12:41,679 - INFO - Indexed 2 documents successfully.
+2024-12-10 16:13:01,539 - INFO - Indexing documents for faster search.
+2024-12-10 16:13:01,539 - WARNING - Unsupported file format for 'data/uploads'.
+2024-12-10 16:13:01,539 - INFO - Text cleaned successfully.
+2024-12-10 16:13:01,539 - WARNING - Unsupported file format for 'data/processed'.
+2024-12-10 16:13:01,539 - INFO - Text cleaned successfully.
+2024-12-10 16:13:01,539 - INFO - Indexed 2 documents successfully.
+2024-12-10 16:13:01,541 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-10 16:13:01,541 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:13:40,815 - INFO - Indexing documents for faster search.
+2024-12-10 16:13:40,815 - WARNING - Unsupported file format for 'data/uploads'.
+2024-12-10 16:13:40,815 - INFO - Text cleaned successfully.
+2024-12-10 16:13:40,815 - WARNING - Unsupported file format for 'data/processed'.
+2024-12-10 16:13:40,816 - INFO - Text cleaned successfully.
+2024-12-10 16:13:40,816 - INFO - Indexed 2 documents successfully.
+2024-12-10 16:13:40,821 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-10 16:13:40,821 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:16:09,638 - INFO - 127.0.0.1 - - [10/Dec/2024 16:16:09] "[33mGET / HTTP/1.1[0m" 404 -
+2024-12-10 16:16:23,076 - INFO - 127.0.0.1 - - [10/Dec/2024 16:16:23] "[33mGET / HTTP/1.1[0m" 404 -
+2024-12-10 16:17:13,609 - INFO - Indexing documents for faster search.
+2024-12-10 16:17:13,610 - WARNING - Unsupported file format for 'data/uploads'.
+2024-12-10 16:17:13,610 - INFO - Text cleaned successfully.
+2024-12-10 16:17:13,610 - WARNING - Unsupported file format for 'data/processed'.
+2024-12-10 16:17:13,610 - INFO - Text cleaned successfully.
+2024-12-10 16:17:13,610 - INFO - Indexed 2 documents successfully.
+2024-12-10 16:17:13,612 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-10 16:17:13,612 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:17:26,709 - INFO - Indexing documents for faster search.
+2024-12-10 16:17:26,709 - WARNING - Unsupported file format for 'data/uploads'.
+2024-12-10 16:17:26,709 - INFO - Text cleaned successfully.
+2024-12-10 16:17:26,709 - WARNING - Unsupported file format for 'data/processed'.
+2024-12-10 16:17:26,710 - INFO - Text cleaned successfully.
+2024-12-10 16:17:26,710 - INFO - Indexed 2 documents successfully.
+2024-12-10 16:17:26,712 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-10 16:17:26,712 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:18:37,618 - INFO - Indexing documents for faster search.
+2024-12-10 16:18:37,618 - WARNING - Unsupported file format for 'data/uploads'.
+2024-12-10 16:18:37,618 - INFO - Text cleaned successfully.
+2024-12-10 16:18:37,618 - WARNING - Unsupported file format for 'data/processed'.
+2024-12-10 16:18:37,618 - INFO - Text cleaned successfully.
+2024-12-10 16:18:37,618 - INFO - Indexed 2 documents successfully.
+2024-12-10 16:18:37,620 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-10 16:18:37,620 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:19:00,467 - INFO - Indexing documents for faster search.
+2024-12-10 16:19:00,467 - WARNING - Unsupported file format for 'data/uploads'.
+2024-12-10 16:19:00,467 - INFO - Text cleaned successfully.
+2024-12-10 16:19:00,467 - WARNING - Unsupported file format for 'data/processed'.
+2024-12-10 16:19:00,467 - INFO - Text cleaned successfully.
+2024-12-10 16:19:00,467 - INFO - Indexed 2 documents successfully.
+2024-12-10 16:19:00,469 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-10 16:19:00,469 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:20:37,626 - INFO - Indexing documents for faster search.
+2024-12-10 16:20:37,626 - WARNING - Unsupported file format for 'data/uploads'.
+2024-12-10 16:20:37,626 - INFO - Text cleaned successfully.
+2024-12-10 16:20:37,626 - WARNING - Unsupported file format for 'data/processed'.
+2024-12-10 16:20:37,626 - INFO - Text cleaned successfully.
+2024-12-10 16:20:37,626 - INFO - Indexed 2 documents successfully.
+2024-12-10 16:20:37,628 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-10 16:20:37,628 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:20:50,420 - INFO - 127.0.0.1 - - [10/Dec/2024 16:20:50] "GET / HTTP/1.1" 200 -
+2024-12-10 16:21:07,313 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:21:07,322 - INFO - Question asked to Groq API: What is INBOT?
+2024-12-10 16:21:07,323 - INFO - 127.0.0.1 - - [10/Dec/2024 16:21:07] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:24:43,138 - INFO - 127.0.0.1 - - [10/Dec/2024 16:24:43] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:24:43,311 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:24:43,325 - INFO - Question asked to Groq API: hello
+2024-12-10 16:24:43,326 - INFO - 127.0.0.1 - - [10/Dec/2024 16:24:43] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:24:46,882 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:24:46,884 - INFO - Question asked to Groq API: Yes
+2024-12-10 16:24:46,884 - INFO - 127.0.0.1 - - [10/Dec/2024 16:24:46] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:24:52,410 - INFO - 127.0.0.1 - - [10/Dec/2024 16:24:52] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:24:53,004 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:24:53,008 - INFO - Question asked to Groq API: what is inbot
+2024-12-10 16:24:53,010 - INFO - 127.0.0.1 - - [10/Dec/2024 16:24:53] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:25:18,652 - INFO - 127.0.0.1 - - [10/Dec/2024 16:25:18] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:25:18,862 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:25:18,864 - INFO - Question asked to Groq API: What is INBOT?
+2024-12-10 16:25:18,865 - INFO - 127.0.0.1 - - [10/Dec/2024 16:25:18] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:25:26,639 - INFO - 127.0.0.1 - - [10/Dec/2024 16:25:26] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:25:26,938 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:25:26,942 - INFO - Question asked to Groq API: What is INBOT?
+2024-12-10 16:25:26,943 - INFO - 127.0.0.1 - - [10/Dec/2024 16:25:26] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:25:31,880 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:25:31,882 - INFO - Question asked to Groq API: What is INBOT?
+2024-12-10 16:25:31,883 - INFO - 127.0.0.1 - - [10/Dec/2024 16:25:31] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:26:27,134 - INFO - 127.0.0.1 - - [10/Dec/2024 16:26:27] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:26:27,358 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:26:27,360 - INFO - Question asked to Groq API: tell me about flavia's resume
+2024-12-10 16:26:27,361 - INFO - 127.0.0.1 - - [10/Dec/2024 16:26:27] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:26:40,849 - INFO - 127.0.0.1 - - [10/Dec/2024 16:26:40] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:26:41,010 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:26:41,013 - INFO - Question asked to Groq API: tell me about her professional experiences
+2024-12-10 16:26:41,013 - INFO - 127.0.0.1 - - [10/Dec/2024 16:26:41] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:26:54,682 - INFO - 127.0.0.1 - - [10/Dec/2024 16:26:54] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:26:55,168 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:26:55,171 - INFO - Question asked to Groq API: all her professional experiences all of them 
+2024-12-10 16:26:55,172 - INFO - 127.0.0.1 - - [10/Dec/2024 16:26:55] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:29:31,228 - INFO - 127.0.0.1 - - [10/Dec/2024 16:29:31] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:29:31,462 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:29:31,471 - INFO - Question asked to Groq API: Hello!
+2024-12-10 16:29:31,471 - INFO - 127.0.0.1 - - [10/Dec/2024 16:29:31] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:29:39,872 - INFO - 127.0.0.1 - - [10/Dec/2024 16:29:39] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:29:40,066 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:29:40,069 - INFO - Question asked to Groq API: Yes. How are you doing?
+2024-12-10 16:29:40,069 - INFO - 127.0.0.1 - - [10/Dec/2024 16:29:40] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:36:26,696 - INFO - 127.0.0.1 - - [10/Dec/2024 16:36:26] "[33mGET /api/files HTTP/1.1[0m" 404 -
+2024-12-10 16:36:26,700 - INFO - 127.0.0.1 - - [10/Dec/2024 16:36:26] "[33mGET /api/files HTTP/1.1[0m" 404 -
+2024-12-10 16:36:45,532 - INFO - 127.0.0.1 - - [10/Dec/2024 16:36:45] "[33mPOST /api/upload HTTP/1.1[0m" 404 -
+2024-12-10 16:36:47,221 - INFO - 127.0.0.1 - - [10/Dec/2024 16:36:47] "[33mPOST /api/upload HTTP/1.1[0m" 404 -
+2024-12-10 16:36:48,422 - INFO - 127.0.0.1 - - [10/Dec/2024 16:36:48] "[33mPOST /api/upload HTTP/1.1[0m" 404 -
+2024-12-10 16:38:00,434 - INFO - 127.0.0.1 - - [10/Dec/2024 16:38:00] "[33mGET /api/files HTTP/1.1[0m" 404 -
+2024-12-10 16:38:10,353 - INFO - 127.0.0.1 - - [10/Dec/2024 16:38:10] "[33mGET /api/files HTTP/1.1[0m" 404 -
+2024-12-10 16:38:22,447 - INFO - 127.0.0.1 - - [10/Dec/2024 16:38:22] "[33mGET /api/files HTTP/1.1[0m" 404 -
+2024-12-10 16:38:38,139 - INFO - 127.0.0.1 - - [10/Dec/2024 16:38:38] "[33mGET /api/files HTTP/1.1[0m" 404 -
+2024-12-10 16:39:11,662 - INFO - 127.0.0.1 - - [10/Dec/2024 16:39:11] "[33mGET /api/files HTTP/1.1[0m" 404 -
+2024-12-10 16:39:36,329 - INFO - 127.0.0.1 - - [10/Dec/2024 16:39:36] "[33mPOST /api/upload HTTP/1.1[0m" 404 -
+2024-12-10 16:39:37,219 - INFO - 127.0.0.1 - - [10/Dec/2024 16:39:37] "[33mPOST /api/upload HTTP/1.1[0m" 404 -
+2024-12-10 16:39:41,665 - INFO - 127.0.0.1 - - [10/Dec/2024 16:39:41] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:39:41,950 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:39:41,962 - INFO - Question asked to Groq API: hey!
+2024-12-10 16:39:41,963 - INFO - 127.0.0.1 - - [10/Dec/2024 16:39:41] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:39:56,384 - INFO - 127.0.0.1 - - [10/Dec/2024 16:39:56] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:39:56,627 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:39:56,630 - INFO - Question asked to Groq API: Yes! Tell me about the Flavia_SWE2024 document
+2024-12-10 16:39:56,631 - INFO - 127.0.0.1 - - [10/Dec/2024 16:39:56] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:43:22,841 - INFO - 127.0.0.1 - - [10/Dec/2024 16:43:22] "[33mGET /api/files HTTP/1.1[0m" 404 -
+2024-12-10 16:43:30,768 - INFO - Indexing documents for faster search.
+2024-12-10 16:43:30,837 - INFO - Successfully parsed PDF document './data/uploads/Flavia Iespa - SWE2024.pdf'.
+2024-12-10 16:43:30,838 - INFO - Text cleaned successfully.
+2024-12-10 16:43:30,838 - INFO - Indexed 1 documents successfully.
+2024-12-10 16:43:30,841 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-10 16:43:30,841 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:44:44,320 - INFO - Indexing documents for faster search.
+2024-12-10 16:44:44,388 - INFO - Successfully parsed PDF document './data/uploads/Flavia Iespa - SWE2024.pdf'.
+2024-12-10 16:44:44,390 - INFO - Text cleaned successfully.
+2024-12-10 16:44:44,390 - INFO - Indexed 1 documents successfully.
+2024-12-10 16:44:44,392 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-10 16:44:44,392 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:49:47,556 - INFO - 127.0.0.1 - - [10/Dec/2024 16:49:47] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:49:47,782 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:49:47,796 - INFO - Question asked to Groq API: hey
+2024-12-10 16:49:47,796 - INFO - 127.0.0.1 - - [10/Dec/2024 16:49:47] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:49:55,719 - INFO - 127.0.0.1 - - [10/Dec/2024 16:49:55] "OPTIONS /api/ask HTTP/1.1" 200 -
+2024-12-10 16:49:56,468 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2024-12-10 16:49:56,470 - INFO - Question asked to Groq API: tell me about Brazil
+2024-12-10 16:49:56,471 - INFO - 127.0.0.1 - - [10/Dec/2024 16:49:56] "POST /api/ask HTTP/1.1" 200 -
+2024-12-10 16:50:54,829 - INFO - Indexing documents for faster search.
+2024-12-10 16:50:54,912 - INFO - Successfully parsed PDF document './data/uploads/Flavia Iespa - SWE2024.pdf'.
+2024-12-10 16:50:54,912 - INFO - Text cleaned successfully.
+2024-12-10 16:50:54,912 - INFO - Indexed 1 documents successfully.
+2024-12-10 16:50:54,916 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-10 16:50:54,916 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:52:06,624 - INFO - 127.0.0.1 - - [10/Dec/2024 16:52:06] "[33mPOST /api/upload HTTP/1.1[0m" 404 -
+2024-12-10 16:55:13,774 - INFO - Indexing documents for faster search.
+2024-12-10 16:55:13,840 - INFO - Successfully parsed PDF document './data/uploads/Flavia Iespa - SWE2024.pdf'.
+2024-12-10 16:55:13,841 - INFO - Text cleaned successfully.
+2024-12-10 16:55:13,841 - ERROR - Error parsing document './data/uploads/example.pdf': EOF marker not found
+2024-12-10 16:55:13,841 - INFO - Indexed 1 documents successfully.
+2024-12-10 16:55:13,843 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:62706
+2024-12-10 16:55:13,843 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:56:12,317 - INFO - 127.0.0.1 - - [10/Dec/2024 16:56:12] "[33mPOST /api/upload HTTP/1.1[0m" 404 -
+2024-12-10 16:56:55,882 - INFO - 127.0.0.1 - - [10/Dec/2024 16:56:55] "[33mPOST / HTTP/1.1[0m" 404 -
+2024-12-10 16:57:35,207 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-10 16:57:35,207 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-10 16:57:40,187 - INFO - Indexing documents for faster search.
+2024-12-10 16:57:40,260 - INFO - Successfully parsed PDF document './data/uploads/Flavia Iespa - SWE2024.pdf'.
+2024-12-10 16:57:40,260 - INFO - Text cleaned successfully.
+2024-12-10 16:57:40,261 - ERROR - Error parsing document './data/uploads/example.pdf': EOF marker not found
+2024-12-10 16:57:40,261 - INFO - Indexed 1 documents successfully.
+2024-12-10 16:57:58,044 - INFO - Indexing documents for faster search.
+2024-12-10 16:57:58,111 - INFO - Successfully parsed PDF document './data/uploads/Flavia Iespa - SWE2024.pdf'.
+2024-12-10 16:57:58,112 - INFO - Text cleaned successfully.
+2024-12-10 16:57:58,112 - ERROR - Error parsing document './data/uploads/example.pdf': EOF marker not found
+2024-12-10 16:57:58,112 - INFO - Indexed 1 documents successfully.
+2024-12-10 16:57:58,115 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:62748
+2024-12-10 16:57:58,115 - INFO - [33mPress CTRL+C to quit[0m

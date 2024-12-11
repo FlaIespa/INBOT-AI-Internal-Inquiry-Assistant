@@ -12,9 +12,12 @@ import NotificationsPage from './pages/NotificationsPage';
 import ActivityLogsPage from './pages/ActivityLogsPage';
 import DocumentSearchPage from './pages/DocumentSearchPage';
 import AdminDashboard from './pages/AdminDashboard';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import WelcomePage from './pages/WelcomePage';
+
 
 function App() {
-  // State to track dark mode
   const [darkMode, setDarkMode] = useState(false);
 
   // Toggle dark mode
@@ -43,26 +46,40 @@ function App() {
 
   return (
     <Router>
-      <div className={`flex ${darkMode ? 'dark' : ''}`}>
-        <Sidebar />
-        <div className="flex-grow bg-gray-100 dark:bg-gray-900 min-h-screen">
-          <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-          <div className="p-6">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/chatbot" element={<ChatbotPage />} />
-              <Route path="/file-management" element={<FileManagementPage />} />
-              <Route path="/faq" element={<FAQPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/user-profile" element={<UserProfilePage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/activity-logs" element={<ActivityLogsPage />} />
-              <Route path="/document-search" element={<DocumentSearchPage />} />
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            </Routes>
-          </div>
-        </div>
-      </div>
+      <Routes>
+        {/* Standalone Login and Signup Pages */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/" element={<WelcomePage />} />
+
+
+        {/* Pages with Sidebar and Header */}
+        <Route
+          path="*"
+          element={
+            <div className={`flex ${darkMode ? 'dark' : ''}`}>
+              <Sidebar />
+              <div className="flex-grow bg-gray-100 dark:bg-gray-900 min-h-screen">
+                <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+                <div className="p-6">
+                  <Routes>
+                    <Route path="/home" element={<HomePage />} />
+                    <Route path="/chatbot" element={<ChatbotPage />} />
+                    <Route path="/file-management" element={<FileManagementPage />} />
+                    <Route path="/faq" element={<FAQPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/user-profile" element={<UserProfilePage />} />
+                    <Route path="/notifications" element={<NotificationsPage />} />
+                    <Route path="/activity-logs" element={<ActivityLogsPage />} />
+                    <Route path="/document-search" element={<DocumentSearchPage />} />
+                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                  </Routes>
+                </div>
+              </div>
+            </div>
+          }
+        />
+      </Routes>
     </Router>
   );
 }

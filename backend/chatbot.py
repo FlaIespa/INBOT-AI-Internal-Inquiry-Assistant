@@ -1,5 +1,5 @@
 import os
-import PyPDF2  # Library to handle PDF parsing
+import PyPDF2  
 from groq import Groq
 from docx import Document 
 import re
@@ -8,6 +8,13 @@ from nltk.stem import PorterStemmer
 from fuzzywuzzy import fuzz, process
 import logging
 import shutil
+from dotenv import load_dotenv  # Import dotenv
+import os
+
+# Load environment variables from the .env file
+load_dotenv()
+
+print(f"Loaded API Key: {os.environ.get('GROQ_API_KEY')}") 
 
 logging.basicConfig(filename='inbot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 

@@ -94,15 +94,6 @@ You can easily integrate the INBOT AI Library into your Slack workspace. To set 
    export SLACK_API_TOKEN='your-slack-api-token'
    ```
 
-3. Use the provided SlackIntegration component to connect your bot:
-
-   ```python
-   from inbot.integrations import SlackIntegration
-
-   slack_bot = SlackIntegration(token='your-slack-api-token')
-   slack_bot.connect(chatbot)
-   ```
-
 For detailed steps and advanced configurations, check out the full Integration Guide.
 
 ---
