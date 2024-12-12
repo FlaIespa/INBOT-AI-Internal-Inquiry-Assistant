@@ -85,7 +85,7 @@ function Sidebar() {
             <li>
               <Link to="/admin-dashboard" className="flex items-center space-x-2 hover:bg-gray-700 p-3 rounded-lg">
                 <ChartPieIcon className="h-6 w-6" />
-                {!isCollapsed && <span>Admin Dashboard</span>}
+                {!isCollapsed && <span>Analytics</span>}
               </Link>
             </li>
           </ul>

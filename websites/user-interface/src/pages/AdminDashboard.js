@@ -28,7 +28,7 @@ function AdminDashboard() {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
       <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">
-          Admin Dashboard
+          Analytics
         </h1>
 
         {/* Metrics Section */}
