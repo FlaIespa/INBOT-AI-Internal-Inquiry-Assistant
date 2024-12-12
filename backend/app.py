@@ -107,27 +107,48 @@ def list_files():
         return jsonify({"error": "Internal server error"}), 500
 
 
-# Delete file route
 @app.route('/api/files/<filename>', methods=['DELETE'])
 def delete_file(filename):
     """Delete a specific file."""
     try:
+        # Get the file path
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        # Check if the file exists
+        logging.info(f"Attempting to delete file: {file_path}")
+
+        # Check if the file exists in the filesystem
         if not os.path.exists(file_path):
+            logging.warning(f"File '{filename}' not found in filesystem.")
+            # Check if the file exists in the database and delete the record if found
+            file_record = UploadedFile.query.filter_by(filename=filename).first()
+            if file_record:
+                db.session.delete(file_record)
+                db.session.commit()
+                logging.info(f"Deleted file '{filename}' from database but it was not found in the filesystem.")
+                return jsonify({"message": f"File '{filename}' deleted from database but not found in filesystem."}), 200
             return jsonify({"error": f"File '{filename}' not found"}), 404
 
-        # Remove the file
+        # Remove the file from the filesystem
         os.remove(file_path)
+        logging.info(f"File '{filename}' removed from filesystem.")
 
-        # Optionally remove it from the chatbot index (if needed)
+        # Remove the file record from the database
+        file_record = UploadedFile.query.filter_by(filename=filename).first()
+        if file_record:
+            db.session.delete(file_record)
+            db.session.commit()
+            logging.info(f"File '{filename}' removed from database.")
+
+        # Optionally remove it from the chatbot index
         if filename in chatbot.document_index:
             del chatbot.document_index[filename]
+            logging.info(f"File '{filename}' removed from chatbot index.")
 
-        return jsonify({"message": f"File '{filename}' deleted successfully"})
+        return jsonify({"message": f"File '{filename}' deleted successfully"}), 200
     except Exception as e:
+        logging.error(f"Error deleting file '{filename}': {e}")
         return jsonify({"error": str(e)}), 500
+
+
 
 @app.route('/api/chat', methods=['POST'])
 def chat_with_bot():
@@ -226,6 +247,11 @@ def upload_avatar():
         logging.error(f"Error uploading avatar: {e}")
         db.session.rollback()
         return jsonify({"error": "Failed to upload avatar"}), 500
+
+@app.route('/uploads/<filename>', methods=['GET'])
+def serve_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
 
 # Main server entry point

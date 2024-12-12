@@ -1,44 +1,14 @@
 import React, { useState } from 'react';
-import { CloudUploadIcon, DocumentTextIcon } from '@heroicons/react/solid';
+import { CloudUploadIcon } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
-import { Worker, Viewer } from '@react-pdf-viewer/core';
-import '@react-pdf-viewer/core/lib/styles/index.css';
 
 function FileUpload({ onFileUpload }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState('');
-  const [filePreview, setFilePreview] = useState('');
-  const [fileType, setFileType] = useState('');
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
-
-    if (file) {
-      const fileExtension = file.type.split('/')[1];
-      setFileType(fileExtension);
-
-      // Text Preview
-      if (file.type.startsWith('text')) {
-        const reader = new FileReader();
-        reader.onload = (event) => setFilePreview(event.target.result.slice(0, 500)); // Limit preview
-        reader.readAsText(file);
-      }
-      // Image Preview
-      else if (file.type.startsWith('image')) {
-        const reader = new FileReader();
-        reader.onload = (event) => setFilePreview(event.target.result); // Image data URL
-        reader.readAsDataURL(file);
-      }
-      // PDF Preview
-      else if (file.type === 'application/pdf') {
-        const reader = new FileReader();
-        reader.onload = (event) => setFilePreview(event.target.result); // PDF data URL
-        reader.readAsDataURL(file);
-      } else {
-        setFilePreview('unsupported');
-      }
-    }
   };
 
   const handleUpload = async () => {
@@ -60,7 +30,6 @@ function FileUpload({ onFileUpload }) {
       if (response.ok) {
         setUploadMessage(data.message);
         setSelectedFile(null);
-        setFilePreview('');
 
         if (onFileUpload) {
           onFileUpload(); // Refresh file list
@@ -96,57 +65,6 @@ function FileUpload({ onFileUpload }) {
           className="block w-full text-gray-700 dark:text-gray-200 p-3 border rounded-md dark:bg-gray-700 dark:border-gray-600"
         />
       </div>
-
-      {/* File Preview */}
-      {filePreview && filePreview !== 'unsupported' && (
-        <div className="mb-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-          <h3 className="text-gray-800 dark:text-white text-lg font-semibold mb-2 flex items-center">
-            <DocumentTextIcon className="h-5 w-5 mr-2 text-blue-500" />
-            File Preview
-          </h3>
-
-          {/* Text Preview */}
-          {fileType.startsWith('text') && (
-            <pre className="text-sm text-gray-600 dark:text-gray-300 max-h-40 overflow-auto">
-              {filePreview}
-            </pre>
-          )}
-
-          {/* Image Preview */}
-          {fileType.startsWith('image') && (
-            <a
-              href={filePreview}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block"
-            >
-              <img
-                src={filePreview}
-                alt="Uploaded Preview"
-                className="max-h-40 w-full object-cover rounded-md"
-              />
-            </a>
-          )}
-
-          {/* PDF Preview */}
-          {fileType === 'pdf' && (
-            <div className="pdf-preview h-40 overflow-auto">
-              <Worker>
-                <Viewer fileUrl={filePreview} />
-              </Worker>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Unsupported File Type */}
-      {filePreview === 'unsupported' && (
-        <div className="mb-4 p-4 bg-yellow-100 dark:bg-yellow-600 rounded-lg">
-          <p className="text-sm text-gray-700 dark:text-white">
-            Preview is not available for this file type. You can still upload it.
-          </p>
-        </div>
-      )}
 
       <button
         onClick={handleUpload}
