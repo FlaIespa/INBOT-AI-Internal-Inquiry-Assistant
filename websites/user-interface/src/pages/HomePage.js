@@ -101,7 +101,7 @@ function HomePage() {
               whileTap={{ scale: 0.95 }}
               className="p-8 bg-purple-50 dark:bg-gray-700 rounded-lg shadow-md hover:bg-purple-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
             >
-              <Link to="/help-faq">
+              <Link to="/faq">
                 <QuestionMarkCircleIcon className="h-14 w-14 text-purple-500 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Help & FAQ</h2>
                 <p className="text-gray-600 dark:text-gray-300 mt-2">
