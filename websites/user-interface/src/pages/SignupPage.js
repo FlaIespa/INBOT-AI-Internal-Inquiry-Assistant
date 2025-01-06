@@ -2,14 +2,19 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-function SignupPage() {
+function SignupPage({ setAuthToken }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
   });
 
-  const [statusMessage, setStatusMessage] = useState('');
+  const [snackbar, setSnackbar] = useState({
+    message: '',
+    visible: false,
+    type: 'success', // 'success' or 'error'
+  });
+
   const navigate = useNavigate(); // Hook for navigation
 
   const handleChange = (e) => {
@@ -19,7 +24,6 @@ function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatusMessage('');
 
     try {
       const response = await fetch('http://127.0.0.1:5000/auth/signup', {
@@ -29,15 +33,25 @@ function SignupPage() {
       });
 
       const data = await response.json();
+
       if (response.ok) {
-        setStatusMessage('🎉 Signup successful! Redirecting...');
-        setTimeout(() => navigate('/home'), 3000); // Redirect to /home after a delay
+        const token = data.token; // Extract the token from the response
+        localStorage.setItem('authToken', token); // Save the token in localStorage
+        setAuthToken(token); // Update the global authToken state
+
+        showSnackbar('🎉 Signup successful! Redirecting...', 'success');
+        setTimeout(() => navigate('/home'), 2000); // Redirect to /home after 2 seconds
       } else {
-        setStatusMessage(`❌ Error: ${data.error}`);
+        showSnackbar(`❌ Error: ${data.error}`, 'error');
       }
     } catch (error) {
-      setStatusMessage('❌ Network error. Please try again.');
+      showSnackbar('❌ Network error. Please try again.', 'error');
     }
+  };
+
+  const showSnackbar = (message, type) => {
+    setSnackbar({ message, visible: true, type });
+    setTimeout(() => setSnackbar({ message: '', visible: false, type: 'success' }), 3000);
   };
 
   return (
@@ -97,12 +111,6 @@ function SignupPage() {
             </button>
           </form>
 
-          {statusMessage && (
-            <p className="text-center text-sm mt-4 font-semibold">
-              {statusMessage}
-            </p>
-          )}
-
           <p className="text-center text-sm text-gray-600 dark:text-gray-300 mt-6">
             Already have an account?{' '}
             <Link to="/login" className="text-blue-500 dark:text-blue-400 font-semibold">
@@ -111,6 +119,17 @@ function SignupPage() {
           </p>
         </div>
       </div>
+
+      {/* Snackbar */}
+      {snackbar.visible && (
+        <div
+          className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-md shadow-lg text-white ${
+            snackbar.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          }`}
+        >
+          {snackbar.message}
+        </div>
+      )}
     </motion.div>
   );
 }

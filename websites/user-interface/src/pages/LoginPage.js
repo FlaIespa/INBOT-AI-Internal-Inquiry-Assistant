@@ -2,13 +2,34 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-function LoginPage() {
+// Snackbar Component
+function Snackbar({ message, type, onClose }) {
+  return (
+    <div
+      className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-md shadow-md text-white ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+      }`}
+    >
+      <div className="flex items-center space-x-2">
+        <span>{message}</span>
+        <button
+          onClick={onClose}
+          className="ml-4 text-white font-bold hover:underline"
+        >
+          ✖
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function LoginPage({ setAuthToken }) {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
-  const [statusMessage, setStatusMessage] = useState('');
+  const [snackbar, setSnackbar] = useState({ message: '', type: '', open: false });
   const navigate = useNavigate(); // Hook for navigation
 
   const handleChange = (e) => {
@@ -18,7 +39,7 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatusMessage('');
+    setSnackbar({ ...snackbar, open: false }); // Close previous Snackbar
 
     try {
       const response = await fetch('http://127.0.0.1:5000/auth/login', {
@@ -29,13 +50,30 @@ function LoginPage() {
 
       const data = await response.json();
       if (response.ok) {
-        setStatusMessage('🎉 Login successful! Redirecting...');
+        const token = data.token; // Extract the token from response
+        localStorage.setItem('authToken', token); // Save token in localStorage
+        setAuthToken(token); // Update global authToken state
+
+        setSnackbar({
+          message: '🎉 Login successful! Redirecting...',
+          type: 'success',
+          open: true,
+        });
+
         setTimeout(() => navigate('/home'), 1500); // Redirect to /home after a delay
       } else {
-        setStatusMessage(`❌ Error: ${data.error}`);
+        setSnackbar({
+          message: `❌ Error: ${data.error}`,
+          type: 'error',
+          open: true,
+        });
       }
     } catch (error) {
-      setStatusMessage('❌ Network error. Please try again.');
+      setSnackbar({
+        message: '❌ Network error. Please try again.',
+        type: 'error',
+        open: true,
+      });
     }
   };
 
@@ -84,12 +122,6 @@ function LoginPage() {
             </button>
           </form>
 
-          {statusMessage && (
-            <p className="text-center text-sm mt-4 font-semibold">
-              {statusMessage}
-            </p>
-          )}
-
           <p className="text-center text-sm text-gray-600 dark:text-gray-300 mt-6">
             Don't have an account?{' '}
             <Link to="/signup" className="text-blue-500 dark:text-blue-400 font-semibold">
@@ -98,6 +130,15 @@ function LoginPage() {
           </p>
         </div>
       </div>
+
+      {/* Snackbar */}
+      {snackbar.open && (
+        <Snackbar
+          message={snackbar.message}
+          type={snackbar.type}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+        />
+      )}
     </motion.div>
   );
 }

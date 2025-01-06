@@ -16,31 +16,43 @@ function FileUpload({ onFileUpload }) {
       setUploadMessage('Please select a file to upload.');
       return;
     }
-
+  
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setUploadMessage('Error: Authentication token is missing. Please log in.');
+      return;
+    }
+  
     const formData = new FormData();
-    formData.append('file', selectedFile);
-
+    formData.append('file', selectedFile); // Ensure this key matches the backend
+  
     try {
       const response = await fetch('http://127.0.0.1:5000/api/upload', {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token
+        },
         body: formData,
       });
-
+  
       const data = await response.json();
+      console.log('Server Response:', response, data);
+  
       if (response.ok) {
-        setUploadMessage(data.message);
+        setUploadMessage(data.message || 'File uploaded successfully!');
         setSelectedFile(null);
-
         if (onFileUpload) {
           onFileUpload(); // Refresh file list
         }
       } else {
-        setUploadMessage(`Error: ${data.error}`);
+        setUploadMessage(`Error (${response.status}): ${data.error || 'Something went wrong'}`);
       }
     } catch (error) {
+      console.error('Upload Error:', error);
       setUploadMessage('Failed to upload the file. Please try again.');
     }
   };
+  
 
   return (
     <motion.div
@@ -62,12 +74,14 @@ function FileUpload({ onFileUpload }) {
           type="file"
           onChange={handleFileChange}
           accept=".txt,.pdf,.jpg,.jpeg,.png"
+          aria-label="Choose a file to upload"
           className="block w-full text-gray-700 dark:text-gray-200 p-3 border rounded-md dark:bg-gray-700 dark:border-gray-600"
         />
       </div>
 
       <button
         onClick={handleUpload}
+        aria-label="Upload the selected file"
         className="w-full bg-blue-500 dark:bg-blue-700 text-white py-2 rounded-lg shadow-md hover:bg-blue-600 dark:hover:bg-blue-800"
       >
         Upload File

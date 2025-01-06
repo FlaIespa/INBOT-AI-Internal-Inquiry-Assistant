@@ -7,6 +7,17 @@ function DocumentSearchPage() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [previewFile, setPreviewFile] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    message: '',
+    visible: false,
+    type: 'success', // 'success' or 'error'
+  });
+
+  // Snackbar handler
+  const showSnackbar = (message, type) => {
+    setSnackbar({ message, visible: true, type });
+    setTimeout(() => setSnackbar({ message: '', visible: false, type: 'success' }), 3000);
+  };
 
   // Fetch documents from backend
   const fetchDocuments = async () => {
@@ -22,10 +33,13 @@ function DocumentSearchPage() {
           uploaded: new Date().toISOString().split('T')[0],
         }));
         setDocuments(formattedDocuments);
+        showSnackbar('✅ Documents loaded successfully!', 'success');
       } else {
+        showSnackbar(`❌ Error fetching documents: ${data.error}`, 'error');
         console.error('Error fetching documents:', data.error);
       }
     } catch (error) {
+      showSnackbar('❌ Network error. Please try again.', 'error');
       console.error('Error fetching documents:', error);
     } finally {
       setLoading(false);
@@ -33,25 +47,26 @@ function DocumentSearchPage() {
   };
 
   const handleDelete = async (filename) => {
-    console.log(`Attempting to delete file: ${filename}`); // Debug log
     const confirmed = window.confirm(`Are you sure you want to delete "${filename}"?`);
     if (!confirmed) return;
-  
+
     try {
       const response = await fetch(`http://127.0.0.1:5000/api/files/${filename}`, {
         method: 'DELETE',
       });
       if (response.ok) {
-        console.log(`File '${filename}' deleted successfully.`);
+        showSnackbar(`🗑️ File '${filename}' deleted successfully.`, 'success');
         fetchDocuments(); // Refresh list
       } else {
-        console.error('Error deleting document:', await response.json());
+        const data = await response.json();
+        showSnackbar(`❌ Error deleting file: ${data.error}`, 'error');
+        console.error('Error deleting document:', data.error);
       }
     } catch (error) {
+      showSnackbar('❌ Network error. Please try again.', 'error');
       console.error('Error deleting document:', error);
     }
   };
-  
 
   useEffect(() => {
     fetchDocuments();
@@ -153,6 +168,17 @@ function DocumentSearchPage() {
               className="w-full h-96 border rounded-lg"
             />
           </div>
+        </div>
+      )}
+
+      {/* Snackbar */}
+      {snackbar.visible && (
+        <div
+          className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-md shadow-lg text-white ${
+            snackbar.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          }`}
+        >
+          {snackbar.message}
         </div>
       )}
     </div>

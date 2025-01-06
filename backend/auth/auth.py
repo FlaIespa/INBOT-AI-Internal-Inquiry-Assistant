@@ -1,6 +1,17 @@
 from flask import Blueprint, request, jsonify
 from .models import db, User
 from .utils import is_valid_email, is_strong_password
+# from utils import log_activity
+from dotenv import load_dotenv
+from datetime import datetime, timedelta
+import os
+import jwt 
+
+# Load environment variables
+load_dotenv()
+
+# Access the secret key from the .env file
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -35,6 +46,8 @@ def signup():
         return jsonify({'error': str(e)}), 500
 
 # Login Route
+from flask_jwt_extended import create_access_token
+
 @auth_bp.route('/login', methods=['POST'])
 def login():
     try:
@@ -51,7 +64,16 @@ def login():
         if not user or not user.check_password(password):
             return jsonify({'error': 'Invalid email or password'}), 401
 
-        return jsonify({'message': 'Login successful'}), 200
+        # Generate a JWT token using flask_jwt_extended
+        access_token = create_access_token(identity=user.id, expires_delta=timedelta(hours=1))
+
+        # Include token in the response
+        return jsonify({
+            'message': 'Login successful',
+            'token': access_token
+        }), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+

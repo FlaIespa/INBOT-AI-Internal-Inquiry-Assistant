@@ -5,23 +5,67 @@ import { motion } from 'framer-motion';
 
 function FileManagementPage() {
   const [files, setFiles] = useState([]); // State to hold the list of files
+  const [snackbar, setSnackbar] = useState({
+    message: '',
+    visible: false,
+    type: 'success', // 'success' or 'error'
+  });
+
+  // Snackbar handler
+  const showSnackbar = (message, type) => {
+    setSnackbar({ message, visible: true, type });
+    setTimeout(() => setSnackbar({ message: '', visible: false, type: 'success' }), 3000);
+  };
 
   // Fetch the list of files from the backend
   const fetchFiles = async () => {
+    const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
+    console.log('Token:', token); // Log the token to check if it's retrieved correctly
+  
+    if (!token) {
+      console.error('Authentication token is missing.');
+      return;
+    }
+  
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/files');
+      const response = await fetch('http://127.0.0.1:5000/api/files', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
+  
+      // Log the response status and data for debugging
       const data = await response.json();
-      console.log('Fetched files:', data); // Inspect backend response
-      setFiles(data.files || []);
+      console.log('Response Status:', response.status);
+      console.log('Response Data:', data);
+  
+      if (response.ok) {
+        setFiles(data.files || []); // Set files if the response is successful
+      } else {
+        showSnackbar(`❌ Error: ${data.error || 'Failed to fetch files'}`, 'error');
+      }
     } catch (error) {
       console.error('Error fetching files:', error);
+      showSnackbar('❌ Error fetching files. Please try again.', 'error');
     }
   };
+  
 
   // Fetch files on component mount
   useEffect(() => {
     fetchFiles();
   }, []);
+
+  const handleFileUploadSuccess = () => {
+    showSnackbar('🎉 File uploaded successfully!', 'success');
+    fetchFiles();
+  };
+
+  const handleFileDeleteSuccess = () => {
+    showSnackbar('🗑️ File deleted successfully!', 'success');
+    fetchFiles();
+  };
 
   return (
     <motion.div
@@ -71,7 +115,7 @@ function FileManagementPage() {
               }}
               className="p-6 bg-blue-50 dark:bg-gray-700 rounded-lg shadow-md"
             >
-              <FileUpload onFileUpload={fetchFiles} />
+              <FileUpload onFileUpload={handleFileUploadSuccess} />
             </motion.div>
 
             {/* Uploaded Files Section */}
@@ -82,11 +126,22 @@ function FileManagementPage() {
               }}
               className="p-6 bg-green-50 dark:bg-gray-700 rounded-lg shadow-md"
             >
-              <UploadedFiles files={files} onFileDelete={fetchFiles} />
+              <UploadedFiles files={files} onFileDelete={handleFileDeleteSuccess} />
             </motion.div>
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Snackbar */}
+      {snackbar.visible && (
+        <div
+          className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-md shadow-lg text-white ${
+            snackbar.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          }`}
+        >
+          {snackbar.message}
+        </div>
+      )}
     </motion.div>
   );
 }

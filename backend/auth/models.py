@@ -30,3 +30,14 @@ class UploadedFile(db.Model):
     filename = db.Column(db.String(255), nullable=False)
     filepath = db.Column(db.String(255), nullable=False)
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Link to user
+    user = db.relationship('User', backref=db.backref('uploaded_files', lazy=True))  # Relationship
+
+class ActivityLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Link to user
+    user = db.Column(db.String(100), nullable=False)  # Name or ID of the user
+    type = db.Column(db.String(50), nullable=False)  # Type of activity (upload, edit, login, etc.)
+    description = db.Column(db.String(255), nullable=False)  # Description of the activity
+    date = db.Column(db.DateTime, default=datetime.utcnow)  # Timestamp of the activity
+
