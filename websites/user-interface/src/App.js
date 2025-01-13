@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import HomePage from './pages/HomePage';
@@ -9,16 +9,14 @@ import FAQPage from './pages/FAQPage';
 import SettingsPage from './pages/SettingsPage';
 import UserProfilePage from './pages/UserProfilePage';
 import NotificationsPage from './pages/NotificationsPage';
-import ActivityLogsPage from './pages/ActivityLogsPage';
-import DocumentSearchPage from './pages/DocumentSearchPage';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminDashboard from './pages/AnalyticsDashboard';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import WelcomePage from './pages/WelcomePage';
 
-
 function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const [authToken, setAuthToken] = useState(localStorage.getItem('authToken')); // Token state
 
   // Toggle dark mode
   const toggleDarkMode = () => {
@@ -44,39 +42,118 @@ function App() {
     localStorage.setItem('dark-mode', darkMode);
   }, [darkMode]);
 
+  // Logout function
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    setAuthToken(null);
+  };
+
+  // Protected Route Wrapper
+  const ProtectedRoute = ({ children }) => {
+    if (!authToken) {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
+  };
+
+  // Protected Layout for Pages with Sidebar and Header
+  const ProtectedLayout = ({ children }) => (
+    <div className={`flex ${darkMode ? 'dark' : ''}`}>
+      <Sidebar />
+      <div className="flex-grow bg-gray-100 dark:bg-gray-900 min-h-screen">
+        <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} onLogout={handleLogout} />
+        <div className="p-6">{children}</div>
+      </div>
+    </div>
+  );
+
   return (
     <Router>
       <Routes>
-        {/* Standalone Login and Signup Pages */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        {/* Public Routes */}
+        <Route path="/login" element={<LoginPage setAuthToken={setAuthToken} />} />
+        <Route path="/signup" element={<SignupPage setAuthToken={setAuthToken} />} />
         <Route path="/" element={<WelcomePage />} />
 
-
-        {/* Pages with Sidebar and Header */}
+        {/* Protected Routes */}
         <Route
-          path="*"
+          path="/home"
           element={
-            <div className={`flex ${darkMode ? 'dark' : ''}`}>
-              <Sidebar />
-              <div className="flex-grow bg-gray-100 dark:bg-gray-900 min-h-screen">
-                <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-                <div className="p-6">
-                  <Routes>
-                    <Route path="/home" element={<HomePage />} />
-                    <Route path="/chatbot" element={<ChatbotPage />} />
-                    <Route path="/file-management" element={<FileManagementPage />} />
-                    <Route path="/faq" element={<FAQPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/user-profile" element={<UserProfilePage />} />
-                    <Route path="/notifications" element={<NotificationsPage />} />
-                    <Route path="/activity-logs" element={<ActivityLogsPage />} />
-                    <Route path="/document-search" element={<DocumentSearchPage />} />
-                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                  </Routes>
-                </div>
-              </div>
-            </div>
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <HomePage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chatbot"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <ChatbotPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/file-management"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <FileManagementPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/faq"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <FAQPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <SettingsPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user-profile"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <UserProfilePage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <NotificationsPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <AdminDashboard />
+              </ProtectedLayout>
+            </ProtectedRoute>
           }
         />
       </Routes>

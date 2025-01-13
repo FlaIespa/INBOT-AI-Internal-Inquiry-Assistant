@@ -1,18 +1,21 @@
 import React from 'react';
 import Chatbot from '../components/Chatbot';
 import { motion } from 'framer-motion';
+import Sidebar from '../components/Sidebar';
 
 function ChatbotPage() {
   return (
-    <div className="flex justify-center items-center bg-gray-100 dark:bg-gray-900 min-h-screen">
-      {/* Animated Chatbot Container */}
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+      <Sidebar />
       <motion.div
-        initial={{ opacity: 0, y: 50 }} // Start invisible and slightly below
-        animate={{ opacity: 1, y: 0 }} // Fade in and slide up
-        transition={{ duration: 0.8, ease: 'easeOut' }} // Smooth animation
-        className="w-full max-w-5xl h-[80vh] bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-2xl"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="flex-1 ml-56" // Add margin to account for sidebar width
       >
-        <Chatbot />
+        <div className="h-full">
+          <Chatbot />
+        </div>
       </motion.div>
     </div>
   );
