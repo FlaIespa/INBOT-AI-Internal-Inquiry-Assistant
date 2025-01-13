@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+from auth.models import User, ActivityLog  # Add this with your other imports
 from auth import auth_bp, db, bcrypt  # Import the auth Blueprint, database, and bcrypt
 from auth.models import UploadedFile  # Import the UploadedFile model
 from chatbot import INBOTChatbot
@@ -11,7 +12,19 @@ import secrets
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)  # Enable CORS
+# At the top of your file, after the imports:
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    },
+    r"/auth/*": {
+        "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 # Use a secure, environment-based secret key
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', secrets.token_hex(32))
@@ -44,13 +57,16 @@ logging.basicConfig(level=logging.INFO)
 # Register Blueprints
 app.register_blueprint(auth_bp, url_prefix='/auth')
 
-# Ensure database tables are created
+# Inside your app context:
 with app.app_context():
     try:
+        # Drop all tables first
+        db.drop_all()
+        # Create all tables fresh
         db.create_all()
-        print("✅ Database tables created successfully.")
+        print("✅ Database tables recreated successfully.")
     except Exception as e:
-        print(f"❌ Error creating database tables: {e}")
+        print(f"❌ Error recreating database tables: {e}")
 
 # Home route
 @app.route('/')

@@ -9,9 +9,7 @@ import FAQPage from './pages/FAQPage';
 import SettingsPage from './pages/SettingsPage';
 import UserProfilePage from './pages/UserProfilePage';
 import NotificationsPage from './pages/NotificationsPage';
-import ActivityLogsPage from './pages/ActivityLogsPage';
-import DocumentSearchPage from './pages/DocumentSearchPage';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminDashboard from './pages/AnalyticsDashboard';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import WelcomePage from './pages/WelcomePage';
@@ -144,26 +142,6 @@ function App() {
             <ProtectedRoute>
               <ProtectedLayout>
                 <NotificationsPage />
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/activity-logs"
-          element={
-            <ProtectedRoute>
-              <ProtectedLayout>
-                <ActivityLogsPage />
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/document-search"
-          element={
-            <ProtectedRoute>
-              <ProtectedLayout>
-                <DocumentSearchPage />
               </ProtectedLayout>
             </ProtectedRoute>
           }

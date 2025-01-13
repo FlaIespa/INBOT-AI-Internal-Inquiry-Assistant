@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { QuestionMarkCircleIcon, ChevronDownIcon } from '@heroicons/react/solid';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function FAQPage() {
+  const [openIndex, setOpenIndex] = useState(null);
+
   const faqs = [
     {
       question: "How do I upload a document?",
@@ -35,7 +39,7 @@ function FAQPage() {
       answer: "When you delete a file, it is removed from both the database and the storage system. This ensures the file is no longer accessible or searchable."
     },
     {
-      question: "How can I see all the files I’ve uploaded?",
+      question: "How can I see all the files I've uploaded?",
       answer: "You can view a list of all uploaded files in the File Management section. The list updates automatically to reflect your latest uploads or deletions."
     },
     {
@@ -45,18 +49,72 @@ function FAQPage() {
   ];
 
   return (
-    <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100">Frequently Asked Questions</h1>
-      <div className="space-y-4">
-        {faqs.map((faq, index) => (
-          <div
-            key={index}
-            className="border border-gray-300 dark:border-gray-700 p-4 rounded-lg shadow-sm bg-white dark:bg-gray-800"
-          >
-            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200">{faq.question}</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">{faq.answer}</p>
+    <div className="ml-56 flex-1 min-h-screen bg-gray-100 dark:bg-gray-900 p-4 mt-16">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center gap-2 mb-6">
+          <QuestionMarkCircleIcon className="h-6 w-6 text-blue-500" />
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-white">
+            Frequently Asked Questions
+          </h1>
+        </div>
+
+        <div className="space-y-2">
+          {faqs.map((faq, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden"
+            >
+              <button
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                className="w-full px-4 py-3 flex justify-between items-center text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <span className="font-medium text-gray-700 dark:text-gray-200">
+                  {faq.question}
+                </span>
+                <ChevronDownIcon 
+                  className={`h-5 w-5 text-gray-500 transition-transform ${
+                    openIndex === index ? 'transform rotate-180' : ''
+                  }`}
+                />
+              </button>
+              
+              <AnimatePresence>
+                {openIndex === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="px-4 pb-3"
+                  >
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">
+                      {faq.answer}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Help Section */}
+        <div className="mt-8 bg-blue-50 dark:bg-gray-800 p-4 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <QuestionMarkCircleIcon className="h-5 w-5 text-blue-500" />
+            <h2 className="text-lg font-medium text-gray-800 dark:text-white">
+              Need More Help?
+            </h2>
           </div>
-        ))}
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Couldn't find what you're looking for? Contact our support team for assistance.
+          </p>
+          <button className="mt-3 text-sm text-blue-500 hover:text-blue-600 font-medium">
+            Contact Support →
+          </button>
+        </div>
       </div>
     </div>
   );
