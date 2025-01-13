@@ -7,18 +7,54 @@ function Chatbot() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    // ... existing handleSubmit code stays the same
+    e.preventDefault();
+
+    if (!input.trim()) return; // Prevent empty messages
+
+    // Add user message to chat
+    setMessages((prevMessages) => [...prevMessages, { type: 'user', text: input }]);
+    setInput(''); // Clear input field
+    setIsLoading(true); // Show "Typing..." indicator
+
+    try {
+      // Send user query to backend
+      const response = await fetch('http://127.0.0.1:5000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: input }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch response from backend');
+      }
+
+      const data = await response.json();
+
+      // Add bot response to chat
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { type: 'bot', text: data.response },
+      ]);
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { type: 'bot', text: 'Error fetching response. Please try again.' },
+      ]);
+    } finally {
+      setIsLoading(false); // Hide "Typing..." indicator
+    }
   };
 
   return (
     <div className="flex flex-col h-[calc(100vh-2rem)] max-h-screen bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg m-4">
-      {/* Header - made more compact */}
+      {/* Header */}
       <header className="flex items-center justify-center py-3 border-b dark:border-gray-700">
         <ChatAlt2Icon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
         <h1 className="text-lg font-semibold text-gray-700 dark:text-gray-100 ml-2">INBOT Chatbot</h1>
       </header>
 
-      {/* Messages - with flex-grow to take remaining space */}
+      {/* Messages */}
       <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-700 p-4">
         {messages.map((msg, index) => (
           <div
@@ -45,7 +81,7 @@ function Chatbot() {
         )}
       </div>
 
-      {/* Input section - fixed at bottom */}
+      {/* Input Section */}
       <div className="p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
           <input
