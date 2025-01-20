@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   PencilIcon, DocumentTextIcon, ChatAlt2Icon, 
-  UserCircleIcon, SaveIcon, GlobeIcon, ShieldCheckIcon,
-  LinkIcon, BellIcon, LockClosedIcon, TrashIcon,
-  DocumentIcon, CloudUploadIcon
+  UserCircleIcon, SaveIcon, BellIcon
 } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
 
@@ -12,12 +10,10 @@ function UserProfilePage() {
   const [profile, setProfile] = useState({
     name: '',
     email: '',
-    bio: 'Tell us a bit about yourself!',
-    avatar: 'https://via.placeholder.com/150',
-    linkedIn: '',
-    github: ''
+    bio: '',
+    avatar: '',
   });
-  
+
   const [stats, setStats] = useState({
     interactions: 0,
     documentsUploaded: 0,
@@ -27,35 +23,13 @@ function UserProfilePage() {
   const [preferences, setPreferences] = useState({
     emailNotifications: true,
     twoFactorAuth: false,
-    showActivity: true
+    showActivity: true,
   });
 
-  const [recentActivities] = useState([
-    {
-      icon: DocumentIcon,
-      description: "Uploaded 'Project Proposal.pdf'",
-      time: "2 hours ago"
-    },
-    {
-      icon: ChatAlt2Icon,
-      description: "Asked a question about document processing",
-      time: "5 hours ago"
-    },
-    {
-      icon: PencilIcon,
-      description: "Updated profile information",
-      time: "1 day ago"
-    }
-  ]);
-
-  const handleInputChange = (field, value) => {
-    setProfile((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handlePreferenceChange = (field) => {
-    setPreferences(prev => ({
+  const togglePreference = (field) => {
+    setPreferences((prev) => ({
       ...prev,
-      [field]: !prev[field]
+      [field]: !prev[field],
     }));
   };
 
@@ -70,28 +44,28 @@ function UserProfilePage() {
     reader.readAsDataURL(file);
   };
 
+  const saveProfileChanges = async () => {
+    // Add API call here to save the changes
+    setEditing(false);
+  };
+
   const fetchUserProfile = async () => {
+    // Fetch user profile data from API
     setProfile({
       name: 'John Doe',
-      email: 'john.doe@example.com',
-      bio: 'Passionate developer and lifelong learner.',
+      email: 'john@example.com',
+      bio: 'Creative professional with a passion for design and innovation.',
       avatar: 'https://via.placeholder.com/150',
-      linkedIn: 'https://linkedin.com/in/johndoe',
-      github: 'https://github.com/johndoe'
     });
   };
 
   const fetchUserStats = async () => {
+    // Fetch user statistics from API
     setStats({
-      interactions: 25,
-      documentsUploaded: 12,
-      editsMade: 5,
+      interactions: 0,
+      documentsUploaded: 0,
+      editsMade: 0,
     });
-  };
-
-  const saveProfileChanges = async () => {
-    // TODO: Add API call to save changes
-    setEditing(false);
   };
 
   useEffect(() => {
@@ -99,226 +73,111 @@ function UserProfilePage() {
     fetchUserStats();
   }, []);
 
-  // Toggle component
-  const Toggle = ({ enabled, onChange }) => (
-    <button
-      onClick={onChange}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-        enabled ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'
-      }`}
-    >
-      <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-          enabled ? 'translate-x-6' : 'translate-x-1'
-        }`}
-      />
-    </button>
-  );
-
   return (
-    <div className="ml-56 flex-1 min-h-screen bg-gray-100 dark:bg-gray-900 p-4 mt-16">
-      <div className="max-w-3xl mx-auto space-y-6">
-        {/* Main Profile Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-          <div className="p-4 border-b dark:border-gray-700">
-            <div className="flex items-center gap-2">
-              <UserCircleIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-              <h1 className="text-xl font-semibold text-gray-800 dark:text-white">
-                User Profile
-              </h1>
-            </div>
-          </div>
+    <div className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900 px-8 py-10">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-4xl mx-auto space-y-6"
+      >
+        {/* Page Title */}
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+            User <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Profile</span>
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            Manage your account details and preferences.
+          </p>
+        </div>
 
-          <div className="p-6">
-            {/* Profile Picture and Basic Info */}
-            <div className="flex items-center gap-6 mb-6">
-              <div className="relative">
-                <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                  <img
-                    src={profile.avatar}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                {editing && (
-                  <label className="absolute bottom-0 right-0 p-1.5 bg-blue-500 text-white rounded-full cursor-pointer hover:bg-blue-600">
-                    <PencilIcon className="h-4 w-4" />
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleAvatarUpload}
-                    />
-                  </label>
-                )}
+        {/* Profile Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <div className="flex items-center gap-6">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                <img
+                  src={profile.avatar || 'https://via.placeholder.com/150'}
+                  alt="Profile Avatar"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div className="flex-1">
-                {editing ? (
+              {editing && (
+                <label className="absolute bottom-0 right-0 bg-blue-500 text-white p-1 rounded-full cursor-pointer hover:bg-blue-600">
+                  <PencilIcon className="h-4 w-4" />
                   <input
-                    type="text"
-                    className="w-full p-2 mb-2 bg-gray-50 dark:bg-gray-700 border rounded-md text-gray-800 dark:text-white"
-                    value={profile.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
                   />
-                ) : (
-                  <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-1">
-                    {profile.name}
-                  </h2>
-                )}
-                <p className="text-sm text-gray-600 dark:text-gray-400">{profile.email}</p>
-              </div>
-            </div>
-
-            {/* Bio */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                About Me
-              </h3>
-              {editing ? (
-                <textarea
-                  className="w-full p-3 bg-gray-50 dark:bg-gray-700 border rounded-md text-gray-800 dark:text-white text-sm"
-                  value={profile.bio}
-                  onChange={(e) => handleInputChange('bio', e.target.value)}
-                  rows="3"
-                ></textarea>
-              ) : (
-                <p className="text-sm text-gray-600 dark:text-gray-400">{profile.bio}</p>
+                </label>
               )}
             </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              {[
-                { label: 'Chatbot Interactions', icon: ChatAlt2Icon, stat: stats.interactions },
-                { label: 'Documents Uploaded', icon: DocumentTextIcon, stat: stats.documentsUploaded },
-                { label: 'Edits Made', icon: PencilIcon, stat: stats.editsMade },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg"
-                >
-                  <item.icon className="h-5 w-5 text-blue-500 mb-2" />
-                  <div className="text-2xl font-semibold text-gray-800 dark:text-white">
-                    {item.stat}
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    {item.label}
-                  </div>
-                </div>
-              ))}
+            <div className="flex-1">
+              {editing ? (
+                <input
+                  type="text"
+                  value={profile.name}
+                  onChange={(e) =>
+                    setProfile((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md text-gray-900 dark:text-white"
+                />
+              ) : (
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">{profile.name}</h2>
+              )}
+              <p className="text-sm text-gray-600 dark:text-gray-400">{profile.email}</p>
             </div>
           </div>
-        </div>
 
-        {/* Profile Completion */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Profile Completion</h3>
-            <span className="text-sm text-blue-500">80%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-            <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: '80%' }}></div>
-          </div>
-          <p className="mt-2 text-xs text-gray-500">Complete your profile to unlock all features</p>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Recent Activity</h3>
-            <button className="text-sm text-blue-500 hover:text-blue-600">View All</button>
-          </div>
-          <div className="space-y-3">
-            {recentActivities.map((activity, index) => (
-              <div key={index} className="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md">
-                <activity.icon className="h-5 w-5 text-gray-500" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{activity.description}</p>
-                  <p className="text-xs text-gray-500">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Document Analytics */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Document Analytics</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <p className="text-sm text-gray-500">Most Used Document</p>
-              <p className="text-lg font-semibold text-gray-800 dark:text-white">Project Proposal.pdf</p>
-            </div>
-            <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <p className="text-sm text-gray-500">Total Storage Used</p>
-              <p className="text-lg font-semibold text-gray-800 dark:text-white">1.2 GB</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Preferences */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Preferences</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Email Notifications</span>
-              <Toggle 
-                enabled={preferences.emailNotifications} 
-                onChange={() => handlePreferenceChange('emailNotifications')} 
+          <div className="mt-6">
+            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Bio</h3>
+            {editing ? (
+              <textarea
+                value={profile.bio}
+                onChange={(e) =>
+                  setProfile((prev) => ({ ...prev, bio: e.target.value }))
+                }
+                className="w-full mt-2 px-4 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md text-gray-900 dark:text-white"
               />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Two-Factor Authentication</span>
-              <Toggle 
-                enabled={preferences.twoFactorAuth} 
-                onChange={() => handlePreferenceChange('twoFactorAuth')} 
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Show Activity Status</span>
-              <Toggle 
-                enabled={preferences.showActivity} 
-                onChange={() => handlePreferenceChange('showActivity')} 
-              />
-            </div>
+            ) : (
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{profile.bio}</p>
+            )}
           </div>
         </div>
 
-        {/* Account Security */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Account Security</h3>
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Password</span>
-                <button className="text-sm text-blue-500 hover:text-blue-600">Change</button>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '90%' }}></div>
-                </div>
-                <span className="text-xs text-gray-500">Strong</span>
-              </div>
+        {/* Stats Section */}
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: 'Chatbot Interactions', stat: stats.interactions, icon: ChatAlt2Icon },
+            { label: 'Documents Uploaded', stat: stats.documentsUploaded, icon: DocumentTextIcon },
+            { label: 'Edits Made', stat: stats.editsMade, icon: PencilIcon },
+          ].map((item, index) => (
+            <div
+              key={index}
+              className="p-4 bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-lg shadow-md"
+            >
+              <item.icon className="h-6 w-6 mb-2" />
+              <p className="text-2xl font-semibold">{item.stat}</p>
+              <p className="text-sm">{item.label}</p>
             </div>
-            <button className="text-sm text-red-500 hover:text-red-600">
-              Deactivate Account
-            </button>
-          </div>
+          ))}
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-4">
+        {/* Save and Cancel Buttons */}
+        <div className="flex justify-end gap-4 mt-6">
           {editing && (
             <button
               onClick={() => setEditing(false)}
-              className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800"
+              className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors"
             >
               Cancel
             </button>
           )}
           <button
             onClick={editing ? saveProfileChanges : () => setEditing(true)}
-            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600 transition-colors"
+            className="flex items-center gap-2 px-6 py-2 text-sm font-medium rounded-md transition-all bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
           >
             {editing ? (
               <>
@@ -333,7 +192,7 @@ function UserProfilePage() {
             )}
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

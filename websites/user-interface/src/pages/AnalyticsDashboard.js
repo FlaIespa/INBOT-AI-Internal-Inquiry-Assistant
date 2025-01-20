@@ -49,85 +49,76 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
       {
         label: 'Documents Uploaded',
         data: uploadTrends.map((item) => item.count),
-        borderColor: '#4F46E5',
-        backgroundColor: 'rgba(79, 70, 229, 0.5)',
+        borderColor: '#6366F1',
+        backgroundColor: 'rgba(99, 102, 241, 0.5)',
         fill: true,
+        tension: 0.4,
       },
     ],
   };
 
   return (
-    <div
-      className={`p-4 bg-gray-50 dark:bg-gray-900 h-screen transition-all duration-300 ${
-        isSidebarCollapsed ? 'ml-14' : 'ml-48'
-      }`}
-      style={{ paddingTop: '64px' }}
-    >
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-          My Analytics
-        </h1>
+    <div className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900 px-4 py-6">
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* Page Title */}
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+            Analytics <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dashboard</span>
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+            Gain insights into your activity and document trends.
+          </p>
+        </div>
 
-        {loading ? (
-          <p className="text-center text-gray-500 dark:text-gray-400">Loading...</p>
-        ) : (
-          <>
-            {/* Metrics Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="flex items-center p-4 bg-green-100 dark:bg-green-900 rounded-lg shadow-md">
-                <DocumentIcon className="h-6 w-6 text-green-500 dark:text-green-300" />
-                <div className="ml-3">
-                  <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100">
-                    Total Documents
-                  </h2>
-                  <p className="text-xl font-semibold text-gray-700 dark:text-gray-300">
-                    {metrics.totalDocuments}
-                  </p>
-                </div>
-              </div>
+        {/* Metrics Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
+            <DocumentIcon className="h-6 w-6 mb-2" />
+            <h3 className="text-sm font-medium opacity-80">Total Documents</h3>
+            <p className="text-xl font-bold">{metrics.totalDocuments}</p>
+          </div>
+          <div className="p-4 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
+            <UploadIcon className="h-6 w-6 mb-2" />
+            <h3 className="text-sm font-medium opacity-80">Active Sessions</h3>
+            <p className="text-xl font-bold">{metrics.activeSessions}</p>
+          </div>
+        </div>
 
-              <div className="flex items-center p-4 bg-yellow-100 dark:bg-yellow-900 rounded-lg shadow-md">
-                <UploadIcon className="h-6 w-6 text-yellow-500 dark:text-yellow-300" />
-                <div className="ml-3">
-                  <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100">
-                    Active Sessions
-                  </h2>
-                  <p className="text-xl font-semibold text-gray-700 dark:text-gray-300">
-                    {metrics.activeSessions}
-                  </p>
-                </div>
-              </div>
-            </div>
+        {/* Upload Trends */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+            Document Upload Trends
+          </h2>
+          {uploadTrends.length > 0 ? (
+            <Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400">No data available for upload trends.</p>
+          )}
+        </div>
 
-            {/* Upload Trends */}
-            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow-md mb-6">
-              <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3">
-                Document Upload Trends
-              </h2>
-              <Line data={chartData} />
-            </div>
-
-            {/* Recent Activity */}
-            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow-md">
-              <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3">
-                Recent Activity
-              </h2>
-              <ul className="space-y-3">
-                {recentActivity.map((activity) => (
-                  <li
-                    key={activity.id}
-                    className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm"
-                  >
-                    <p className="text-sm text-gray-700 dark:text-gray-200">{activity.description}</p>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(activity.date).toLocaleString()}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </>
-        )}
+        {/* Recent Activity */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+            Recent Activity
+          </h2>
+          <ul className="space-y-3">
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity) => (
+                <li
+                  key={activity.id}
+                  className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 flex justify-between items-center"
+                >
+                  <p className="text-sm text-gray-700 dark:text-gray-200">{activity.description}</p>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {new Date(activity.date).toLocaleString()}
+                  </span>
+                </li>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500 dark:text-gray-400">No recent activity to display.</p>
+            )}
+          </ul>
+        </div>
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ function FileManagementPage() {
 
   const fetchFiles = async () => {
     const token = localStorage.getItem('authToken');
-    
+
     if (!token) {
       console.error('Authentication token is missing.');
       return;
@@ -30,15 +30,12 @@ function FileManagementPage() {
       const response = await fetch('http://127.0.0.1:5000/api/files', {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-        }
+        },
       });
 
       const data = await response.json();
-      console.log('Response Status:', response.status);
-      console.log('Response Data:', data);
-
       if (response.ok) {
         setFiles(data.files || []);
       } else {
@@ -72,64 +69,80 @@ function FileManagementPage() {
   };
 
   const getUniqueFileTypes = (files) => {
-    return [...new Set(files.map(file => file.name.split('.').pop()))];
+    return [...new Set(files.map((file) => file.name.split('.').pop()))];
   };
 
-  const filteredFiles = files.filter(file => 
+  const filteredFiles = files.filter((file) =>
     file.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="ml-56 flex-1 min-h-screen bg-gray-100 dark:bg-gray-900 p-4 mt-16">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-          File Management
-        </h1>
+    <div className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900 px-4 py-6">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-5xl mx-auto space-y-4"
+      >
+        {/* Page Title */}
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+            File <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Management</span>
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+            Organize and manage your files effortlessly.
+          </p>
+        </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Files</h3>
-            <p className="text-2xl font-semibold text-gray-800 dark:text-white">{files.length}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
+            <h3 className="text-xs font-medium opacity-80">Total Files</h3>
+            <p className="text-xl font-bold">{files.length}</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Size</h3>
-            <p className="text-2xl font-semibold text-gray-800 dark:text-white">{getTotalSize(files)}</p>
+          <div className="p-4 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
+            <h3 className="text-xs font-medium opacity-80">Total Size</h3>
+            <p className="text-xl font-bold">{getTotalSize(files)}</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">File Types</h3>
-            <p className="text-2xl font-semibold text-gray-800 dark:text-white">
-              {getUniqueFileTypes(files).length}
-            </p>
+          <div className="p-4 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
+            <h3 className="text-xs font-medium opacity-80">File Types</h3>
+            <p className="text-xl font-bold">{getUniqueFileTypes(files).length}</p>
           </div>
         </div>
 
         {/* Search Bar */}
-        <div className="mb-4">
+        <div>
           <div className="relative">
             <input
               type="text"
               placeholder="Search files..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+              className="w-full pl-10 pr-4 py-2 border rounded-full text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
             />
             <SearchIcon className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
           </div>
         </div>
 
+        {/* File Upload and List */}
         <div className="space-y-4">
           <FileUpload onFileUpload={handleFileUploadSuccess} />
           <UploadedFiles files={filteredFiles} onFileDelete={handleFileDeleteSuccess} />
         </div>
-      </div>
+      </motion.div>
 
+      {/* Snackbar */}
       {snackbar.visible && (
-        <div className={`fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
-          snackbar.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        }`}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className={`fixed bottom-4 right-4 px-3 py-2 rounded-md shadow-md text-white ${
+            snackbar.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          }`}
+        >
           {snackbar.message}
-        </div>
+        </motion.div>
       )}
     </div>
   );
