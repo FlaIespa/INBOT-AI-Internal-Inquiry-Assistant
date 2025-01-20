@@ -1,7 +1,7 @@
 import os
-import PyPDF2  
+import PyPDF2
 from groq import Groq
-from docx import Document 
+from docx import Document
 import re
 import nltk
 from nltk.stem import PorterStemmer
@@ -9,41 +9,46 @@ from fuzzywuzzy import fuzz, process
 import logging
 import shutil
 from dotenv import load_dotenv  # Import dotenv
-import os
 
 # Load environment variables from the .env file
 load_dotenv()
 
-print(f"Loaded API Key: {os.environ.get('GROQ_API_KEY')}") 
+# Log API Key (for debugging purposes)
+print(f"Loaded API Key: {os.environ.get('GROQ_API_KEY')}")
 
+# Set up logging configuration
 logging.basicConfig(filename='inbot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Download necessary NLTK data
 nltk.download('punkt_tab')
 
-# Initialize Groq client
-client = Groq(
-    api_key=os.environ.get("GROQ_API_KEY"),
-)
+# Initialize Groq client with API key
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 class INBOTChatbot:
     def __init__(self, documents_dir='data/'):
         """Initialize the chatbot and ensure the document directory exists."""
         self.documents_dir = documents_dir
         self.document_index = {}
+        
+        # Create documents directory if it doesn't exist
         if not os.path.exists(documents_dir):
             os.makedirs(documents_dir)
             logging.info(f"Created directory {documents_dir} for storing documents.")
         else:
             self.index_documents()
-    
+
     def index_documents(self):
         """Index all existing documents by parsing and cleaning their contents."""
         logging.info("Indexing documents for faster search.")
+        
         try:
+            # Loop through files in the documents directory
             for file_name in os.listdir(self.documents_dir):
                 file_path = os.path.join(self.documents_dir, file_name)
                 parsed_text = self.parse_document(file_path)
 
+                # If text is parsed successfully, clean and index it
                 if parsed_text and not parsed_text.startswith("Error"):
                     cleaned_text = self.clean_parsed_text(parsed_text)
                     self.document_index[file_name] = cleaned_text  # Cache cleaned text in memory
@@ -58,12 +63,11 @@ class INBOTChatbot:
             if not os.path.exists(file_path):
                 logging.error(f"Error: File '{file_path}' not found.")
                 return "Error: File not found."
-            
-            # Copy the document into the 'data/' folder
+
+            # Copy the document into the 'data/' folder if not already there
             file_name = os.path.basename(file_path)
             destination_path = os.path.join(self.documents_dir, file_name)
-            
-            # Only copy the document if it's not already in the 'data/' folder
+
             if not os.path.exists(destination_path):
                 shutil.copy(file_path, destination_path)
                 logging.info(f"Document '{file_name}' uploaded and saved to '{self.documents_dir}'.")
@@ -75,8 +79,8 @@ class INBOTChatbot:
             if parsed_text and not parsed_text.startswith("Error"):
                 cleaned_text = self.clean_parsed_text(parsed_text)
                 self.document_index[file_name] = cleaned_text
-                
-                # Optionally, save to cache
+
+                # Optionally, save to cache if required
                 if hasattr(self, 'save_document_cache'):
                     self.save_document_cache()
 
@@ -85,7 +89,7 @@ class INBOTChatbot:
             else:
                 logging.error(f"Failed to parse document '{file_name}'.")
                 return f"Error parsing document '{file_name}'."
-
+        
         except Exception as e:
             logging.error(f"Error during document upload and indexing for '{file_path}': {e}")
             return f"Error during document upload: {e}"
@@ -94,7 +98,9 @@ class INBOTChatbot:
         """Parses the text from PDF, DOCX, and TXT files."""
         ext = os.path.splitext(file_path)[1].lower()  # Get file extension
         text = ""
+        
         try:
+            # Parse based on file extension
             if ext == ".pdf":
                 # Parse PDF file
                 with open(file_path, 'rb') as f:
@@ -117,14 +123,15 @@ class INBOTChatbot:
             else:
                 logging.warning(f"Unsupported file format for '{file_path}'.")
                 return "Unsupported file format."
+
             return text
+        
         except Exception as e:
             logging.error(f"Error parsing document '{file_path}': {e}")
             return f"Error parsing document: {e}"
 
     def clean_parsed_text(self, text):
         """Cleans the parsed text by improving readability."""
-
         try: 
             # Lowercase the text to make it more readable and consistent
             cleaned_text = text.lower()
@@ -144,10 +151,10 @@ class INBOTChatbot:
             
             logging.info("Text cleaned successfully.")
             return cleaned_text
+        
         except Exception as e:
             logging.error(f"Error cleaning text: {e}")
             return f"Error cleaning text: {e}"
-
 
     def ask_question(self, question):
         """Answer a question using document search with fallback to Groq API."""
@@ -160,7 +167,6 @@ class INBOTChatbot:
 
                 # Clean and beautify the document search results
                 formatted_response = "📂 **Here’s what I found in the uploaded documents:**\n\n"
-
                 for line in search_results.splitlines():
                     # Format results into bullet points with proper indentation
                     if line.strip():
@@ -173,10 +179,7 @@ class INBOTChatbot:
             # Step 2: Fallback to Groq API if no document matches are found
             chat_completion = client.chat.completions.create(
                 messages=[
-                    {
-                        "role": "user",
-                        "content": question,
-                    }
+                    {"role": "user", "content": question}
                 ],
                 model="llama3-8b-8192",  # Groq model
             )
@@ -189,7 +192,6 @@ class INBOTChatbot:
         except Exception as e:
             logging.error(f"Error during question answering: {e}")
             return "⚠️ **Error:** Unable to process your question at the moment. Please try again later."
-
 
     def search_documents(self, query, threshold=30):
         """Searches through all documents for the query with fuzzy matching and highlights the term."""

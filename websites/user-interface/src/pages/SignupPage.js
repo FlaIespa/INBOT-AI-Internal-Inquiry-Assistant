@@ -24,30 +24,33 @@ function SignupPage({ setAuthToken }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await fetch('http://127.0.0.1:5000/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
-        const token = data.token;
-        localStorage.setItem('authToken', token);
-        setAuthToken(token);
-
-        showSnackbar('🎉 Signup successful! Redirecting...', 'success');
-        setTimeout(() => navigate('/home'), 2000);
+        const token = data.token; // Get token from backend
+        localStorage.setItem('authToken', token); // Save token to localStorage
+        setAuthToken(token); // Update authToken state
+  
+        // Redirect to home page
+        showSnackbar('🎉 Signup successful! Redirecting to home...', 'success');
+        setTimeout(() => navigate('/home'), 2000); // Redirect with slight delay
       } else {
-        showSnackbar(`❌ Error: ${data.error}`, 'error');
+        showSnackbar(`❌ Error: ${data.error}`, 'error'); // Handle errors
       }
     } catch (error) {
       showSnackbar('❌ Network error. Please try again.', 'error');
     }
   };
+  
+  
 
   const showSnackbar = (message, type) => {
     setSnackbar({ message, visible: true, type });

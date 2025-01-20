@@ -1,119 +1,122 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ChatAlt2Icon,
-  FolderOpenIcon,
-  CogIcon,
-  QuestionMarkCircleIcon,
-} from '@heroicons/react/solid';
+import { ChatAlt2Icon, CloudUploadIcon } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
 
-function HomePage() {
+const HomePage = () => {
+  const containerVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.4, ease: 'easeInOut' },
+    },
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="ml-56 flex-1 min-h-screen bg-gray-100 dark:bg-gray-900 p-6 mt-16" // Added ml-56 for sidebar and mt-16 for header
+      className="ml-56 min-h-screen bg-gray-50"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
     >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 p-1 rounded-3xl shadow-2xl max-w-4xl mx-auto"
-      >
-        <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-3xl text-center">
-          <motion.h1
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="text-3xl font-bold text-gray-800 dark:text-white mb-6"
-          >
-            Welcome to INBOT!
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-base text-gray-600 dark:text-gray-300 mb-8"
-          >
-            Your AI-Powered Internal Assistant for Document Management.
-          </motion.p>
-
-          {/* Feature Cards */}
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.2 } },
-            }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          >
-            {/* Card content remains the same */}
-            <motion.div
-              whileHover={{ scale: 1.02 }} // Reduced scale effect
-              whileTap={{ scale: 0.98 }}
-              className="p-6 bg-blue-50 dark:bg-gray-700 rounded-lg shadow-md hover:bg-blue-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
-            >
-              <Link to="/chatbot" className="block">
-                <ChatAlt2Icon className="h-10 w-10 text-blue-500 mx-auto mb-3" />
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Chatbot</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                  Ask questions about your documents or receive assistance.
-                </p>
-              </Link>
-            </motion.div>
-
-            {/* File Management */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="p-6 bg-green-50 dark:bg-gray-700 rounded-lg shadow-md hover:bg-green-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
-            >
-              <Link to="/file-management" className="block">
-                <FolderOpenIcon className="h-10 w-10 text-green-500 mx-auto mb-3" />
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">File Management</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                  Upload, manage, and review company documents.
-                </p>
-              </Link>
-            </motion.div>
-
-            {/* Settings */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="p-6 bg-yellow-50 dark:bg-gray-700 rounded-lg shadow-md hover:bg-yellow-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
-            >
-              <Link to="/settings" className="block">
-                <CogIcon className="h-10 w-10 text-yellow-500 mx-auto mb-3" />
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Settings</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                  Customize your experience and configure INBOT.
-                </p>
-              </Link>
-            </motion.div>
-
-            {/* Help/FAQ */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="p-6 bg-purple-50 dark:bg-gray-700 rounded-lg shadow-md hover:bg-purple-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
-            >
-              <Link to="/faq" className="block">
-                <QuestionMarkCircleIcon className="h-10 w-10 text-purple-500 mx-auto mb-3" />
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Help & FAQ</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                  Find answers to common questions or get support.
-                </p>
-              </Link>
-            </motion.div>
-          </motion.div>
+      <div className="container mx-auto px-8 py-16 flex flex-col items-center">
+        {/* Welcome Section */}
+        <div className="text-center mb-16 max-w-2xl">
+          <h1 className="text-5xl font-extrabold text-gray-900">
+            Welcome to{' '}
+            <span className="relative">
+              {/* Gradient Text */}
+              <span className="font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                INBOT
+              </span>
+              {/* Floating Effect */}
+              <span className="absolute inset-x-0 -bottom-1 bg-gradient-to-r from-blue-400 to-purple-400 opacity-50 h-1 w-full rounded-full"></span>
+            </span>
+          </h1>
+          <p className="mt-5 text-lg text-gray-600 font-medium">
+            Your intelligent assistant for seamless communication and{' '}
+            <span className="text-blue-600 font-semibold">document management</span>.
+          </p>
         </div>
-      </motion.div>
+
+        {/* Feature Cards Container */}
+        <div className="w-full max-w-4xl mt-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            {/* Chat Card */}
+            <Link to="/chatbot" className="group relative overflow-hidden rounded-xl">
+              <div
+                className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md 
+                transition-all duration-300 border border-gray-100 h-full"
+              >
+                <div className="flex items-start justify-between mb-6">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
+                    <ChatAlt2Icon className="h-6 w-6 text-white" />
+                  </div>
+                  <div
+                    className="h-8 w-8 rounded-full flex items-center justify-center
+                    bg-gray-50 group-hover:bg-blue-50 transition-colors duration-300"
+                  >
+                    <span className="text-gray-400 group-hover:text-blue-600 transition-colors duration-300">
+                      →
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">AI Chat Assistant</h2>
+                  <p className="text-gray-600">
+                    Get instant answers and intelligent responses from our advanced AI system.
+                  </p>
+                </div>
+
+                {/* Subtle highlight effect */}
+                <div
+                  className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 
+                  transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
+                />
+              </div>
+            </Link>
+
+            {/* Documents Card */}
+            <Link to="/file-management" className="group relative overflow-hidden rounded-xl">
+              <div
+                className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md 
+                transition-all duration-300 border border-gray-100 h-full"
+              >
+                <div className="flex items-start justify-between mb-6">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
+                    <CloudUploadIcon className="h-6 w-6 text-white" />
+                  </div>
+                  <div
+                    className="h-8 w-8 rounded-full flex items-center justify-center
+                    bg-gray-50 group-hover:bg-blue-50 transition-colors duration-300"
+                  >
+                    <span className="text-gray-400 group-hover:text-blue-600 transition-colors duration-300">
+                      →
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">Document Manager</h2>
+                  <p className="text-gray-600">
+                    Upload, organize, and manage your files with intelligent assistance.
+                  </p>
+                </div>
+
+                {/* Subtle highlight effect */}
+                <div
+                  className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 
+                  transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
+                />
+              </div>
+            </Link>
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
-}
+};
 
 export default HomePage;
