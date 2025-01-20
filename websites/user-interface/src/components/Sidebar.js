@@ -16,32 +16,31 @@ import {
 
 function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const navigate = useNavigate(); // Hook to navigate between routes
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
   const handleLogout = () => {
-    // Clear the authentication token from localStorage
     localStorage.removeItem('authToken');
-
-    // Redirect the user to the login page
     navigate('/login');
   };
 
   const user = {
     name: 'John Doe',
     email: 'john@example.com',
-    // role: 'Employee',
     avatarUrl: null,
   };
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-screen bg-gradient-to-b from-blue-600 via-purple-600 to-purple-800 text-white flex flex-col ${
-        isCollapsed ? 'w-16' : 'w-56'
-      } transition-all duration-300 z-10 shadow-md`}
+      className={`fixed left-0 top-0 h-screen 
+        bg-gradient-to-b from-blue-600 via-purple-600 to-purple-800 
+        dark:from-gray-800 dark:via-gray-900 dark:to-black 
+        text-white flex flex-col 
+        ${isCollapsed ? 'w-16' : 'w-56'} 
+        transition-all duration-300 z-10 shadow-md`}
     >
       <div className="flex flex-col flex-1">
         {/* Top Section with Logo and Toggle */}
@@ -53,7 +52,9 @@ function Sidebar() {
             </div>
             <button
               onClick={toggleSidebar}
-              className="text-white p-2 rounded-full hover:bg-blue-700 hover:bg-opacity-50 transition-colors duration-200"
+              className="text-white p-2 rounded-full 
+                hover:bg-blue-700 dark:hover:bg-gray-700 
+                hover:bg-opacity-50 transition-colors duration-200"
             >
               {isCollapsed ? (
                 <ChevronRightIcon className="h-5 w-5" />
@@ -67,8 +68,9 @@ function Sidebar() {
         {/* Profile Section */}
         <Link
           to="/user-profile"
-          className="px-3 py-4 border-y border-white/10 hover:bg-blue-700 hover:bg-opacity-50 
-            transition-all duration-300"
+          className="px-3 py-4 border-y border-white/10 
+            hover:bg-blue-700 dark:hover:bg-gray-700 
+            hover:bg-opacity-50 transition-all duration-300"
         >
           <div className={`flex items-center space-x-3 ${isCollapsed ? 'justify-center' : ''}`}>
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -82,7 +84,7 @@ function Sidebar() {
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate">{user.name}</p>
                 <p className="text-xs text-white/70 truncate">{user.email}</p>
-                <p className="text-xs text-white/70">{user.role}</p>
+                {user.role && <p className="text-xs text-white/70">{user.role}</p>}
               </div>
             )}
           </div>
@@ -91,78 +93,28 @@ function Sidebar() {
         {/* Navigation Links */}
         <nav className="flex-1 p-3">
           <ul className="space-y-4">
-            <li>
-              <Link
-                to="/home"
-                className="flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 hover:bg-opacity-50 transition-all duration-300"
-              >
-                <HomeIcon className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm font-medium">Home</span>}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/chatbot"
-                className="flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 hover:bg-opacity-50 transition-all duration-300"
-              >
-                <ChatAlt2Icon className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm font-medium">Chatbot</span>}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/file-management"
-                className="flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 hover:bg-opacity-50 transition-all duration-300"
-              >
-                <CloudUploadIcon className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm font-medium">File Management</span>}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/settings"
-                className="flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 hover:bg-opacity-50 transition-all duration-300"
-              >
-                <CogIcon className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm font-medium">Settings</span>}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/faq"
-                className="flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 hover:bg-opacity-50 transition-all duration-300"
-              >
-                <QuestionMarkCircleIcon className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm font-medium">Help/FAQ</span>}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/user-profile"
-                className="flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 hover:bg-opacity-50 transition-all duration-300"
-              >
-                <UserIcon className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm font-medium">User Profile</span>}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/notifications"
-                className="flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 hover:bg-opacity-50 transition-all duration-300"
-              >
-                <BellIcon className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm font-medium">Notifications</span>}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/admin-dashboard"
-                className="flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 hover:bg-opacity-50 transition-all duration-300"
-              >
-                <ChartPieIcon className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm font-medium">Analytics</span>}
-              </Link>
-            </li>
+            {[
+              { to: '/home', Icon: HomeIcon, label: 'Home' },
+              { to: '/chatbot', Icon: ChatAlt2Icon, label: 'Chatbot' },
+              { to: '/file-management', Icon: CloudUploadIcon, label: 'File Management' },
+              { to: '/settings', Icon: CogIcon, label: 'Settings' },
+              { to: '/faq', Icon: QuestionMarkCircleIcon, label: 'Help/FAQ' },
+              { to: '/user-profile', Icon: UserIcon, label: 'User Profile' },
+              { to: '/notifications', Icon: BellIcon, label: 'Notifications' },
+              { to: '/admin-dashboard', Icon: ChartPieIcon, label: 'Analytics' },
+            ].map(({ to, Icon, label }) => (
+              <li key={to}>
+                <Link
+                  to={to}
+                  className="flex items-center space-x-3 p-3 rounded-md 
+                    hover:bg-blue-700 dark:hover:bg-gray-700 
+                    hover:bg-opacity-50 transition-all duration-300"
+                >
+                  <Icon className="h-5 w-5" />
+                  {!isCollapsed && <span className="text-sm font-medium">{label}</span>}
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
 
@@ -171,7 +123,8 @@ function Sidebar() {
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center space-x-2 p-2 rounded-md 
-              bg-white/10 hover:bg-white/20 transition-colors duration-200"
+              bg-white/10 hover:bg-white/20 dark:bg-gray-700/50 
+              dark:hover:bg-gray-600/50 transition-colors duration-200"
           >
             <LogoutIcon className="h-4 w-4" />
             {!isCollapsed && <span className="text-xs">Logout</span>}
@@ -181,7 +134,7 @@ function Sidebar() {
 
       {/* Footer */}
       <footer className="p-3 text-center text-xs bg-opacity-20">
-        <p className="text-gray-300">&copy; 2025 INBOT</p>
+        <p className="text-gray-300 dark:text-gray-400">&copy; 2025 INBOT</p>
       </footer>
     </aside>
   );

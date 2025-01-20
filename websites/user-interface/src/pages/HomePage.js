@@ -15,7 +15,7 @@ const HomePage = () => {
 
   return (
     <motion.div
-      className="ml-56 min-h-screen bg-gray-50"
+      className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -23,7 +23,7 @@ const HomePage = () => {
       <div className="container mx-auto px-8 py-16 flex flex-col items-center">
         {/* Welcome Section */}
         <div className="text-center mb-16 max-w-2xl">
-          <h1 className="text-5xl font-extrabold text-gray-900">
+          <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white">
             Welcome to{' '}
             <span className="relative">
               {/* Gradient Text */}
@@ -34,9 +34,9 @@ const HomePage = () => {
               <span className="absolute inset-x-0 -bottom-1 bg-gradient-to-r from-blue-400 to-purple-400 opacity-50 h-1 w-full rounded-full"></span>
             </span>
           </h1>
-          <p className="mt-5 text-lg text-gray-600 font-medium">
+          <p className="mt-5 text-lg text-gray-600 dark:text-gray-300 font-medium">
             Your intelligent assistant for seamless communication and{' '}
-            <span className="text-blue-600 font-semibold">document management</span>.
+            <span className="text-blue-600 dark:text-blue-400 font-semibold">document management</span>.
           </p>
         </div>
 
@@ -46,8 +46,8 @@ const HomePage = () => {
             {/* Chat Card */}
             <Link to="/chatbot" className="group relative overflow-hidden rounded-xl">
               <div
-                className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md 
-                transition-all duration-300 border border-gray-100 h-full"
+                className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md 
+                transition-all duration-300 border border-gray-100 dark:border-gray-700 h-full"
               >
                 <div className="flex items-start justify-between mb-6">
                   <div className="p-3 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
@@ -55,17 +55,21 @@ const HomePage = () => {
                   </div>
                   <div
                     className="h-8 w-8 rounded-full flex items-center justify-center
-                    bg-gray-50 group-hover:bg-blue-50 transition-colors duration-300"
+                    bg-gray-50 dark:bg-gray-700 group-hover:bg-blue-50 dark:group-hover:bg-gray-600 
+                    transition-colors duration-300"
                   >
-                    <span className="text-gray-400 group-hover:text-blue-600 transition-colors duration-300">
+                    <span className="text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 
+                      transition-colors duration-300">
                       →
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-2">AI Chat Assistant</h2>
-                  <p className="text-gray-600">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    AI Chat Assistant
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-300">
                     Get instant answers and intelligent responses from our advanced AI system.
                   </p>
                 </div>
@@ -81,8 +85,8 @@ const HomePage = () => {
             {/* Documents Card */}
             <Link to="/file-management" className="group relative overflow-hidden rounded-xl">
               <div
-                className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md 
-                transition-all duration-300 border border-gray-100 h-full"
+                className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md 
+                transition-all duration-300 border border-gray-100 dark:border-gray-700 h-full"
               >
                 <div className="flex items-start justify-between mb-6">
                   <div className="p-3 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
@@ -90,17 +94,21 @@ const HomePage = () => {
                   </div>
                   <div
                     className="h-8 w-8 rounded-full flex items-center justify-center
-                    bg-gray-50 group-hover:bg-blue-50 transition-colors duration-300"
+                    bg-gray-50 dark:bg-gray-700 group-hover:bg-blue-50 dark:group-hover:bg-gray-600 
+                    transition-colors duration-300"
                   >
-                    <span className="text-gray-400 group-hover:text-blue-600 transition-colors duration-300">
+                    <span className="text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 
+                      transition-colors duration-300">
                       →
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-2">Document Manager</h2>
-                  <p className="text-gray-600">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    Document Manager
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-300">
                     Upload, organize, and manage your files with intelligent assistance.
                   </p>
                 </div>
