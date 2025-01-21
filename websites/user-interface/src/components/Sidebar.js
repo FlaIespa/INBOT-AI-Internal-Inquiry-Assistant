@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ChatAlt2Icon,
@@ -12,27 +12,67 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   LogoutIcon,
-  ClockIcon, // New Icon for History Page
+  ClockIcon,
 } from '@heroicons/react/solid';
+import { supabase } from '../supabaseClient'; // Import Supabase client
 
 function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    avatarUrl: '',
+  });
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error during logout:', error.message);
+        return;
+      }
+
+      localStorage.removeItem('authToken');
+      navigate('/login');
+    } catch (error) {
+      console.error('Unexpected error during logout:', error.message);
+    }
   };
 
-  const user = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    avatarUrl: null,
+  const fetchUserProfile = async () => {
+    try {
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser();
+
+      if (!currentUser) return;
+
+      const { data: profile, error } = await supabase
+        .from('users') // Replace with your table name
+        .select('name, email, avatar')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (error) throw error;
+
+      setUser({
+        name: profile.name || 'Unknown User',
+        email: profile.email || 'unknown@example.com',
+        avatarUrl: profile.avatar || '',
+      });
+    } catch (error) {
+      console.error('Error fetching user profile:', error.message);
+    }
   };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
 
   return (
     <aside
@@ -76,7 +116,11 @@ function Sidebar() {
           <div className={`flex items-center space-x-3 ${isCollapsed ? 'justify-center' : ''}`}>
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
               {user.avatarUrl ? (
-                <img src={user.avatarUrl} alt="Profile" className="w-10 h-10 rounded-full" />
+                <img
+                  src={user.avatarUrl}
+                  alt="Profile"
+                  className="w-10 h-10 rounded-full"
+                />
               ) : (
                 <span className="text-lg font-medium">{user.name.charAt(0)}</span>
               )}
@@ -85,7 +129,6 @@ function Sidebar() {
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate">{user.name}</p>
                 <p className="text-xs text-white/70 truncate">{user.email}</p>
-                {user.role && <p className="text-xs text-white/70">{user.role}</p>}
               </div>
             )}
           </div>
@@ -103,7 +146,7 @@ function Sidebar() {
               { to: '/user-profile', Icon: UserIcon, label: 'User Profile' },
               { to: '/notifications', Icon: BellIcon, label: 'Notifications' },
               { to: '/admin-dashboard', Icon: ChartPieIcon, label: 'Analytics' },
-              { to: '/history', Icon: ClockIcon, label: 'History' }, // Added History Page Link
+              { to: '/history', Icon: ClockIcon, label: 'History' },
             ].map(({ to, Icon, label }) => (
               <li key={to}>
                 <Link

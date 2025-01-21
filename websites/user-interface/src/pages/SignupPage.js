@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Lottie from 'lottie-react';
+import { supabase } from '../supabaseClient'; // Import your Supabase client
 import robotAnimation from '../assets/robot_animation.json';
-import WelcomeHeader from '../components/WelcomeHeader'; // Import the header component
+import WelcomeHeader from '../components/WelcomeHeader';
 
-
-function SignupPage({ setAuthToken }) {
+function SignupPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,25 +30,34 @@ function SignupPage({ setAuthToken }) {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+      // Sign up the user with Supabase
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        const token = data.token; // Get token from backend
-        localStorage.setItem('authToken', token); // Save token to localStorage
-        setAuthToken(token); // Update authToken state
-
-        // Redirect to home page
-        showSnackbar('🎉 Signup successful! Redirecting to home...', 'success');
-        setTimeout(() => navigate('/home'), 2000); // Redirect with slight delay
-      } else {
-        showSnackbar(`❌ Error: ${data.error}`, 'error'); // Handle errors
+      if (authError) {
+        showSnackbar(`❌ Error: ${authError.message}`, 'error');
+        return;
       }
+
+      // Add additional user data to the "users" table
+      const { error: dbError } = await supabase.from('users').insert([
+        {
+          id: authData.user.id, // Use the user ID from Supabase auth
+          name: formData.name,
+          email: formData.email,
+        },
+      ]);
+
+      if (dbError) {
+        showSnackbar(`❌ Error saving user details: ${dbError.message}`, 'error');
+        return;
+      }
+
+      // Show success message and redirect to home
+      showSnackbar('🎉 Signup successful! Redirecting to home...', 'success');
+      setTimeout(() => navigate('/home'), 2000);
     } catch (error) {
       showSnackbar('❌ Network error. Please try again.', 'error');
     }

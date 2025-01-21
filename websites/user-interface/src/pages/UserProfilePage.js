@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { 
   PencilIcon, DocumentTextIcon, ChatAlt2Icon, 
-  UserCircleIcon, SaveIcon, BellIcon
+  UserCircleIcon, SaveIcon, BellIcon,
 } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
+import { supabase } from '../supabaseClient'; // Import Supabase client
 
 function UserProfilePage() {
   const [editing, setEditing] = useState(false);
   const [profile, setProfile] = useState({
+    id: '',
     name: '',
     email: '',
     bio: '',
-    avatar: '',
+    avatarUrl: '',
   });
 
   const [stats, setStats] = useState({
@@ -20,58 +22,116 @@ function UserProfilePage() {
     editsMade: 0,
   });
 
-  const [preferences, setPreferences] = useState({
-    emailNotifications: true,
-    twoFactorAuth: false,
-    showActivity: true,
-  });
-
-  const togglePreference = (field) => {
-    setPreferences((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
-  };
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setProfile((prev) => ({ ...prev, avatar: reader.result }));
-    };
-    reader.readAsDataURL(file);
+    try {
+      const fileName = `${profile.id}/${file.name}`;
+      const { error } = await supabase.storage
+        .from('avatars') // Replace with your storage bucket name
+        .upload(fileName, file, { upsert: true });
+
+      if (error) throw error;
+
+      const { data: publicUrl } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      setProfile((prev) => ({ ...prev, avatarUrl: publicUrl.publicUrl }));
+    } catch (error) {
+      console.error('Error uploading avatar:', error.message);
+    }
   };
 
   const saveProfileChanges = async () => {
-    // Add API call here to save the changes
-    setEditing(false);
+    try {
+      const { error } = await supabase
+        .from('users') // Replace with your table name
+        .update({
+          name: profile.name,
+          bio: profile.bio,
+          avatar: profile.avatarUrl,
+        })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+
+      setEditing(false);
+    } catch (error) {
+      console.error('Error saving profile changes:', error.message);
+    }
   };
 
   const fetchUserProfile = async () => {
-    // Fetch user profile data from API
-    setProfile({
-      name: 'John Doe',
-      email: 'john@example.com',
-      bio: 'Creative professional with a passion for design and innovation.',
-      avatar: 'https://via.placeholder.com/150',
-    });
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data: profileData, error } = await supabase
+        .from('users') // Replace with your table name
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+
+      setProfile({
+        id: profileData.id,
+        name: profileData.name,
+        email: profileData.email,
+        bio: profileData.bio || '',
+        avatarUrl: profileData.avatar || '',
+      });
+    } catch (error) {
+      console.error('Error fetching user profile:', error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const fetchUserStats = async () => {
-    // Fetch user statistics from API
-    setStats({
-      interactions: 0,
-      documentsUploaded: 0,
-      editsMade: 0,
-    });
+    try {
+      // Replace with your logic for fetching stats
+      const { data, error } = await supabase.rpc('fetch_user_stats', {
+        user_id: profile.id,
+      });
+
+      if (error) throw error;
+
+      setStats(data || { interactions: 0, documentsUploaded: 0, editsMade: 0 });
+    } catch (error) {
+      console.error('Error fetching user stats:', error.message);
+    }
   };
 
   useEffect(() => {
     fetchUserProfile();
-    fetchUserStats();
   }, []);
+
+  useEffect(() => {
+    if (profile.id) fetchUserStats();
+  }, [profile.id]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-gray-800 dark:text-white"
+        >
+          Loading user profile...
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900 px-8 py-10">
@@ -97,7 +157,7 @@ function UserProfilePage() {
             <div className="relative">
               <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                 <img
-                  src={profile.avatar || 'https://via.placeholder.com/150'}
+                  src={profile.avatarUrl || 'https://via.placeholder.com/150'}
                   alt="Profile Avatar"
                   className="w-full h-full object-cover"
                 />

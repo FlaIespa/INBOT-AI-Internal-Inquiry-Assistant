@@ -1,24 +1,70 @@
 import React from 'react';
 import { DocumentTextIcon, TrashIcon, DocumentDownloadIcon } from '@heroicons/react/solid';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../supabaseClient'; // Import Supabase client
 
 function UploadedFiles({ files, onFileDelete }) {
   const handleDelete = async (filename) => {
-    const token = localStorage.getItem('authToken');
-
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/files/${filename}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok && onFileDelete) {
+      // Step 1: Remove the file from Supabase storage bucket
+      const { error: storageError } = await supabase.storage
+        .from('files') // Ensure 'files' is your actual bucket name
+        .remove([filename]); // Remove file using the filename
+  
+      if (storageError) {
+        console.error('Error deleting file from storage:', storageError.message);
+        return;
+      }
+  
+      console.log(`File "${filename}" successfully deleted from storage.`);
+  
+      // Step 2: Remove the file metadata from the database
+      const { error: dbError } = await supabase
+        .from('files') // Ensure this matches your table name
+        .delete()
+        .eq('name', filename);
+  
+      if (dbError) {
+        console.error('Error deleting file metadata from database:', dbError.message);
+        return;
+      }
+  
+      console.log(`File "${filename}" successfully deleted from database.`);
+  
+      // Notify parent component to refresh the files list
+      if (onFileDelete) {
         onFileDelete();
       }
     } catch (error) {
-      console.error('Delete Error:', error);
+      console.error('Unexpected error during file deletion:', error.message);
+    }
+  };
+  
+  const handleDownload = async (filename) => {
+    try {
+      // Generate a signed URL for the file
+      const { data, error } = await supabase.storage
+        .from('files') // Replace 'files' with your bucket name
+        .createSignedUrl(filename, 60 * 10); // URL valid for 10 minutes
+
+      if (error) {
+        console.error('Error generating signed URL:', error.message);
+        return;
+      }
+
+      if (data?.signedUrl) {
+        // Trigger the download
+        const link = document.createElement('a');
+        link.href = data.signedUrl;
+        link.download = filename; // Use the filename for download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link); // Clean up the DOM
+      } else {
+        console.error('No signed URL generated.');
+      }
+    } catch (error) {
+      console.error('Error during file download:', error.message);
     }
   };
 
@@ -74,7 +120,7 @@ function UploadedFiles({ files, onFileDelete }) {
                 <div className="flex items-center space-x-2">
                   <button
                     className="p-2 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md hover:opacity-90"
-                    onClick={() => window.open(`http://127.0.0.1:5000/api/files/${file.name}`, '_blank')}
+                    onClick={() => handleDownload(file.name)}
                     title="Download"
                   >
                     <DocumentDownloadIcon className="h-5 w-5" />

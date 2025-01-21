@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { CloudUploadIcon, DocumentAddIcon } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
+import { supabase } from '../supabaseClient'; // Import Supabase client
 
 function FileUpload({ onFileUpload }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -31,38 +32,49 @@ function FileUpload({ onFileUpload }) {
       return;
     }
 
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      setUploadMessage('Error: Authentication token is missing. Please log in.');
-      return;
-    }
-
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append('file', selectedFile);
+
+    const fileName = `${Date.now()}_${selectedFile.name}`; // Generate unique filename
+    const bucketName = 'files'; // Replace with your bucket name
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/upload', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      // Upload file to Supabase storage
+      const { data, error } = await supabase.storage
+        .from(bucketName)
+        .upload(fileName, selectedFile);
 
-      const data = await response.json();
+      if (error) throw error;
 
-      if (response.ok) {
-        setUploadMessage('File uploaded successfully!');
-        setSelectedFile(null);
-        if (onFileUpload) {
-          onFileUpload();
-        }
-      } else {
-        setUploadMessage(`Error: ${data.error || 'Something went wrong'}`);
+      // Get public URL of uploaded file
+      const { data: publicUrl } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(fileName);
+
+      if (!publicUrl) throw new Error('Unable to generate file URL.');
+
+      // Optional: Save file metadata to your database
+      const user = (await supabase.auth.getUser()).data.user;
+      if (user) {
+        const { error: dbError } = await supabase
+          .from('files') // Replace with your table name
+          .insert({
+            user_id: user.id,
+            name: selectedFile.name,
+            size: selectedFile.size,
+            url: publicUrl.publicUrl,
+          });
+
+        if (dbError) throw dbError;
+      }
+
+      setUploadMessage('File uploaded successfully!');
+      setSelectedFile(null);
+
+      if (onFileUpload) {
+        onFileUpload(); // Refresh file list or perform other actions
       }
     } catch (error) {
-      console.error('Upload Error:', error);
+      console.error('Upload Error:', error.message);
       setUploadMessage('Failed to upload the file. Please try again.');
     } finally {
       setIsUploading(false);
