@@ -12,6 +12,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   LogoutIcon,
+  ClockIcon, // New Icon for History Page
 } from '@heroicons/react/solid';
 
 function Sidebar() {
@@ -102,6 +103,7 @@ function Sidebar() {
               { to: '/user-profile', Icon: UserIcon, label: 'User Profile' },
               { to: '/notifications', Icon: BellIcon, label: 'Notifications' },
               { to: '/admin-dashboard', Icon: ChartPieIcon, label: 'Analytics' },
+              { to: '/history', Icon: ClockIcon, label: 'History' }, // Added History Page Link
             ].map(({ to, Icon, label }) => (
               <li key={to}>
                 <Link
