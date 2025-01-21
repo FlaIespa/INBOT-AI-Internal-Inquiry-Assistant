@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Lottie from 'lottie-react';
+import robotAnimation from '../assets/robot_animation.json';
+import WelcomeHeader from '../components/WelcomeHeader'; // Import the header component
+
 
 function SignupPage({ setAuthToken }) {
   const [formData, setFormData] = useState({
@@ -24,21 +28,21 @@ function SignupPage({ setAuthToken }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const response = await fetch('http://127.0.0.1:5000/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         const token = data.token; // Get token from backend
         localStorage.setItem('authToken', token); // Save token to localStorage
         setAuthToken(token); // Update authToken state
-  
+
         // Redirect to home page
         showSnackbar('🎉 Signup successful! Redirecting to home...', 'success');
         setTimeout(() => navigate('/home'), 2000); // Redirect with slight delay
@@ -49,8 +53,6 @@ function SignupPage({ setAuthToken }) {
       showSnackbar('❌ Network error. Please try again.', 'error');
     }
   };
-  
-  
 
   const showSnackbar = (message, type) => {
     setSnackbar({ message, visible: true, type });
@@ -58,71 +60,135 @@ function SignupPage({ setAuthToken }) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: 'easeOut' }}
-      className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900"
-    >
-      <div className="relative bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 p-1 rounded-3xl shadow-2xl max-w-sm w-full">
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">
-            Sign Up
-          </h1>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-gray-600 dark:text-gray-300 mb-1 text-sm">Name</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-md dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 text-sm"
-                placeholder="Enter your name"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-600 dark:text-gray-300 mb-1 text-sm">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-md dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 text-sm"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block text-gray-600 dark:text-gray-300 mb-1 text-sm">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-md dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 text-sm"
-                placeholder="Enter your password"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-full shadow-md text-sm font-medium hover:bg-blue-700 dark:hover:bg-blue-800"
-            >
-              Sign Up
-            </button>
-          </form>
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <WelcomeHeader />
 
-          <p className="text-center text-xs text-gray-600 dark:text-gray-300 mt-4">
-            Already have an account?{' '}
-            <Link to="/login" className="text-blue-500 dark:text-blue-400 font-semibold">
-              Login
-            </Link>
-          </p>
-        </div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto space-y-10 md:space-y-0 md:space-x-12 px-4">
+        {/* Left Column - Animation */}
+        <motion.div
+          initial={{ opacity: 0, x: -100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="flex-1 flex justify-center items-center"
+        >
+          <div className="flex flex-col items-center text-center max-w-md">
+            <Lottie animationData={robotAnimation} loop className="w-56 h-56 mb-6" />
+            <h1
+              className="text-5xl font-extrabold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent"
+            >
+              Welcome
+            </h1>
+            <p className="text-lg mt-4 text-gray-700">
+              Join us today and start simplifying your workflows with AI.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Right Column - Form */}
+        <motion.div
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="flex-1 flex justify-center items-center"
+        >
+          <div className="w-full max-w-md">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-3xl shadow-xl p-8 border"
+              style={{
+                borderWidth: '3px',
+                borderRadius: '24px',
+                borderImage: 'linear-gradient(to right, #36c3ff, #9155fd) 1',
+              }}
+            >
+              <motion.div className="text-center mb-6">
+                <h2
+                  className="text-4xl font-extrabold mb-2"
+                  style={{
+                    background: 'linear-gradient(to right, #36c3ff, #9155fd)',
+                    WebkitBackgroundClip: 'text',
+                    color: 'transparent',
+                  }}
+                >
+                  Sign Up
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Create your account below to get started.
+                </p>
+              </motion.div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full pl-4 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter your name"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full pl-4 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full pl-4 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter your password"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-full font-medium hover:from-blue-700 hover:to-purple-700 flex items-center justify-center"
+                >
+                  Sign Up
+                </button>
+
+                <p className="text-center text-sm text-gray-500 mt-4">
+                  Already have an account?{' '}
+                  <Link
+                    to="/login"
+                    className="font-medium text-blue-500 hover:text-blue-600"
+                  >
+                    Login
+                  </Link>
+                </p>
+              </form>
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
 
+      {/* Snackbar */}
       {snackbar.visible && (
         <div
           className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md shadow-md text-white ${
@@ -132,7 +198,7 @@ function SignupPage({ setAuthToken }) {
           {snackbar.message}
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 
