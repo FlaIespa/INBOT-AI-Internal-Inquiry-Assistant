@@ -56,6 +56,11 @@ const WelcomeHero = () => {
           <div className="absolute -z-10 inset-0 blur-3xl opacity-20 bg-gradient-to-r from-blue-600 to-purple-600" />
         </motion.div>
       </main>
+
+      {/* About Us Section */}
+      <div id="WelcomeAboutUs">
+        <WelcomeAboutUs />
+      </div>
     </div>
   );
 };
