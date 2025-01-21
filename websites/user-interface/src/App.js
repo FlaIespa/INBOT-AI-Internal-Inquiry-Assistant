@@ -12,6 +12,7 @@ import AdminDashboard from './pages/AnalyticsDashboard';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import LandingPage from './pages/WelcomePage';
+import HistoryPage from './pages/HistoryPage'; // Import the HistoryPage component
 
 // Create dark mode context
 export const DarkModeContext = createContext();
@@ -187,6 +188,16 @@ function App() {
                 <ProtectedRoute>
                   <ProtectedLayout>
                     <AdminDashboard />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <ProtectedLayout>
+                    <HistoryPage />
                   </ProtectedLayout>
                 </ProtectedRoute>
               }
