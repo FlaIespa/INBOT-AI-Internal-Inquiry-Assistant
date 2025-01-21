@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Link as ScrollLink } from 'react-scroll'; // Import react-scroll for smooth scrolling
 import { motion } from 'framer-motion';
 
 const WelcomeHeader = () => {
@@ -25,12 +26,15 @@ const WelcomeHeader = () => {
         transition={{ duration: 0.5 }}
         className="flex items-center gap-6"
       >
-        <a
-          href="/welcome#WelcomeAboutUs" // Anchors to the About Us section on the Welcome page
-          className="text-gray-600 dark:text-gray-300 hover:text-blue-500"
+        <ScrollLink
+          to="WelcomeAboutUs" // Target section's ID
+          smooth={true} // Smooth scroll
+          offset={-80} // Offset for fixed header
+          duration={500} // Duration of scroll
+          className="text-gray-600 dark:text-gray-300 hover:text-blue-500 cursor-pointer"
         >
           About us
-        </a>
+        </ScrollLink>
         <Link
           to="/login"
           className="text-gray-600 dark:text-gray-300 hover:text-blue-500"

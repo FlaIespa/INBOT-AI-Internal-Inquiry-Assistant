@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import WelcomeHeader from './WelcomeHeader'; // Import the WelcomeHeader component
+import WelcomeHeader from './WelcomeHeader'; // Import the shared header
+import WelcomeAboutUs from './WelcomeAboutUs'; // Import the About Us section
 
 const WelcomeHero = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
       {/* Navigation */}
-      <WelcomeHeader /> 
+      <WelcomeHeader />
 
       {/* Hero Section */}
       <main className="max-w-6xl mx-auto px-6 text-center mt-16 relative">
@@ -55,6 +56,11 @@ const WelcomeHero = () => {
           <div className="absolute -z-10 inset-0 blur-3xl opacity-20 bg-gradient-to-r from-blue-600 to-purple-600" />
         </motion.div>
       </main>
+
+      {/* About Us Section */}
+      <div id="WelcomeAboutUs">
+        <WelcomeAboutUs />
+      </div>
     </div>
   );
 };
