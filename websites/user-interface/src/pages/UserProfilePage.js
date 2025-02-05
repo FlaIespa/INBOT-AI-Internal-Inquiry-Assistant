@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  PencilIcon, DocumentTextIcon, ChatAlt2Icon, 
-  UserCircleIcon, SaveIcon, BellIcon,
+import {
+  PencilIcon,
+  DocumentTextIcon,
+  ChatAlt2Icon,
+  SaveIcon,
 } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
 import { supabase } from '../supabaseClient'; // Import Supabase client
@@ -15,14 +17,63 @@ function UserProfilePage() {
     bio: '',
     avatarUrl: '',
   });
-
   const [stats, setStats] = useState({
     interactions: 0,
     documentsUploaded: 0,
     editsMade: 0,
   });
-
   const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch user profile from Supabase
+  const fetchUserProfile = async () => {
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError || !user) throw new Error('User is not authenticated.');
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('users') // Replace with your users table
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      setProfile({
+        id: profileData.id,
+        name: profileData.name || '',
+        email: profileData.email || '',
+        bio: profileData.bio || '',
+        avatarUrl: profileData.avatar || '',
+      });
+    } catch (error) {
+      console.error('Error fetching user profile:', error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch user stats from Supabase, including uploaded documents
+  const fetchUserStats = async () => {
+    try {
+      const { count, error: filesError } = await supabase
+        .from('files') // Replace with your table name for files
+        .select('*', { count: 'exact', head: true }) // Use `head: true` to only get the count
+        .eq('user_id', profile.id);
+
+      if (filesError) throw filesError;
+
+      setStats((prevStats) => ({
+        ...prevStats,
+        documentsUploaded: count || 0, // Set the count of uploaded documents
+      }));
+    } catch (error) {
+      console.error('Error fetching user stats:', error.message);
+    }
+  };
 
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
@@ -30,15 +81,17 @@ function UserProfilePage() {
 
     try {
       const fileName = `${profile.id}/${file.name}`;
-      const { error } = await supabase.storage
-        .from('avatars') // Replace with your storage bucket name
+      const { error: uploadError } = await supabase.storage
+        .from('avatars') // Replace with your storage bucket
         .upload(fileName, file, { upsert: true });
 
-      if (error) throw error;
+      if (uploadError) throw uploadError;
 
-      const { data: publicUrl } = supabase.storage
+      const { data: publicUrl, error: urlError } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
+
+      if (urlError) throw urlError;
 
       setProfile((prev) => ({ ...prev, avatarUrl: publicUrl.publicUrl }));
     } catch (error) {
@@ -49,7 +102,7 @@ function UserProfilePage() {
   const saveProfileChanges = async () => {
     try {
       const { error } = await supabase
-        .from('users') // Replace with your table name
+        .from('users') // Replace with your users table
         .update({
           name: profile.name,
           bio: profile.bio,
@@ -65,57 +118,14 @@ function UserProfilePage() {
     }
   };
 
-  const fetchUserProfile = async () => {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) return;
-
-      const { data: profileData, error } = await supabase
-        .from('users') // Replace with your table name
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (error) throw error;
-
-      setProfile({
-        id: profileData.id,
-        name: profileData.name,
-        email: profileData.email,
-        bio: profileData.bio || '',
-        avatarUrl: profileData.avatar || '',
-      });
-    } catch (error) {
-      console.error('Error fetching user profile:', error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchUserStats = async () => {
-    try {
-      // Replace with your logic for fetching stats
-      const { data, error } = await supabase.rpc('fetch_user_stats', {
-        user_id: profile.id,
-      });
-
-      if (error) throw error;
-
-      setStats(data || { interactions: 0, documentsUploaded: 0, editsMade: 0 });
-    } catch (error) {
-      console.error('Error fetching user stats:', error.message);
-    }
-  };
-
   useEffect(() => {
     fetchUserProfile();
   }, []);
 
   useEffect(() => {
-    if (profile.id) fetchUserStats();
+    if (profile.id) {
+      fetchUserStats();
+    }
   }, [profile.id]);
 
   if (isLoading) {

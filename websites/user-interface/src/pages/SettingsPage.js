@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CogIcon, SunIcon, GlobeIcon 
-} from '@heroicons/react/solid';
+import { CogIcon, SunIcon, GlobeIcon } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
 
 function SettingsPage() {
@@ -10,27 +8,24 @@ function SettingsPage() {
   const [timezone, setTimezone] = useState('UTC-8');
   const [saveStatus, setSaveStatus] = useState(null);
 
+  // Toggle dark mode and immediately apply/remove the class
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    if (!darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    setDarkMode((prev) => {
+      const newMode = !prev;
+      document.documentElement.classList.toggle('dark', newMode);
+      localStorage.setItem('dark-mode', newMode);
+      return newMode;
+    });
   };
 
+  // Initialize dark mode from localStorage on mount
   useEffect(() => {
     const savedMode = localStorage.getItem('dark-mode') === 'true';
     setDarkMode(savedMode);
-    if (savedMode) {
-      document.documentElement.classList.add('dark');
-    }
+    document.documentElement.classList.toggle('dark', savedMode);
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('dark-mode', darkMode);
-  }, [darkMode]);
-
+  // Save changes with feedback
   const handleSave = () => {
     setSaveStatus('saving');
     setTimeout(() => {
@@ -39,11 +34,14 @@ function SettingsPage() {
     }, 1000);
   };
 
+  // Reset to default settings
   const handleReset = () => {
     if (window.confirm('Are you sure you want to reset all settings to default?')) {
       setDarkMode(false);
       setLanguage('en');
       setTimezone('UTC-8');
+      localStorage.setItem('dark-mode', 'false');
+      document.documentElement.classList.remove('dark');
       setSaveStatus('saved');
       setTimeout(() => setSaveStatus(null), 2000);
     }
@@ -82,7 +80,7 @@ function SettingsPage() {
                 <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
                   Interface Language
                 </label>
-                <select 
+                <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
                   className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
