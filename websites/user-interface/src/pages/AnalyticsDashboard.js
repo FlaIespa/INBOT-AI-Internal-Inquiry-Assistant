@@ -1,39 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { DocumentIcon, UploadIcon } from '@heroicons/react/solid';
-import { Line } from 'react-chartjs-2';
-import { Chart, registerables } from 'chart.js';
-
-Chart.register(...registerables);
+import { supabase } from '../supabaseClient';
 
 function UserAnalyticsDashboard({ isSidebarCollapsed }) {
   const [metrics, setMetrics] = useState({
     totalDocuments: 0,
     activeSessions: 0,
   });
-  const [uploadTrends, setUploadTrends] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('authToken');
-      const headers = { Authorization: `Bearer ${token}` };
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error('User not authenticated');
 
-      const metricsResponse = await fetch('http://127.0.0.1:5000/api/user/metrics', { headers });
-      const metricsData = await metricsResponse.json();
+      const userId = user.id;
 
-      const trendsResponse = await fetch('http://127.0.0.1:5000/api/user/upload-trends', { headers });
-      const trendsData = await trendsResponse.json();
+      // Fetch total documents
+      const { data: totalDocs, error: totalDocsError } = await supabase
+        .from('files') // Replace with your files table name
+        .select('id')
+        .eq('user_id', userId);
 
-      const activityResponse = await fetch('http://127.0.0.1:5000/api/user/activity-logs', { headers });
-      const activityData = await activityResponse.json();
+      if (totalDocsError) throw totalDocsError;
 
-      if (metricsResponse.ok) setMetrics(metricsData);
-      if (trendsResponse.ok) setUploadTrends(trendsData.trends || []);
-      if (activityResponse.ok) setRecentActivity(activityData.logs || []);
+      // Fetch recent activity logs
+      const { data: activityLogs, error: activityLogsError } = await supabase
+        .from('activity_logs') // Replace with your activity logs table name
+        .select('*')
+        .eq('user_id', userId)
+        .order('date', { ascending: false })
+        .limit(10);
+
+      if (activityLogsError) throw activityLogsError;
+
+      // Update state with fetched data
+      setMetrics({
+        totalDocuments: totalDocs.length,
+        activeSessions: activityLogs.length, // Replace with actual session logic if needed
+      });
+      setRecentActivity(activityLogs);
     } catch (error) {
-      console.error('Error fetching user dashboard data:', error);
+      console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
     }
@@ -42,20 +52,6 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
   useEffect(() => {
     fetchDashboardData();
   }, []);
-
-  const chartData = {
-    labels: uploadTrends.map((item) => item.month),
-    datasets: [
-      {
-        label: 'Documents Uploaded',
-        data: uploadTrends.map((item) => item.count),
-        borderColor: '#6366F1',
-        backgroundColor: 'rgba(99, 102, 241, 0.5)',
-        fill: true,
-        tension: 0.4,
-      },
-    ],
-  };
 
   return (
     <div className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900 px-4 py-6">
@@ -66,7 +62,7 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
             Analytics <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dashboard</span>
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-            Gain insights into your activity and document trends.
+            Gain insights into your activity and document management.
           </p>
         </div>
 
@@ -82,18 +78,6 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
             <h3 className="text-sm font-medium opacity-80">Active Sessions</h3>
             <p className="text-xl font-bold">{metrics.activeSessions}</p>
           </div>
-        </div>
-
-        {/* Upload Trends */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-            Document Upload Trends
-          </h2>
-          {uploadTrends.length > 0 ? (
-            <Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
-          ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400">No data available for upload trends.</p>
-          )}
         </div>
 
         {/* Recent Activity */}

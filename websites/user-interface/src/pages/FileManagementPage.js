@@ -3,6 +3,7 @@ import FileUpload from '../components/FileUpload';
 import UploadedFiles from '../components/UploadedFiles';
 import { motion } from 'framer-motion';
 import { SearchIcon } from '@heroicons/react/solid';
+import { supabase } from '../supabaseClient'; // Import Supabase client
 
 function FileManagementPage() {
   const [files, setFiles] = useState([]);
@@ -19,31 +20,37 @@ function FileManagementPage() {
   };
 
   const fetchFiles = async () => {
-    const token = localStorage.getItem('authToken');
-
-    if (!token) {
-      console.error('Authentication token is missing.');
-      return;
-    }
-
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/files', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // Get the logged-in user's session
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
-      const data = await response.json();
-      if (response.ok) {
-        setFiles(data.files || []);
-      } else {
-        showSnackbar(`Error: ${data.error || 'Failed to fetch files'}`, 'error');
+      if (userError) {
+        console.error('Error fetching user session:', userError.message);
+        return;
       }
+
+      if (!user) {
+        console.error('User is not logged in.');
+        return;
+      }
+
+      // Fetch files associated with the logged-in user
+      const { data, error } = await supabase
+        .from('files') // Replace 'files' with your table name
+        .select('*')
+        .eq('user_id', user.id); // Use the user's ID to filter files
+
+      if (error) {
+        console.error('Error fetching files:', error.message);
+        return;
+      }
+
+      setFiles(data || []); // Update the state with fetched files
     } catch (error) {
-      console.error('Error fetching files:', error);
-      showSnackbar('Error fetching files. Please try again.', 'error');
+      console.error('Unexpected error fetching files:', error.message);
     }
   };
 
@@ -72,6 +79,7 @@ function FileManagementPage() {
     return [...new Set(files.map((file) => file.name.split('.').pop()))];
   };
 
+  // Filter files based on the search term
   const filteredFiles = files.filter((file) =>
     file.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -112,16 +120,17 @@ function FileManagementPage() {
 
         {/* Search Bar */}
         <div>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search files..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-full text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-            />
-            <SearchIcon className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
-          </div>
+        <div className="relative">
+          {/* <SearchIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" /> */}
+          <input
+            type="text"
+            placeholder="Search files..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border rounded-full text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+          />
+        </div>
+
         </div>
 
         {/* File Upload and List */}

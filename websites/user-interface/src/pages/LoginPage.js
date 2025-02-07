@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Lottie from 'lottie-react';
 import robotAnimation from '../assets/robot_animation.json'; // Import the robot animation
 import { Lock, Mail, Loader2 } from 'lucide-react';
 import WelcomeHeader from '../components/WelcomeHeader'; // Import the header component
+import { supabase } from '../supabaseClient'; // Import Supabase client
 
 // Snackbar Component
 function Snackbar({ message, type, onClose }) {
@@ -38,7 +39,27 @@ function LoginPage({ setAuthToken }) {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [snackbar, setSnackbar] = useState({ message: '', type: '', open: false });
   const [isLoading, setIsLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true); // To manage authentication state check
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if the user is already logged in
+    const checkAuth = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        // Redirect to the home page if already authenticated
+        setAuthToken(session.access_token);
+        navigate('/home', { replace: true });
+      } else {
+        setAuthLoading(false); // Show login page if not authenticated
+      }
+    };
+
+    checkAuth();
+  }, [navigate, setAuthToken]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,46 +72,50 @@ function LoginPage({ setAuthToken }) {
     setSnackbar({ ...snackbar, open: false });
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem('authToken', data.token);
-        setAuthToken(data.token);
-        setSnackbar({
-          message: '✨ Welcome back! Redirecting to your dashboard...',
-          type: 'success',
-          open: true,
-        });
-        setTimeout(() => navigate('/home'), 1500);
-      } else {
-        setSnackbar({
-          message: `${data.error}`,
-          type: 'error',
-          open: true,
-        });
+      if (error) {
+        throw new Error(error.message);
       }
+
+      // Save the session token and update auth state
+      const token = data.session.access_token;
+      localStorage.setItem('authToken', token);
+      setAuthToken(token);
+
+      setSnackbar({
+        message: '✨ Welcome back! Redirecting to your dashboard...',
+        type: 'success',
+        open: true,
+      });
+      setTimeout(() => navigate('/home'), 1500); // Redirect after success
     } catch (error) {
       setSnackbar({
-        message: '❌ Connection error. Please try again.',
+        message: `❌ ${error.message}`,
         type: 'error',
+        open: true,
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-      <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-    {/* Header */}
-    <WelcomeHeader />
+  if (authLoading) {
+    // Show loader while checking authentication
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+      </div>
+    );
+  }
 
-    {/* Main Content */}
-    {/* Add the rest of the content here */}
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <WelcomeHeader />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto space-y-10 md:space-y-0 md:space-x-12 px-4">
@@ -143,9 +168,7 @@ function LoginPage({ setAuthToken }) {
                 >
                   Login
                 </h2>
-                <p className="text-sm text-gray-600">
-                  Securely access your account below.
-                </p>
+                <p className="text-sm text-gray-600">Securely access your account below.</p>
               </motion.div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -195,10 +218,7 @@ function LoginPage({ setAuthToken }) {
 
                 <p className="text-center text-sm text-gray-500 mt-4">
                   Don't have an account?{' '}
-                  <Link
-                    to="/signup"
-                    className="font-medium text-blue-500 hover:text-blue-600"
-                  >
+                  <Link to="/signup" className="font-medium text-blue-500 hover:text-blue-600">
                     Sign up
                   </Link>
                 </p>
