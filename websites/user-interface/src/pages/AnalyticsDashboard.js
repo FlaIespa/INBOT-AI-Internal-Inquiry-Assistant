@@ -1,6 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { DocumentIcon, UploadIcon } from '@heroicons/react/solid';
 import { supabase } from '../supabaseClient';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function UserAnalyticsDashboard({ isSidebarCollapsed }) {
   const [metrics, setMetrics] = useState({
@@ -8,40 +30,64 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
     activeSessions: 0,
   });
   const [recentActivity, setRecentActivity] = useState([]);
+  const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
+      // Get the current user session
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) throw new Error('User not authenticated');
-
       const userId = user.id;
 
-      // Fetch total documents
-      const { data: totalDocs, error: totalDocsError } = await supabase
-        .from('files') // Replace with your files table name
-        .select('id')
+      // Fetch total documents along with their upload dates for charting
+      const { data: docsData, error: docsError } = await supabase
+        .from('files')
+        .select('id, uploaded_at')
         .eq('user_id', userId);
+      if (docsError) throw docsError;
+      const totalDocuments = docsData.length;
 
-      if (totalDocsError) throw totalDocsError;
+      // Process chart data: Group documents by day
+      const counts = {};
+      docsData.forEach(doc => {
+        // Group by local date string; you may adjust the format as needed
+        const day = new Date(doc.uploaded_at).toLocaleDateString();
+        counts[day] = (counts[day] || 0) + 1;
+      });
+      const labels = Object.keys(counts).sort((a, b) => new Date(a) - new Date(b));
+      const dataPoints = labels.map(label => counts[label]);
+      const chartDataObj = {
+        labels,
+        datasets: [{
+          label: 'Documents Uploaded',
+          data: dataPoints,
+          fill: false,
+          backgroundColor: 'rgba(59,130,246,0.5)',  // blue
+          borderColor: 'rgba(59,130,246,1)',
+        }],
+      };
 
       // Fetch recent activity logs
       const { data: activityLogs, error: activityLogsError } = await supabase
-        .from('activity_logs') // Replace with your activity logs table name
+        .from('activity_logs')
         .select('*')
         .eq('user_id', userId)
         .order('date', { ascending: false })
         .limit(10);
-
       if (activityLogsError) throw activityLogsError;
 
-      // Update state with fetched data
+      // For active sessions, we use activityLogs.length as a placeholder.
+      // Replace with your actual logic if available.
+      const activeSessions = activityLogs.length;
+
       setMetrics({
-        totalDocuments: totalDocs.length,
-        activeSessions: activityLogs.length, // Replace with actual session logic if needed
+        totalDocuments,
+        activeSessions,
       });
       setRecentActivity(activityLogs);
+      setChartData(chartDataObj);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -78,6 +124,20 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
             <h3 className="text-sm font-medium opacity-80">Active Sessions</h3>
             <p className="text-xl font-bold">{metrics.activeSessions}</p>
           </div>
+        </div>
+
+        {/* Chart Section */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+            Documents Uploaded Over Time
+          </h2>
+          {chartData ? (
+            <div className="h-64">
+              <Line data={chartData} options={{ maintainAspectRatio: false, responsive: true }} />
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400">No data to display.</p>
+          )}
         </div>
 
         {/* Recent Activity */}

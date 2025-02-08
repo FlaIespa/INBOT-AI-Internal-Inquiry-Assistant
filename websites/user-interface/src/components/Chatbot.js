@@ -1,6 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PaperAirplaneIcon, ChatAlt2Icon, DocumentTextIcon } from '@heroicons/react/solid';
 import { supabase } from '../supabaseClient';
+import { useLocation } from 'react-router-dom';
+
+// Helper: Parse URL query parameters
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 // --- Helper: Extract text from a PDF using pdfjs-dist ---
 async function extractTextFromPDFFromURL(url) {
@@ -50,7 +56,7 @@ async function aggregateAllFilesContent(files) {
   return aggregated;
 }
 
-// --- Helper: Ask OpenAI with a prompt including the document content ---
+// --- Helper: Ask OpenAI with a prompt including document content ---
 async function askQuestion(documentContent, question) {
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -82,6 +88,67 @@ async function askQuestion(documentContent, question) {
   }
 }
 
+// --- Helper: Start a new conversation with a name ---
+async function startNewConversation(userId, conversationName) {
+  try {
+    const { data, error } = await supabase
+      .from('conversations')
+      .insert({ user_id: userId, conversation_name: conversationName })
+      .select();
+    if (error) throw error;
+    if (data && data.length > 0) return data[0].id;
+    throw new Error("Failed to create a new conversation.");
+  } catch (error) {
+    console.error("Error starting new conversation:", error.message);
+    throw error;
+  }
+}
+
+// --- Helper: Load conversation messages ---
+async function loadConversation(convId) {
+  try {
+    const { data, error } = await supabase
+      .from('conversation_messages')
+      .select('*')
+      .eq('conversation_id', convId)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error("Error loading conversation:", error.message);
+    return [];
+  }
+}
+
+// --- Helper: Save a message to the conversation_messages table ---
+async function saveMessage(conversationId, role, message) {
+  try {
+    const { error } = await supabase
+      .from('conversation_messages')
+      .insert({ conversation_id: conversationId, role, message });
+    if (error) {
+      console.error("Error saving message:", error.message);
+    }
+  } catch (error) {
+    console.error("Error saving message:", error.message);
+  }
+}
+
+// --- Helper: Update conversation name ---
+async function updateConversationName(conversationId, newName) {
+  try {
+    const { error } = await supabase
+      .from('conversations')
+      .update({ conversation_name: newName })
+      .eq('id', conversationId);
+    if (error) {
+      console.error("Error updating conversation name:", error.message);
+    }
+  } catch (error) {
+    console.error("Error updating conversation name:", error.message);
+  }
+}
+
 function Chatbot() {
   const [files, setFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -90,13 +157,22 @@ function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [conversationId, setConversationId] = useState(null);
+  const [conversationNameInput, setConversationNameInput] = useState("INBOT Chatbot");
 
-  // On mount: Check session and fetch user files.
+  const query = useQuery();
+
+  // On mount: Check session, fetch files, and load conversation if provided.
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setUserId(session.user.id);
         fetchUserFiles(session.user.id);
+        const convId = query.get("conversationId");
+        if (convId) {
+          setConversationId(convId);
+          loadConversation(convId).then((msgs) => setMessages(msgs));
+        }
       } else {
         console.error("No active session found");
       }
@@ -123,7 +199,7 @@ function Chatbot() {
       });
   };
 
-  // When a file is selected, load its content.
+  // When a file is selected, load its content and start a new conversation if needed.
   const handleFileSelect = async (file) => {
     setSelectedFile(file);
     setMessages([]);
@@ -132,10 +208,23 @@ function Chatbot() {
     try {
       const content = await fetchDocumentContent(file);
       setDocumentContent(content);
-      setMessages([{ type: "bot", text: "Document loaded successfully. You can now ask questions about it." }]);
+      // If no conversation is active, start one using the conversation name input.
+      let convIdToUse = conversationId;
+      if (!convIdToUse) {
+        const convName = conversationNameInput.trim() || `Conversation on ${new Date().toLocaleString()}`;
+        convIdToUse = await startNewConversation(userId, convName);
+        setConversationId(convIdToUse);
+      }
+      const botMsg = "Document loaded successfully. You can now ask questions about it.";
+      setMessages([{ role: "bot", message: botMsg }]);
+      await saveMessage(convIdToUse, "bot", botMsg);
     } catch (error) {
       console.error("Error loading document:", error.message);
-      setMessages([{ type: "bot", text: "Error loading the selected document. Please try again." }]);
+      const errMsg = "Error loading the selected document. Please try again.";
+      setMessages([{ role: "bot", message: errMsg }]);
+      if (conversationId) {
+        await saveMessage(conversationId, "bot", errMsg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -150,10 +239,22 @@ function Chatbot() {
     try {
       const aggregatedContent = await aggregateAllFilesContent(files);
       setDocumentContent(aggregatedContent);
-      setMessages([{ type: "bot", text: "All documents loaded. You can now ask questions about them." }]);
+      let convIdToUse = conversationId;
+      if (!convIdToUse) {
+        const convName = conversationNameInput.trim() || `Conversation on ${new Date().toLocaleString()}`;
+        convIdToUse = await startNewConversation(userId, convName);
+        setConversationId(convIdToUse);
+      }
+      const botMsg = "All documents loaded. You can now ask questions about them.";
+      setMessages([{ role: "bot", message: botMsg }]);
+      await saveMessage(convIdToUse, "bot", botMsg);
     } catch (error) {
       console.error("Error loading documents:", error.message);
-      setMessages([{ type: "bot", text: "Error loading documents. Please try again." }]);
+      const errMsg = "Error loading documents. Please try again.";
+      setMessages([{ role: "bot", message: errMsg }]);
+      if (conversationId) {
+        await saveMessage(conversationId, "bot", errMsg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -163,26 +264,51 @@ function Chatbot() {
     e.preventDefault();
     if (!input.trim() || !documentContent) return;
     const userQuestion = input.trim();
-    setMessages(prev => [...prev, { type: "user", text: userQuestion }]);
+    // Append the user message and save it.
+    setMessages(prev => [...prev, { role: "user", message: userQuestion }]);
+    if (conversationId) {
+      await saveMessage(conversationId, "user", userQuestion);
+    }
     setInput("");
     setIsLoading(true);
     try {
       const answer = await askQuestion(documentContent, userQuestion);
-      setMessages(prev => [...prev, { type: "bot", text: answer }]);
+      setMessages(prev => [...prev, { role: "bot", message: answer }]);
+      if (conversationId) {
+        await saveMessage(conversationId, "bot", answer);
+      }
     } catch (error) {
       console.error("Error getting answer:", error.message);
-      setMessages(prev => [...prev, { type: "bot", text: "Error getting answer. Please try again." }]);
+      const errMsg = "Error getting answer. Please try again.";
+      setMessages(prev => [...prev, { role: "bot", message: errMsg }]);
+      if (conversationId) {
+        await saveMessage(conversationId, "bot", errMsg);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Handler to update conversation name on blur
+  const handleConversationNameBlur = async () => {
+    if (conversationId && conversationNameInput.trim()) {
+      await updateConversationName(conversationId, conversationNameInput.trim());
+    }
+  };
+
   return (
     <div className="flex flex-col h-[800px] bg-gray-50 dark:bg-gray-800 rounded-3xl shadow-xl m-6">
-      {/* Header */}
-      <header className="flex items-center justify-center py-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-3xl">
+      {/* Header with editable conversation name */}
+      <header className="flex flex-col items-center justify-center py-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-3xl">
         <ChatAlt2Icon className="h-6 w-6" />
-        <h1 className="text-lg font-bold ml-2">INBOT Chatbot</h1>
+        <input
+          type="text"
+          value={conversationNameInput}
+          onChange={(e) => setConversationNameInput(e.target.value)}
+          onBlur={handleConversationNameBlur}
+          className="mt-2 text-lg font-bold text-center bg-transparent border-b border-white focus:outline-none"
+          placeholder="Name your conversation"
+        />
       </header>
 
       {/* File Selection / All Files Option */}
@@ -228,9 +354,9 @@ function Chatbot() {
         <>
           <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-700 p-6">
             {messages.map((msg, index) => (
-              <div key={index} className={`flex ${msg.type === 'bot' ? 'justify-start' : 'justify-end'} mb-4`}>
-                <div className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-md ${msg.type === 'bot' ? 'bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100' : 'bg-blue-500 dark:bg-blue-600 text-white'}`}>
-                  <p className="text-sm">{msg.text}</p>
+              <div key={index} className={`flex ${msg.role === 'bot' ? 'justify-start' : 'justify-end'} mb-4`}>
+                <div className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-md ${msg.role === 'bot' ? 'bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100' : 'bg-blue-500 dark:bg-blue-600 text-white'}`}>
+                  <p className="text-sm">{msg.message}</p>
                 </div>
               </div>
             ))}
@@ -250,7 +376,7 @@ function Chatbot() {
                 onChange={(e) => setInput(e.target.value)}
                 disabled={isLoading}
                 rows={4}
-                className="flex-grow px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 resize-none h-24"
+                className="flex-grow px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
                 placeholder="Ask a question about the document..."
               />
               <button
