@@ -1,9 +1,0 @@
-2024-10-24 15:40:40,104 - INFO - Created directory data/ for storing documents.
-2024-10-24 15:40:40,106 - INFO - Document 'Flavia Iespa - SWE2024.pdf' uploaded and saved to 'data/'.
-2024-10-24 15:40:40,154 - INFO - Successfully parsed PDF document 'data/Flavia Iespa - SWE2024.pdf'.
-2024-10-24 15:40:40,154 - INFO - Text cleaned successfully.
-2024-10-24 15:40:40,154 - INFO - Document 'Flavia Iespa - SWE2024.pdf' parsed, cleaned, and indexed successfully.
-2024-10-24 15:40:40,510 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
-2024-10-24 15:40:40,513 - INFO - Question asked to Groq API: fláviadasilvaiespasanfrancisco ,california - +1(415)235-2389 - flavia .iespa@uni .minerva .edu - linkedin - github - portfolioeducationminervauniversitysanfrancisco ,californiabachelorofscienceincomputerscience&cognitiveneurosciencesep2021-may2025 - focusedonactivelearningthrougha7citiesglobalrotationprogram . - ranked#1mostinnovativeuniversityintheworldbywuri2022 .~1 %acceptancerate . - partofthepsychologylabinitiative . - coursework:datastructures&algorithms ,softwaredevelopment ,calculusi ,ii
-2024-10-24 15:40:40,575 - INFO - Successfully parsed PDF document 'data/Flavia Iespa - SWE2024.pdf'.
-2024-10-24 15:40:40,576 - INFO - Search for 'Python' completed. 1 matches found.
