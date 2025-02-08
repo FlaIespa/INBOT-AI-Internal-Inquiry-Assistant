@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext } from 'react';
+import React, { useState, createContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import HomePage from './pages/HomePage';
@@ -13,6 +13,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import LandingPage from './pages/WelcomePage';
 import HistoryPage from './pages/HistoryPage'; // Import the HistoryPage component
+import ConversationDetail from './pages/ConversationDetailPage'; // <-- NEW: Import ConversationDetail
 
 // Create dark mode context
 export const DarkModeContext = createContext();
@@ -33,7 +34,7 @@ function App() {
   };
 
   // Initialize dark mode from localStorage
-  useEffect(() => {
+  React.useEffect(() => {
     const savedMode = localStorage.getItem('dark-mode') === 'true';
     setDarkMode(savedMode);
     if (savedMode) {
@@ -198,6 +199,17 @@ function App() {
                 <ProtectedRoute>
                   <ProtectedLayout>
                     <HistoryPage />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            {/* NEW: ConversationDetail Route */}
+            <Route
+              path="/conversation/:conversationId"
+              element={
+                <ProtectedRoute>
+                  <ProtectedLayout>
+                    <ConversationDetail />
                   </ProtectedLayout>
                 </ProtectedRoute>
               }

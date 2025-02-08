@@ -3,6 +3,7 @@ import {
   PencilIcon,
   DocumentTextIcon,
   ChatAlt2Icon,
+  ChatIcon,
   SaveIcon,
 } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
@@ -18,9 +19,8 @@ function UserProfilePage() {
     avatarUrl: '',
   });
   const [stats, setStats] = useState({
-    interactions: 0,
     documentsUploaded: 0,
-    editsMade: 0,
+    conversations: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -35,7 +35,7 @@ function UserProfilePage() {
       if (authError || !user) throw new Error('User is not authenticated.');
 
       const { data: profileData, error: profileError } = await supabase
-        .from('users') // Replace with your users table
+        .from('users')
         .select('*')
         .eq('id', user.id)
         .single();
@@ -56,43 +56,53 @@ function UserProfilePage() {
     }
   };
 
-  // Fetch user stats from Supabase, including uploaded documents
+  // Fetch user stats from Supabase, including uploaded documents and conversation count
   const fetchUserStats = async () => {
     try {
-      const { count, error: filesError } = await supabase
-        .from('files') // Replace with your table name for files
-        .select('*', { count: 'exact', head: true }) // Use `head: true` to only get the count
+      // Query the files table for document count
+      const { count: filesCount, error: filesError } = await supabase
+        .from('files')
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', profile.id);
-
       if (filesError) throw filesError;
 
-      setStats((prevStats) => ({
-        ...prevStats,
-        documentsUploaded: count || 0, // Set the count of uploaded documents
-      }));
+      // Query the conversations table for conversation count
+      const { count: convCount, error: convError } = await supabase
+        .from('conversations')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profile.id);
+      if (convError) throw convError;
+
+      setStats({
+        documentsUploaded: filesCount || 0,
+        conversations: convCount || 0,
+      });
     } catch (error) {
       console.error('Error fetching user stats:', error.message);
     }
   };
 
+  // Handle avatar upload to bucket "profile"
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     try {
+      // Use the "profile" bucket instead of "avatars"
       const fileName = `${profile.id}/${file.name}`;
       const { error: uploadError } = await supabase.storage
-        .from('avatars') // Replace with your storage bucket
+        .from('profile')
         .upload(fileName, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
       const { data: publicUrl, error: urlError } = supabase.storage
-        .from('avatars')
+        .from('profile')
         .getPublicUrl(fileName);
 
       if (urlError) throw urlError;
 
+      // Update local state
       setProfile((prev) => ({ ...prev, avatarUrl: publicUrl.publicUrl }));
     } catch (error) {
       console.error('Error uploading avatar:', error.message);
@@ -102,7 +112,7 @@ function UserProfilePage() {
   const saveProfileChanges = async () => {
     try {
       const { error } = await supabase
-        .from('users') // Replace with your users table
+        .from('users')
         .update({
           name: profile.name,
           bio: profile.bio,
@@ -218,11 +228,10 @@ function UserProfilePage() {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {[
-            { label: 'Chatbot Interactions', stat: stats.interactions, icon: ChatAlt2Icon },
             { label: 'Documents Uploaded', stat: stats.documentsUploaded, icon: DocumentTextIcon },
-            { label: 'Edits Made', stat: stats.editsMade, icon: PencilIcon },
+            { label: 'Conversations', stat: stats.conversations, icon: ChatIcon },
           ].map((item, index) => (
             <div
               key={index}
