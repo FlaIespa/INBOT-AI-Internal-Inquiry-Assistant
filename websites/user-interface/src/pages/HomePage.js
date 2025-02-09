@@ -1,130 +1,155 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChatAlt2Icon, CloudUploadIcon } from '@heroicons/react/solid';
+import { ChatAlt2Icon, CloudUploadIcon, ChartBarIcon } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
+import introJs from 'intro.js';
+import 'intro.js/introjs.css';
 
-const HomePage = () => {
+function GettingStartedPage() {
+  // Function to start the Sidebar Tour on the current page (without navigation)
+  const startSidebarTour = () => {
+    introJs()
+      .setOptions({
+        steps: [
+          {
+            element: '.sidebar-profile',
+            intro: 'This is your profile section. Click here to view or edit your profile.',
+          },
+          {
+            element: '.sidebar-link-home',
+            intro: 'This link takes you to the Home page, where you can see an overview of your dashboard.',
+          },
+          {
+            element: '.sidebar-link-chatbot',
+            intro: 'Access the Chatbot to interact with INBOT.',
+          },
+          {
+            element: '.sidebar-link-fileManagement',
+            intro: 'Use this to upload and manage your documents.',
+          },
+          {
+            element: '.sidebar-link-settings',
+            intro: 'Change your settings and preferences here.',
+          },
+          {
+            element: '.sidebar-link-faq',
+            intro: 'Find help and FAQs in this section.',
+          },
+          {
+            element: '.sidebar-link-userProfile',
+            intro: 'View and update your user profile here.',
+          },
+          {
+            element: '.sidebar-link-notifications',
+            intro: 'Check your notifications here.',
+          },
+          {
+            element: '.sidebar-link-analytics',
+            intro: 'View analytics and insights about your activity here.',
+          },
+          {
+            element: '.sidebar-link-history',
+            intro: 'Access your chat history here.',
+          },
+          {
+            element: '.sidebar-logout',
+            intro: 'Click here to log out of your account.',
+          },
+        ],
+        showProgress: true,
+        exitOnOverlayClick: false,
+      })
+      .start();
+  };
+
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.95 },
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { duration: 0.4, ease: 'easeInOut' },
+      transition: { duration: 0.5, ease: 'easeInOut' },
     },
   };
 
   return (
     <motion.div
-      className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900"
+      className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <div className="container mx-auto px-8 py-16 flex flex-col items-center">
-        {/* Welcome Section */}
-        <div className="text-center mb-16 max-w-2xl">
-          <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white">
-            Welcome to{' '}
-            <span className="relative">
-              {/* Gradient Text */}
-              <span className="font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                INBOT
-              </span>
-              {/* Floating Effect */}
-              <span className="absolute inset-x-0 -bottom-1 bg-gradient-to-r from-blue-400 to-purple-400 opacity-50 h-1 w-full rounded-full"></span>
-            </span>
+      {/* Hero Section */}
+      <section className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl font-extrabold mb-6 tracking-tight">
+            Welcome to INBOT
           </h1>
-          <p className="mt-5 text-lg text-gray-600 dark:text-gray-300 font-medium">
-            Your intelligent assistant for seamless communication and{' '}
-            <span className="text-blue-600 dark:text-blue-400 font-semibold">document management</span>.
+          <p className="text-xl mb-10">
+            Your intelligent assistant for seamless communication and efficient document management.
           </p>
-        </div>
-
-        {/* Feature Cards Container */}
-        <div className="w-full max-w-4xl mt-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {/* Chat Card */}
-            <Link to="/chatbot" className="group relative overflow-hidden rounded-xl">
-              <div
-                className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md 
-                transition-all duration-300 border border-gray-100 dark:border-gray-700 h-full"
-              >
-                <div className="flex items-start justify-between mb-6">
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
-                    <ChatAlt2Icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div
-                    className="h-8 w-8 rounded-full flex items-center justify-center
-                    bg-gray-50 dark:bg-gray-700 group-hover:bg-blue-50 dark:group-hover:bg-gray-600 
-                    transition-colors duration-300"
-                  >
-                    <span className="text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 
-                      transition-colors duration-300">
-                      →
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    AI Chat Assistant
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Get instant answers and intelligent responses from our advanced AI system.
-                  </p>
-                </div>
-
-                {/* Subtle highlight effect */}
-                <div
-                  className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 
-                  transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
-                />
-              </div>
-            </Link>
-
-            {/* Documents Card */}
-            <Link to="/file-management" className="group relative overflow-hidden rounded-xl">
-              <div
-                className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md 
-                transition-all duration-300 border border-gray-100 dark:border-gray-700 h-full"
-              >
-                <div className="flex items-start justify-between mb-6">
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
-                    <CloudUploadIcon className="h-6 w-6 text-white" />
-                  </div>
-                  <div
-                    className="h-8 w-8 rounded-full flex items-center justify-center
-                    bg-gray-50 dark:bg-gray-700 group-hover:bg-blue-50 dark:group-hover:bg-gray-600 
-                    transition-colors duration-300"
-                  >
-                    <span className="text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 
-                      transition-colors duration-300">
-                      →
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    Document Manager
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Upload, organize, and manage your files with intelligent assistance.
-                  </p>
-                </div>
-
-                {/* Subtle highlight effect */}
-                <div
-                  className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 
-                  transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
-                />
-              </div>
-            </Link>
+          <div className="flex justify-center">
+            <button 
+              onClick={startSidebarTour}
+              className="px-8 py-4 bg-white text-indigo-600 font-bold rounded-full shadow-lg transition-all hover:bg-gray-100"
+            >
+              Sidebar Tour
+            </button>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="w-full max-w-6xl px-4 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* AI Chat Assistant Card */}
+          <Link
+            to="/chatbot"
+            className="group block bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 hover:shadow-2xl transform hover:-translate-y-1 transition"
+          >
+            <div className="flex justify-center mb-4">
+              <ChatAlt2Icon className="w-12 h-12 text-indigo-600" />
+            </div>
+            <h2 className="mt-2 text-xl font-bold text-center text-gray-900 dark:text-white">
+              AI Chat Assistant
+            </h2>
+            <p className="mt-1 text-center text-gray-600 dark:text-gray-300">
+              Ask questions and receive intelligent responses.
+            </p>
+          </Link>
+          {/* Document Manager Card */}
+          <Link
+            to="/file-management"
+            className="group block bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 hover:shadow-2xl transform hover:-translate-y-1 transition"
+          >
+            <div className="flex justify-center mb-4">
+              <CloudUploadIcon className="w-12 h-12 text-indigo-600" />
+            </div>
+            <h2 className="mt-2 text-xl font-bold text-center text-gray-900 dark:text-white">
+              Document Manager
+            </h2>
+            <p className="mt-1 text-center text-gray-600 dark:text-gray-300">
+              Upload, organize, and manage your files.
+            </p>
+          </Link>
+          {/* Analytics Dashboard Card */}
+          <Link
+            to="/admin-dashboard"
+            className="group block bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 hover:shadow-2xl transform hover:-translate-y-1 transition"
+          >
+            <div className="flex justify-center mb-4">
+              <ChartBarIcon className="w-12 h-12 text-indigo-600" />
+            </div>
+            <h2 className="mt-2 text-xl font-bold text-center text-gray-900 dark:text-white">
+              Analytics Dashboard
+            </h2>
+            <p className="mt-1 text-center text-gray-600 dark:text-gray-300">
+              Gain insights into your document activity.
+            </p>
+          </Link>
+        </div>
+      </section>
     </motion.div>
   );
-};
+}
 
-export default HomePage;
+export default GettingStartedPage;
