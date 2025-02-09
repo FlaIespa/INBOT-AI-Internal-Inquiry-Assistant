@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PaperAirplaneIcon, ChatAlt2Icon, DocumentTextIcon, CheckCircleIcon } from '@heroicons/react/solid';
+import { PaperAirplaneIcon, ChatAlt2Icon, DocumentTextIcon } from '@heroicons/react/solid';
 import { supabase } from '../supabaseClient';
 import { useLocation } from 'react-router-dom';
 import introJs from 'intro.js';
@@ -161,7 +161,7 @@ function Chatbot() {
   const [userId, setUserId] = useState(null);
   const [conversationId, setConversationId] = useState(null);
   const [conversationNameInput, setConversationNameInput] = useState("INBOT Chatbot");
-  const [tourCompleted, setTourCompleted] = useState(false);
+  // tourCompleted is removed because tours are now user-initiated
 
   const query = useQuery();
 
@@ -221,34 +221,6 @@ function Chatbot() {
       const botMsg = "Document loaded successfully. You can now ask questions about it.";
       setMessages([{ role: "bot", message: botMsg }]);
       await saveMessage(convIdToUse, "bot", botMsg);
-      // After selecting a document, if the conversation tour hasn't been run yet, trigger it.
-      if (!tourCompleted) {
-        introJs()
-          .setOptions({
-            steps: [
-              {
-                element: '.chatbot-header',
-                intro: 'This is the conversation header where you can view or edit the conversation title.',
-              },
-              {
-                element: '.chatbot-messages',
-                intro: 'This area shows the conversation history between you and INBOT.',
-              },
-              {
-                element: '.chatbot-input',
-                intro: 'Type your question here. Press Enter or click the send button to submit.',
-              },
-              {
-                element: '.chatbot-send-btn',
-                intro: 'Click this button to send your question.',
-              },
-            ],
-            showProgress: true,
-            exitOnOverlayClick: false,
-          })
-          .start();
-        setTourCompleted(true);
-      }
     } catch (error) {
       console.error("Error loading document:", error.message);
       const errMsg = "Error loading the selected document. Please try again.";
@@ -327,19 +299,58 @@ function Chatbot() {
     }
   };
 
+  // Handler for manually starting the chatbot tour (only in conversation state)
+  const startChatbotTour = () => {
+    introJs()
+      .setOptions({
+        steps: [
+          {
+            element: '.chatbot-header',
+            intro: 'This is the conversation header where you can view or edit the conversation title.',
+          },
+          {
+            element: '.chatbot-messages',
+            intro: 'This area shows the conversation history between you and INBOT.',
+          },
+          {
+            element: '.chatbot-input',
+            intro: 'Type your question here. Press Enter or click the send button to submit.',
+          },
+          {
+            element: '.chatbot-send-btn',
+            intro: 'Click this button to send your question.',
+          },
+        ],
+        showProgress: true,
+        exitOnOverlayClick: false,
+      })
+      .start();
+  };
+
   return (
     <div className="flex flex-col h-[800px] bg-gray-50 dark:bg-gray-800 rounded-3xl shadow-xl m-6">
       {/* Header with editable conversation name */}
       <header className="flex flex-col items-center justify-center py-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-3xl chatbot-header">
-        <ChatAlt2Icon className="h-6 w-6" />
-        <input
-          type="text"
-          value={conversationNameInput}
-          onChange={(e) => setConversationNameInput(e.target.value)}
-          onBlur={handleConversationNameBlur}
-          className="mt-2 text-lg font-bold text-center bg-transparent border-b border-white focus:outline-none"
-          placeholder="Name your conversation"
-        />
+        <div className="flex items-center space-x-4">
+          <ChatAlt2Icon className="h-6 w-6" />
+          <input
+            type="text"
+            value={conversationNameInput}
+            onChange={(e) => setConversationNameInput(e.target.value)}
+            onBlur={handleConversationNameBlur}
+            className="text-lg font-bold text-center bg-transparent border-b border-white focus:outline-none"
+            placeholder="Name your conversation"
+          />
+          {/* Only show the Chatbot Tour button in conversation state */}
+          {documentContent && (
+            <button 
+              onClick={startChatbotTour}
+              className="px-4 py-2 bg-white text-indigo-600 rounded-full shadow hover:bg-gray-100 transition"
+            >
+              Chatbot Tour
+            </button>
+          )}
+        </div>
       </header>
 
       {/* File Selection / All Files Option */}
