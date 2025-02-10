@@ -1,14 +1,15 @@
+// src/components/SettingsPage.js
 import React, { useState, useEffect } from 'react';
 import { CogIcon, SunIcon, GlobeIcon } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
 
 function SettingsPage() {
   const [darkMode, setDarkMode] = useState(false);
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState('en'); // default language is English
   const [timezone, setTimezone] = useState('UTC-8');
   const [saveStatus, setSaveStatus] = useState(null);
 
-  // Toggle dark mode and immediately apply/remove the class
+  // Toggle dark mode and update the class on the <html> element.
   const toggleDarkMode = () => {
     setDarkMode((prev) => {
       const newMode = !prev;
@@ -18,14 +19,31 @@ function SettingsPage() {
     });
   };
 
-  // Initialize dark mode from localStorage on mount
+  // Load dark mode preference on mount.
   useEffect(() => {
     const savedMode = localStorage.getItem('dark-mode') === 'true';
     setDarkMode(savedMode);
     document.documentElement.classList.toggle('dark', savedMode);
   }, []);
 
-  // Save changes with feedback
+  // Save dark mode preference whenever it changes.
+  useEffect(() => {
+    localStorage.setItem('dark-mode', darkMode);
+  }, [darkMode]);
+
+  // Handle language changes for the Google Translate widget.
+  const handleLanguageChange = (e) => {
+    const newLang = e.target.value;
+    setLanguage(newLang);
+    localStorage.setItem('language', newLang);
+    // Set the Google Translate cookie.
+    // Assuming your site's original language is English, the cookie format is: "/en/{targetLanguage}"
+    document.cookie = "googtrans=/en/" + newLang + ";path=/";
+    // Reload the page so that the widget re-initializes in the new language.
+    window.location.reload();
+  };
+
+  // Save changes with feedback.
   const handleSave = () => {
     setSaveStatus('saving');
     setTimeout(() => {
@@ -34,16 +52,21 @@ function SettingsPage() {
     }, 1000);
   };
 
-  // Reset to default settings
+  // Reset to default settings.
   const handleReset = () => {
     if (window.confirm('Are you sure you want to reset all settings to default?')) {
       setDarkMode(false);
       setLanguage('en');
       setTimezone('UTC-8');
       localStorage.setItem('dark-mode', 'false');
+      localStorage.setItem('language', 'en');
+      // Reset the Google Translate widget cookie to English.
+      document.cookie = "googtrans=/en/en;path=/";
       document.documentElement.classList.remove('dark');
       setSaveStatus('saved');
       setTimeout(() => setSaveStatus(null), 2000);
+      // Reload the page to apply changes.
+      window.location.reload();
     }
   };
 
@@ -57,7 +80,7 @@ function SettingsPage() {
       >
         {/* Page Title */}
         <div className="text-center">
-          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">
             Settings
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
@@ -82,13 +105,11 @@ function SettingsPage() {
                 </label>
                 <select
                   value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
+                  onChange={handleLanguageChange}
                   className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 >
                   <option value="en">English</option>
                   <option value="pt">Português</option>
-                  <option value="es">Español</option>
-                  <option value="fr">Français</option>
                 </select>
               </div>
               <div>
