@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DocumentIcon, UploadIcon } from '@heroicons/react/solid';
+import { DocumentIcon, ChatIcon } from '@heroicons/react/solid';
 import { supabase } from '../supabaseClient';
 import { Line } from 'react-chartjs-2';
 import {
@@ -27,7 +27,7 @@ ChartJS.register(
 function UserAnalyticsDashboard({ isSidebarCollapsed }) {
   const [metrics, setMetrics] = useState({
     totalDocuments: 0,
-    activeSessions: 0,
+    totalConversations: 0,
   });
   const [recentActivity, setRecentActivity] = useState([]);
   const [chartData, setChartData] = useState(null);
@@ -41,7 +41,7 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
       if (userError || !user) throw new Error('User not authenticated');
       const userId = user.id;
 
-      // Fetch total documents along with their upload dates for charting
+      // Fetch files (documents) data for charting
       const { data: docsData, error: docsError } = await supabase
         .from('files')
         .select('id, uploaded_at')
@@ -52,7 +52,6 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
       // Process chart data: Group documents by day
       const counts = {};
       docsData.forEach(doc => {
-        // Group by local date string; you may adjust the format as needed
         const day = new Date(doc.uploaded_at).toLocaleDateString();
         counts[day] = (counts[day] || 0) + 1;
       });
@@ -69,6 +68,13 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
         }],
       };
 
+      // Fetch conversation count
+      const { count: conversationCount, error: convError } = await supabase
+        .from('conversations')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+      if (convError) throw convError;
+
       // Fetch recent activity logs
       const { data: activityLogs, error: activityLogsError } = await supabase
         .from('activity_logs')
@@ -78,13 +84,9 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
         .limit(10);
       if (activityLogsError) throw activityLogsError;
 
-      // For active sessions, we use activityLogs.length as a placeholder.
-      // Replace with your actual logic if available.
-      const activeSessions = activityLogs.length;
-
       setMetrics({
         totalDocuments,
-        activeSessions,
+        totalConversations: conversationCount || 0,
       });
       setRecentActivity(activityLogs);
       setChartData(chartDataObj);
@@ -120,9 +122,9 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
             <p className="text-xl font-bold">{metrics.totalDocuments}</p>
           </div>
           <div className="p-4 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
-            <UploadIcon className="h-6 w-6 mb-2" />
-            <h3 className="text-sm font-medium opacity-80">Active Sessions</h3>
-            <p className="text-xl font-bold">{metrics.activeSessions}</p>
+            <ChatIcon className="h-6 w-6 mb-2" />
+            <h3 className="text-sm font-medium opacity-80">Conversations</h3>
+            <p className="text-xl font-bold">{metrics.totalConversations}</p>
           </div>
         </div>
 

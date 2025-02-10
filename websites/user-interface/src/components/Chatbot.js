@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { PaperAirplaneIcon, ChatAlt2Icon, DocumentTextIcon } from '@heroicons/react/solid';
 import { supabase } from '../supabaseClient';
 import { useLocation } from 'react-router-dom';
+import introJs from 'intro.js';
+import 'intro.js/introjs.css';
 
 // Helper: Parse URL query parameters
 function useQuery() {
@@ -159,6 +161,7 @@ function Chatbot() {
   const [userId, setUserId] = useState(null);
   const [conversationId, setConversationId] = useState(null);
   const [conversationNameInput, setConversationNameInput] = useState("INBOT Chatbot");
+  // tourCompleted is removed because tours are now user-initiated
 
   const query = useQuery();
 
@@ -296,24 +299,63 @@ function Chatbot() {
     }
   };
 
+  // Handler for manually starting the chatbot tour (only in conversation state)
+  const startChatbotTour = () => {
+    introJs()
+      .setOptions({
+        steps: [
+          {
+            element: '.chatbot-header',
+            intro: 'This is the conversation header where you can view or edit the conversation title.',
+          },
+          {
+            element: '.chatbot-messages',
+            intro: 'This area shows the conversation history between you and INBOT.',
+          },
+          {
+            element: '.chatbot-input',
+            intro: 'Type your question here. Press Enter or click the send button to submit.',
+          },
+          {
+            element: '.chatbot-send-btn',
+            intro: 'Click this button to send your question.',
+          },
+        ],
+        showProgress: true,
+        exitOnOverlayClick: false,
+      })
+      .start();
+  };
+
   return (
     <div className="flex flex-col h-[800px] bg-gray-50 dark:bg-gray-800 rounded-3xl shadow-xl m-6">
       {/* Header with editable conversation name */}
-      <header className="flex flex-col items-center justify-center py-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-3xl">
-        <ChatAlt2Icon className="h-6 w-6" />
-        <input
-          type="text"
-          value={conversationNameInput}
-          onChange={(e) => setConversationNameInput(e.target.value)}
-          onBlur={handleConversationNameBlur}
-          className="mt-2 text-lg font-bold text-center bg-transparent border-b border-white focus:outline-none"
-          placeholder="Name your conversation"
-        />
+      <header className="flex flex-col items-center justify-center py-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-3xl chatbot-header">
+        <div className="flex items-center space-x-4">
+          <ChatAlt2Icon className="h-6 w-6" />
+          <input
+            type="text"
+            value={conversationNameInput}
+            onChange={(e) => setConversationNameInput(e.target.value)}
+            onBlur={handleConversationNameBlur}
+            className="text-lg font-bold text-center bg-transparent border-b border-white focus:outline-none"
+            placeholder="Name your conversation"
+          />
+          {/* Only show the Chatbot Tour button in conversation state */}
+          {documentContent && (
+            <button 
+              onClick={startChatbotTour}
+              className="px-4 py-2 bg-white text-indigo-600 rounded-full shadow hover:bg-gray-100 transition"
+            >
+              Chatbot Tour
+            </button>
+          )}
+        </div>
       </header>
 
       {/* File Selection / All Files Option */}
       {!documentContent && (
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 file-selection-container">
           <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
             Select a document or choose "All Files" to ask questions about all uploads:
           </h2>
@@ -346,13 +388,38 @@ function Chatbot() {
               Ask about All Files
             </button>
           </div>
+          {/* File Selection Tour Button */}
+          <div className="mt-4">
+            <button 
+              onClick={() => {
+                introJs()
+                  .setOptions({
+                    steps: [
+                      {
+                        element: '.file-selection-container',
+                        intro: 'This is where you can select a document to load. Click on a document to get started.',
+                      },
+                      {
+                        intro: 'After selecting a document, the conversation area will appear below.',
+                      }
+                    ],
+                    showProgress: true,
+                    exitOnOverlayClick: true,
+                  })
+                  .start();
+              }}
+              className="px-4 py-2 bg-white text-blue-600 font-semibold rounded-full shadow-lg transition-all hover:bg-gray-100"
+            >
+              Take File Selection Tour
+            </button>
+          </div>
         </div>
       )}
 
       {/* Chat Interface */}
       {documentContent && (
         <>
-          <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-700 p-6">
+          <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-700 p-6 chatbot-messages">
             {messages.map((msg, index) => (
               <div key={index} className={`flex ${msg.role === 'bot' ? 'justify-start' : 'justify-end'} mb-4`}>
                 <div className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-md ${msg.role === 'bot' ? 'bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100' : 'bg-blue-500 dark:bg-blue-600 text-white'}`}>
@@ -382,13 +449,13 @@ function Chatbot() {
                 }}
                 disabled={isLoading}
                 rows={4}
-                className="flex-grow px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
+                className="flex-grow px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 chatbot-input"
                 placeholder="Ask a question about the document..."
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed self-end"
+                className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed self-end chatbot-send-btn"
               >
                 <PaperAirplaneIcon className="h-5 w-5 transform rotate-45" />
               </button>

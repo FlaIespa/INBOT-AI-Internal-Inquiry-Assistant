@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import FileUpload from '../components/FileUpload';
 import UploadedFiles from '../components/UploadedFiles';
 import { motion } from 'framer-motion';
-import { SearchIcon } from '@heroicons/react/solid';
 import { supabase } from '../supabaseClient'; // Import Supabase client
 
 function FileManagementPage() {
@@ -76,13 +75,20 @@ function FileManagementPage() {
   };
 
   const getUniqueFileTypes = (files) => {
-    return [...new Set(files.map((file) => file.name.split('.').pop()))];
+    const fileTypes = [...new Set(files.map((file) => file.name.split('.').pop()))];
+    return {
+      count: fileTypes.length,
+      types: fileTypes,
+    };
   };
 
   // Filter files based on the search term
   const filteredFiles = files.filter((file) =>
     file.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Get file types information
+  const fileTypesInfo = getUniqueFileTypes(files);
 
   return (
     <div className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900 px-4 py-6">
@@ -114,23 +120,24 @@ function FileManagementPage() {
           </div>
           <div className="p-4 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
             <h3 className="text-xs font-medium opacity-80">File Types</h3>
-            <p className="text-xl font-bold">{getUniqueFileTypes(files).length}</p>
+            <p className="text-xl font-bold">{fileTypesInfo.count}</p>
+            <p className="text-sm opacity-90 mt-1">
+              {fileTypesInfo.types.join(', ') || 'No files uploaded'}
+            </p>
           </div>
         </div>
 
         {/* Search Bar */}
         <div>
-        <div className="relative">
-          {/* <SearchIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" /> */}
-          <input
-            type="text"
-            placeholder="Search files..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border rounded-full text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-          />
-        </div>
-
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search files..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border rounded-full text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            />
+          </div>
         </div>
 
         {/* File Upload and List */}

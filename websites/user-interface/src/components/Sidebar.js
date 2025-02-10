@@ -36,7 +36,6 @@ function Sidebar() {
         console.error('Error during logout:', error.message);
         return;
       }
-
       localStorage.removeItem('authToken');
       navigate('/login');
     } catch (error) {
@@ -49,17 +48,13 @@ function Sidebar() {
       const {
         data: { user: currentUser },
       } = await supabase.auth.getUser();
-
       if (!currentUser) return;
-
       const { data: profile, error } = await supabase
         .from('users') // Replace with your table name
         .select('name, email, avatar')
         .eq('id', currentUser.id)
         .single();
-
       if (error) throw error;
-
       setUser({
         name: profile.name || 'Unknown User',
         email: profile.email || 'unknown@example.com',
@@ -93,9 +88,7 @@ function Sidebar() {
             </div>
             <button
               onClick={toggleSidebar}
-              className="text-white p-2 rounded-full 
-                hover:bg-blue-700 dark:hover:bg-gray-700 
-                hover:bg-opacity-50 transition-colors duration-200"
+              className="text-white p-2 rounded-full hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-colors duration-200"
             >
               {isCollapsed ? (
                 <ChevronRightIcon className="h-5 w-5" />
@@ -109,9 +102,7 @@ function Sidebar() {
         {/* Profile Section */}
         <Link
           to="/user-profile"
-          className="px-3 py-4 border-y border-white/10 
-            hover:bg-blue-700 dark:hover:bg-gray-700 
-            hover:bg-opacity-50 transition-all duration-300"
+          className="px-3 py-4 border-y border-white/10 hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-all duration-300 sidebar-profile"
         >
           <div className={`flex items-center space-x-3 ${isCollapsed ? 'justify-center' : ''}`}>
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -138,22 +129,20 @@ function Sidebar() {
         <nav className="flex-1 p-3">
           <ul className="space-y-4">
             {[
-              { to: '/home', Icon: HomeIcon, label: 'Home' },
-              { to: '/chatbot', Icon: ChatAlt2Icon, label: 'Chatbot' },
-              { to: '/file-management', Icon: CloudUploadIcon, label: 'File Management' },
-              { to: '/settings', Icon: CogIcon, label: 'Settings' },
-              { to: '/faq', Icon: QuestionMarkCircleIcon, label: 'Help/FAQ' },
-              { to: '/user-profile', Icon: UserIcon, label: 'User Profile' },
-              { to: '/notifications', Icon: BellIcon, label: 'Notifications' },
-              { to: '/admin-dashboard', Icon: ChartPieIcon, label: 'Analytics' },
-              { to: '/history', Icon: ClockIcon, label: 'History' },
-            ].map(({ to, Icon, label }) => (
+              { to: '/home', Icon: HomeIcon, label: 'Home', tour: 'home' },
+              { to: '/chatbot', Icon: ChatAlt2Icon, label: 'Chatbot', tour: 'chatbot' },
+              { to: '/file-management', Icon: CloudUploadIcon, label: 'File Management', tour: 'fileManagement' },
+              { to: '/settings', Icon: CogIcon, label: 'Settings', tour: 'settings' },
+              { to: '/faq', Icon: QuestionMarkCircleIcon, label: 'Help/FAQ', tour: 'faq' },
+              { to: '/user-profile', Icon: UserIcon, label: 'User Profile', tour: 'userProfile' },
+              { to: '/notifications', Icon: BellIcon, label: 'Notifications', tour: 'notifications' },
+              { to: '/admin-dashboard', Icon: ChartPieIcon, label: 'Analytics', tour: 'analytics' },
+              { to: '/history', Icon: ClockIcon, label: 'History', tour: 'history' },
+            ].map(({ to, Icon, label, tour }) => (
               <li key={to}>
                 <Link
                   to={to}
-                  className="flex items-center space-x-3 p-3 rounded-md 
-                    hover:bg-blue-700 dark:hover:bg-gray-700 
-                    hover:bg-opacity-50 transition-all duration-300"
+                  className={`flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-all duration-300 sidebar-link-${tour}`}
                 >
                   <Icon className="h-5 w-5" />
                   {!isCollapsed && <span className="text-sm font-medium">{label}</span>}
@@ -167,9 +156,7 @@ function Sidebar() {
         <div className="p-3">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center space-x-2 p-2 rounded-md 
-              bg-white/10 hover:bg-white/20 dark:bg-gray-700/50 
-              dark:hover:bg-gray-600/50 transition-colors duration-200"
+            className="w-full flex items-center justify-center space-x-2 p-2 rounded-md bg-white/10 hover:bg-white/20 dark:bg-gray-700/50 dark:hover:bg-gray-600/50 transition-colors duration-200 sidebar-logout"
           >
             <LogoutIcon className="h-4 w-4" />
             {!isCollapsed && <span className="text-xs">Logout</span>}

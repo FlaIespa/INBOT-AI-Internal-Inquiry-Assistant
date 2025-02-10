@@ -1,6 +1,8 @@
-import React, { useState, createContext } from 'react';
+import React, { useState, createContext, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
+import SidebarTour from './components/SidebarTour'; // NEW: Import SidebarTour component
+import ChatbotTour from './components/ChatbotTour'; // NEW: Import ChatbotTour component
 import HomePage from './pages/HomePage';
 import ChatbotPage from './pages/ChatbotPage';
 import FileManagementPage from './pages/FileManagementPage';
@@ -12,8 +14,8 @@ import AdminDashboard from './pages/AnalyticsDashboard';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import LandingPage from './pages/WelcomePage';
-import HistoryPage from './pages/HistoryPage'; // Import the HistoryPage component
-import ConversationDetail from './pages/ConversationDetailPage'; // <-- NEW: Import ConversationDetail
+import HistoryPage from './pages/HistoryPage';
+import ConversationDetail from './pages/ConversationDetailPage'; // NEW: Conversation Detail Page
 
 // Create dark mode context
 export const DarkModeContext = createContext();
@@ -34,7 +36,7 @@ function App() {
   };
 
   // Initialize dark mode from localStorage
-  React.useEffect(() => {
+  useEffect(() => {
     const savedMode = localStorage.getItem('dark-mode') === 'true';
     setDarkMode(savedMode);
     if (savedMode) {
@@ -62,9 +64,7 @@ function App() {
   const ProtectedLayout = ({ children }) => (
     <div className="flex min-h-screen">
       <Sidebar onLogout={handleLogout} />
-      <main className="flex-grow transition-colors duration-200
-        bg-gray-50 dark:bg-gray-900 
-        text-gray-900 dark:text-gray-100">
+      <main className="flex-grow transition-colors duration-200 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <div className="p-8 max-w-7xl mx-auto">
           {children}
         </div>
@@ -74,9 +74,7 @@ function App() {
 
   // Public Layout with dark mode support
   const PublicLayout = ({ children }) => (
-    <div className="min-h-screen transition-colors duration-200
-      bg-gray-50 dark:bg-gray-900 
-      text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen transition-colors duration-200 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {children}
     </div>
   );
@@ -129,6 +127,17 @@ function App() {
                 <ProtectedRoute>
                   <ProtectedLayout>
                     <ChatbotPage />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            {/* NEW: Chatbot Tour Overlay Route */}
+            <Route
+              path="/chatbot-tour"
+              element={
+                <ProtectedRoute>
+                  <ProtectedLayout>
+                    <ChatbotTour />
                   </ProtectedLayout>
                 </ProtectedRoute>
               }
@@ -203,13 +212,23 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* NEW: ConversationDetail Route */}
             <Route
               path="/conversation/:conversationId"
               element={
                 <ProtectedRoute>
                   <ProtectedLayout>
                     <ConversationDetail />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            {/* NEW: Sidebar Tour Route */}
+            <Route
+              path="/tour"
+              element={
+                <ProtectedRoute>
+                  <ProtectedLayout>
+                    <SidebarTour />
                   </ProtectedLayout>
                 </ProtectedRoute>
               }
