@@ -1,151 +1,136 @@
-# INBOT AI Library
+# INBOT – Personal Document Management & Query Chatbot
 
-Welcome to the **INBOT AI Library**, an AI-powered internal knowledge management chatbot designed to help organizations streamline internal document retrieval, answer queries based on document content, and provide intelligent insights into company knowledge. This project supports integration with various platforms and APIs, making it easy to connect to services like Slack for a more interactive experience.
+**INBOT** is an AI‑powered personal management tool designed to help you organize, manage, and query your digital documents. With a sleek chatbot interface, INBOT enables individuals to upload files, categorize them, and interact with their documents using natural language queries—all through a secure and intuitive platform.
+
+Visit our website: [inbot.software](https://inbot.software)
+
+---
 
 ## Table of Contents
+- [Overview](#overview)
 - [Features](#features)
-- [Installation](#installation)
-- [Basic Usage](#basic-usage)
-- [Integration](#integration)
-- [Documentation](#documentation)
-- [Development Setup](#development-setup)
+- [Tech Stack](#tech-stack)
+- [Installation & Setup](#installation--setup)
+- [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
 
 ---
 
+## Overview
+
+**INBOT** empowers you to take control of your digital document workflows. Upload various document types (like PDFs and text files), have the system automatically extract and index the content, and later ask natural language questions about your documents. The solution leverages Supabase as its backend service (including secure file storage, authentication, and a PostgreSQL database with PG Vector for text embeddings) and integrates OpenAI's API to generate document embeddings and power the chatbot's responses.
+
+---
+
 ## Features
-- **Document Upload and Parsing**: Upload and parse documents in formats like PDF and DOCX.
-- **Context-Aware Responses**: Use Groq's API to generate responses based on document content.
-- **Slack Integration**: Easily connect the chatbot to Slack and interact with it in your workspace.
-- **Search Optimization**: Includes fuzzy matching and optimized text search using NLTK and RapidFuzz.
-- **Error Handling**: Robust error handling and logging.
-- **Extensible Design**: Can be extended to support other communication platforms and APIs.
+
+- **Document Upload & Parsing**  
+  Easily upload documents using a simple drag-and-drop interface. INBOT extracts text from your files and generates embeddings for effective querying.
+
+- **AI Chatbot Interface**  
+  Ask natural language questions about your documents. The chatbot uses OpenAI's API to search through embeddings and return relevant answers.
+
+- **Organized File Management**  
+  Organize your files by creating custom categories and folders, making it easy to retrieve and manage your documents.
+
+- **Customizable Experience**  
+  Adjust your interface language (English or Portuguese), switch between dark and light modes, and set your preferred time zone through the Settings page.
+
+- **Secure Backend**  
+  Powered by Supabase, offering secure user authentication, file storage, and database management, along with PG Vector for advanced text embedding search.
 
 ---
 
-## Installation
+## Tech Stack
 
-### Requirements:
-- Python 3.7+
-- A valid [Groq API Key](https://groq.com/docs)
-- Slack API Key (if Slack integration is used)
+- **Frontend:**  
+  - React  
+  - Tailwind CSS  
+  - Framer Motion  
+  - Heroicons  
 
-### Installing the INBOT AI Library
-
-To install the **INBOT AI Library**, run the following command in your terminal:
-
-```bash
-pip install INBOT_AI_Library
-```
-
-### Using a Virtual Environment (Recommended)
-It is recommended to use a virtual environment to manage dependencies:
-
-Create and activate a virtual environment:
-
-```bash
-python -m venv venv
-source venv/bin/activate  # For Windows: venv\Scripts\activate
-```
-
-Install the library:
-
-```bash
-pip install INBOT_AI_Library
-```
-
-Verify installation:
-
-```bash
-pip freeze
-```
+- **Backend:**  
+  - Supabase (PostgreSQL, Storage, Authentication)  
+  - PG Vector for text embedding storage  
+  - OpenAI API for generating text embeddings and powering natural language responses
 
 ---
 
-## Basic Usage
+## Installation & Setup
 
-```python
-from inbot import INBOTChatbot
+### Prerequisites
 
-# Initialize the chatbot with your Groq API key
-chatbot = INBOTChatbot(api_key='your-api-key')
+- Node.js (v14 or higher)
+- npm or yarn
+- A Supabase project (with Storage, Authentication, and Database configured)
+- OpenAI API key
 
-# Upload and parse a document
-chatbot.upload_document('path/to/document.pdf')
-parsed_text = chatbot.parse_document('path/to/document.pdf')
+### Setup Instructions
 
-# Ask a question based on the document
-response = chatbot.ask_question(parsed_text)
-print(response)
-```
-
----
-
-## Integration
-
-### Slack Integration
-You can easily integrate the INBOT AI Library into your Slack workspace. To set up the integration:
-
-1. Create a Slack App and enable bot functionality in your workspace. You can follow Slack's official guide [here](https://api.slack.com/start).
-2. Set up environment variables for your Slack credentials:
-
+1. **Clone the Repository**
    ```bash
-   export SLACK_API_TOKEN='your-slack-api-token'
+   git clone https://github.com/yourusername/INBOT.git
+   cd INBOT
    ```
 
-For detailed steps and advanced configurations, check out the full Integration Guide.
+2. **Install Frontend Dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
----
+3. **Configure Environment Variables**  
+   Create a .env file in the root directory and add:
+   ```env
+   REACT_APP_SUPABASE_URL=your-supabase-url
+   REACT_APP_SUPABASE_ANON_KEY=your-supabase-anon-key
+   REACT_APP_OPENAI_API_KEY=your-openai-api-key
+   REACT_APP_EMBEDDING_API_URL=https://api.openai.com/v1/embeddings
+   ```
 
-## Documentation
-Full documentation for the INBOT AI Library can be found [here](https://github.com/FlaIespa/INBOT-AI-Internal-Inquiry-Assistant). The documentation covers:
+4. **Run the Application**
+   ```bash
+   npm start
+   # or
+   yarn start
+   ```
 
-- Installation
-- Usage examples
-- API Reference
-- Integration with Slack and other platforms
+## Usage
 
-For contributing or reporting issues, please visit our GitHub Issues page.
+### Upload & Organize Documents
+Navigate to the File Management page to upload your documents. INBOT will automatically extract text from your files, generate embeddings for later querying, and even use AI to suggest labels for each document. You can create custom categories and organize your files into folders for easier management.
 
----
+### Query Your Documents
+Use the Chatbot interface to ask natural language questions about your documents. The system leverages OpenAI to search through the embeddings and return the most relevant information based on your queries.
 
-## Development Setup
-To set up the development environment:
-
-Clone the repository:
-
-```bash
-git clone https://github.com/FlaIespa/INBOT-AI-Internal-Inquiry-Assistant.git
-cd INBOT-AI-Internal-Inquiry-Assistant
-```
-
-Install the necessary Python dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-If you’re working on the React web app for documentation or UI, navigate to the respective directory (websites/documentation or websites/user-interface) and install the dependencies:
-
-```bash
-npm install
-```
-
----
+### Customize Your Experience
+Access the Settings page to adjust your preferences, including interface language (English or Portuguese), appearance (dark/light mode), and time zone.
 
 ## Contributing
-We welcome contributions! To contribute, follow these steps:
+
+We welcome contributions! To contribute, please follow these steps:
 
 1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/your-feature`).
-3. Commit your changes (`git commit -m 'Add feature'`).
-4. Push to the branch (`git push origin feature/your-feature`).
+2. Create a new branch:
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+3. Commit your changes:
+   ```bash
+   git commit -m 'Add feature'
+   ```
+4. Push to your branch:
+   ```bash
+   git push origin feature/your-feature
+   ```
 5. Open a Pull Request.
 
-For more details, please refer to our Contribution Guidelines.
-
----
+For more details, please refer to our CONTRIBUTING.md.
 
 ## License
+
 This project is licensed under the MIT License. See the LICENSE file for details.
+
+Visit [inbot.software](https://inbot.software) to try out INBOT!
