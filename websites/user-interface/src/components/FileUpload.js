@@ -1,10 +1,11 @@
+// src/components/FileUpload.js
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { CloudUploadIcon, DocumentAddIcon } from '@heroicons/react/solid';
+import { CloudUploadIcon } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
-import { supabase } from '../supabaseClient'; // Your configured Supabase client
+import { supabase } from '../supabaseClient';
 
-// Use the REACT_APP_ variables (make sure they are defined in your .env)
+// Use the REACT_APP_ variables (ensure they are defined in your .env)
 const EMBEDDING_API_URL = process.env.REACT_APP_EMBEDDING_API_URL; // e.g., "https://api.openai.com/v1/embeddings"
 const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
 
@@ -49,7 +50,6 @@ async function generateEmbedding(content) {
       throw new Error(`OpenAI Embedding API error: ${errorData.error?.message || response.statusText}`);
     }
     const data = await response.json();
-    // Expected response: { data: [ { embedding: [...] } ], model: ..., usage: ... }
     return data.data[0].embedding;
   } catch (error) {
     console.error("Error generating embedding with OpenAI:", error);
@@ -57,10 +57,53 @@ async function generateEmbedding(content) {
   }
 }
 
+// --- Helper: Generate an AI-based label for the file based on selected categories ---
+async function generateFileLabel(content, categories = []) {
+  try {
+    const categoryList = categories.length > 0 ? categories.join(', ') : 'Resume, Report, Invoice, Proposal';
+    const contentExcerpt = content.slice(0, 1000);
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful assistant that selects the best category for a document based on its content. Only return the category name (1-2 words)."
+          },
+          {
+            role: "user",
+            content: `Here is an excerpt from a document: "${contentExcerpt}". The available categories are: ${categoryList}. Which category best describes this document?`
+          }
+        ],
+        temperature: 0.5,
+        max_tokens: 10,
+      }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Error generating label response:", errorData);
+      throw new Error(errorData.error?.message || response.statusText);
+    }
+    const data = await response.json();
+    return data.choices[0].message.content.trim();
+  } catch (error) {
+    console.error("Error generating file label:", error);
+    return "";
+  }
+}
+
 function FileUpload({ onFileUpload }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+
+  // Example: A predefined list of categories. You might replace this with dynamic user choices.
+  const documentCategories = ['Resume', 'Report', 'Invoice', 'Proposal'];
 
   // Configure react-dropzone
   const onDrop = useCallback((acceptedFiles) => {
@@ -131,14 +174,17 @@ function FileUpload({ onFileUpload }) {
       // 5. Generate an embedding from the extracted text using OpenAI
       const embedding = await generateEmbedding(content);
 
-      // 6. Update the file record with the generated embedding
+      // 6. Generate an AI-based label from the extracted text using the first 1000 characters and user-defined categories
+      const fileLabel = await generateFileLabel(content, documentCategories);
+
+      // 7. Update the file record with the generated embedding and label
       const { error: updateError } = await supabase
         .from('files')
-        .update({ embedding })
+        .update({ embedding, label: fileLabel })
         .eq('id', insertedFileId);
       if (updateError) throw updateError;
 
-      setUploadMessage('File uploaded and embedding generated successfully!');
+      setUploadMessage('File uploaded and processed successfully!');
       setSelectedFile(null);
       if (onFileUpload) onFileUpload();
     } catch (error) {

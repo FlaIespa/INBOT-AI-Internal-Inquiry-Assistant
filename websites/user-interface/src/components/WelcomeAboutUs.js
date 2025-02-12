@@ -8,7 +8,7 @@ const WelcomeAboutUs = () => {
   const slides = [
     {
       icon: Briefcase,
-      title: "Our Mission",
+      title: "Mission",
       gradient: "from-blue-500 to-purple-600",
       description: "At INBOT, our mission is to empower organizations by streamlining workflows, providing quick access to knowledge, and enhancing team collaboration through cutting-edge AI technology.",
     },

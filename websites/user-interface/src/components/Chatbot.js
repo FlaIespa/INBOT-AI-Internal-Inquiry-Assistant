@@ -161,7 +161,6 @@ function Chatbot() {
   const [userId, setUserId] = useState(null);
   const [conversationId, setConversationId] = useState(null);
   const [conversationNameInput, setConversationNameInput] = useState("INBOT Chatbot");
-  // tourCompleted is removed because tours are now user-initiated
 
   const query = useQuery();
 
@@ -329,7 +328,7 @@ function Chatbot() {
 
   return (
     <div className="flex flex-col h-[800px] bg-gray-50 dark:bg-gray-800 rounded-3xl shadow-xl m-6">
-      {/* Header with editable conversation name */}
+      {/* Header with editable conversation name and tour button */}
       <header className="flex flex-col items-center justify-center py-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-3xl chatbot-header">
         <div className="flex items-center space-x-4">
           <ChatAlt2Icon className="h-6 w-6" />
@@ -341,55 +340,15 @@ function Chatbot() {
             className="text-lg font-bold text-center bg-transparent border-b border-white focus:outline-none"
             placeholder="Name your conversation"
           />
-          {/* Only show the Chatbot Tour button in conversation state */}
-          {documentContent && (
+          {/* Show Chatbot Tour if a document is loaded, otherwise show File Selection Tour */}
+          {documentContent ? (
             <button 
               onClick={startChatbotTour}
               className="px-4 py-2 bg-white text-indigo-600 rounded-full shadow hover:bg-gray-100 transition"
             >
               Chatbot Tour
             </button>
-          )}
-        </div>
-      </header>
-
-      {/* File Selection / All Files Option */}
-      {!documentContent && (
-        <div className="flex-1 overflow-y-auto p-6 file-selection-container">
-          <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
-            Select a document or choose "All Files" to ask questions about all uploads:
-          </h2>
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-            {files.map(file => (
-              <button
-                key={file.id}
-                onClick={() => handleFileSelect(file)}
-                disabled={isLoading}
-                className="flex items-center p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200 text-left disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <DocumentTextIcon className="h-8 w-8 text-blue-500 mr-3" />
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-gray-800 dark:text-white truncate">
-                    {file.name}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {new Date(file.uploaded_at).toLocaleDateString()}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-          <div className="mt-4">
-            <button
-              onClick={handleAskAllFiles}
-              disabled={isLoading || files.length === 0}
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow-md"
-            >
-              Ask about All Files
-            </button>
-          </div>
-          {/* File Selection Tour Button */}
-          <div className="mt-4">
+          ) : (
             <button 
               onClick={() => {
                 introJs()
@@ -411,6 +370,48 @@ function Chatbot() {
               className="px-4 py-2 bg-white text-blue-600 font-semibold rounded-full shadow-lg transition-all hover:bg-gray-100"
             >
               Take File Selection Tour
+            </button>
+          )}
+        </div>
+      </header>
+
+      {/* File Selection / All Files Option */}
+      {!documentContent && (
+        <div className="flex-1 overflow-y-auto p-6 file-selection-container">
+          <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+            Select a document or choose "All Files" to ask questions about all uploads:
+          </h2>
+          <div className="grid gap-4 grid-cols-1">
+            {files.map(file => (
+              <button
+                key={file.id}
+                onClick={() => handleFileSelect(file)}
+                disabled={isLoading}
+                className="flex items-center p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {/* Circle with gradient background */}
+                <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
+                  <DocumentTextIcon className="h-6 w-6 text-white" />
+                </div>
+
+                <div className="flex-1 min-w-0 ml-3">
+                  <div className="font-medium text-gray-800 dark:text-white truncate">
+                    {file.name}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {new Date(file.uploaded_at).toLocaleDateString()}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className="mt-4">
+            <button
+              onClick={handleAskAllFiles}
+              disabled={isLoading || files.length === 0}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg shadow-md"
+            >
+              Ask about All Files
             </button>
           </div>
         </div>
@@ -457,7 +458,7 @@ function Chatbot() {
                 disabled={isLoading || !input.trim()}
                 className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed self-end chatbot-send-btn"
               >
-                <PaperAirplaneIcon className="h-5 w-5 transform rotate-45" />
+                <PaperAirplaneIcon className="h-5 w-5 transform rotate-45 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600" />
               </button>
             </form>
           </div>

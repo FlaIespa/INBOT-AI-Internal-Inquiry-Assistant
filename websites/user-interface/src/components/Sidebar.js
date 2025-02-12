@@ -130,14 +130,14 @@ function Sidebar() {
           <ul className="space-y-4">
             {[
               { to: '/home', Icon: HomeIcon, label: 'Home', tour: 'home' },
-              { to: '/chatbot', Icon: ChatAlt2Icon, label: 'Chatbot', tour: 'chatbot' },
               { to: '/file-management', Icon: CloudUploadIcon, label: 'File Management', tour: 'fileManagement' },
+              { to: '/chatbot', Icon: ChatAlt2Icon, label: 'Chatbot', tour: 'chatbot' },
+              { to: '/history', Icon: ClockIcon, label: 'History', tour: 'history' },
+              { to: '/user-profile', Icon: UserIcon, label: 'User Profile', tour: 'userProfile' },
+              { to: '/admin-dashboard', Icon: ChartPieIcon, label: 'Analytics', tour: 'analytics' },
               { to: '/settings', Icon: CogIcon, label: 'Settings', tour: 'settings' },
               { to: '/faq', Icon: QuestionMarkCircleIcon, label: 'Help/FAQ', tour: 'faq' },
-              { to: '/user-profile', Icon: UserIcon, label: 'User Profile', tour: 'userProfile' },
               { to: '/notifications', Icon: BellIcon, label: 'Notifications', tour: 'notifications' },
-              { to: '/admin-dashboard', Icon: ChartPieIcon, label: 'Analytics', tour: 'analytics' },
-              { to: '/history', Icon: ClockIcon, label: 'History', tour: 'history' },
             ].map(({ to, Icon, label, tour }) => (
               <li key={to}>
                 <Link
