@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   DocumentIcon,
   ChatIcon,
@@ -17,6 +17,7 @@ import {
   Legend,
   ArcElement,
 } from 'chart.js';
+import { jsPDF } from 'jspdf';
 
 ChartJS.register(
   CategoryScale,
@@ -30,13 +31,13 @@ ChartJS.register(
 );
 
 function UserAnalyticsDashboard({ isSidebarCollapsed }) {
-  // Main metrics
+  // ------------------ State ------------------
   const [metrics, setMetrics] = useState({
     totalDocuments: 0,
     totalConversations: 0,
     totalMessages: 0,
-    averageConversationLength: 0, // new
-    totalUserWordCount: 0,       // new
+    averageConversationLength: 0,
+    totalUserWordCount: 0,
   });
 
   // Chart data states
@@ -57,13 +58,20 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [error, setError] = useState(null);
 
-  // Fetch and compute all analytics
+  // Chart Refs
+  const docChartRef = useRef(null);
+  const convChartRef = useRef(null);
+  const msgChartRef = useRef(null);
+  const roleDistChartRef = useRef(null);
+  const fileTypeDistChartRef = useRef(null);
+
+  // ------------------ Fetch Data ------------------
   const fetchDashboardData = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // 1) Get current user session
+      // 1) Check user session
       const {
         data: { user },
         error: userError,
@@ -71,13 +79,7 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
       if (userError || !user) throw new Error('User not authenticated');
       const userId = user.id;
 
-      // ----------------------------------------------------------------
-      // 2) Fetch FILES data
-      //    - total documents
-      //    - largest 5, recent 5
-      //    - file type distribution
-      //    - doc chart data (uploads over time)
-      // ----------------------------------------------------------------
+      // 2) Fetch FILES
       const { data: filesData, error: filesError } = await supabase
         .from('files')
         .select('id, name, size, file_type, uploaded_at')
@@ -86,17 +88,17 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
 
       const totalDocuments = filesData.length;
 
-      // Largest 5 files
+      // Largest 5
       const sortedBySize = [...filesData].sort((a, b) => (b.size || 0) - (a.size || 0));
       const top5Largest = sortedBySize.slice(0, 5);
 
-      // Recent 5 files
+      // Recent 5
       const sortedByDate = [...filesData].sort(
         (a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at)
       );
       const top5Recent = sortedByDate.slice(0, 5);
 
-      // File type distribution (pie chart)
+      // File type distribution
       const typeCounts = {};
       filesData.forEach((file) => {
         if (file.file_type) {
@@ -111,19 +113,12 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
         datasets: [
           {
             data: fileTypeDataPoints,
-            backgroundColor: [
-              '#6366F1', // Indigo
-              '#F59E0B', // Amber
-              '#10B981', // Emerald
-              '#EF4444', // Red
-              '#3B82F6', // Blue
-              // add more colors if needed
-            ],
+            backgroundColor: ['#6366F1', '#F59E0B', '#10B981', '#EF4444', '#3B82F6'],
           },
         ],
       };
 
-      // Documents over time (line chart)
+      // Documents over time
       const docCounts = {};
       filesData.forEach((doc) => {
         const day = new Date(doc.uploaded_at).toLocaleDateString();
@@ -140,39 +135,30 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
             label: 'Documents Uploaded',
             data: docDataPoints,
             fill: false,
-            backgroundColor: 'rgba(59,130,246,0.5)', // blue
+            backgroundColor: 'rgba(59,130,246,0.5)',
             borderColor: 'rgba(59,130,246,1)',
           },
         ],
       };
 
-      // ----------------------------------------------------------------
-      // 3) Fetch CONVERSATIONS data
-      //    - total conversations
-      //    - recent 5 conversations
-      //    - conv chart data (convs over time)
-      // ----------------------------------------------------------------
-      // Count total conversations
+      // 3) Fetch CONVERSATIONS
       const { count: conversationCount, error: convCountError } = await supabase
         .from('conversations')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId);
       if (convCountError) throw convCountError;
 
-      // Retrieve conversation rows (including name)
       const { data: convData, error: convError } = await supabase
         .from('conversations')
         .select('id, created_at, conversation_name')
         .eq('user_id', userId);
       if (convError) throw convError;
 
-      // Sort for the 5 most recent
       const sortedConvsByDate = [...convData].sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
       const top5Conversations = sortedConvsByDate.slice(0, 5);
 
-      // Group convs by day for line chart
       const convCounts = {};
       convData.forEach((conv) => {
         const day = new Date(conv.created_at).toLocaleDateString();
@@ -189,20 +175,13 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
             label: 'Conversations Started',
             data: convDataPoints,
             fill: false,
-            backgroundColor: 'rgba(16,185,129,0.5)', // green
+            backgroundColor: 'rgba(16,185,129,0.5)',
             borderColor: 'rgba(16,185,129,1)',
           },
         ],
       };
 
-      // ----------------------------------------------------------------
-      // 4) Fetch MESSAGES data
-      //    - total messages
-      //    - messages over time (line chart)
-      //    - average conversation length (# messages / # convs)
-      //    - distribution of roles (pie chart: user vs bot)
-      //    - word frequency (top 5 keywords)
-      // ----------------------------------------------------------------
+      // 4) Fetch MESSAGES
       const userConversationIds = convData.map((c) => c.id);
       let totalMessages = 0;
       let msgChartDataObj = null;
@@ -210,13 +189,10 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
       let userCount = 0;
       let botCount = 0;
       let totalUserWords = 0;
-      const conversationMessageCount = {}; // for average length
-
-      // For top keywords
+      const conversationMessageCount = {};
       const wordFreq = {};
 
       if (userConversationIds.length > 0) {
-        // Retrieve messages
         const { data: messagesData, error: messagesError } = await supabase
           .from('conversation_messages')
           .select('id, created_at, conversation_id, role, message')
@@ -225,39 +201,29 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
 
         totalMessages = messagesData.length;
 
-        // 4a) Group messages by day => line chart
         const msgCounts = {};
         messagesData.forEach((msg) => {
-          // For average conversation length
           conversationMessageCount[msg.conversation_id] =
             (conversationMessageCount[msg.conversation_id] || 0) + 1;
 
-          // For distribution of roles
           if (msg.role === 'user') userCount++;
           if (msg.role === 'bot') botCount++;
 
-          // For word frequency (only user messages)
           if (msg.role === 'user' && msg.message) {
-            // Count total user words
             const rawWords = msg.message.trim().split(/\s+/);
             totalUserWords += rawWords.length;
-
-            // For top keywords (ignore short words, strip punctuation)
             rawWords.forEach((w) => {
-              const clean = w
-                .toLowerCase()
-                .replace(/[^\w]/g, ''); // remove punctuation
-              if (clean.length < 3) return; // skip short words
+              const clean = w.toLowerCase().replace(/[^\w]/g, '');
+              if (clean.length < 3) return;
               wordFreq[clean] = (wordFreq[clean] || 0) + 1;
             });
           }
 
-          // For messages over time
           const day = new Date(msg.created_at).toLocaleDateString();
           msgCounts[day] = (msgCounts[day] || 0) + 1;
         });
 
-        // Build the line chart
+        // Messages Over Time
         const msgLabels = Object.keys(msgCounts).sort(
           (a, b) => new Date(a) - new Date(b)
         );
@@ -269,14 +235,13 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
               label: 'Messages Over Time',
               data: msgDataPoints,
               fill: false,
-              backgroundColor: 'rgba(255,165,0,0.5)', // orange
+              backgroundColor: 'rgba(255,165,0,0.5)',
               borderColor: 'rgba(255,165,0,1)',
             },
           ],
         };
 
-        // 4b) Average conversation length
-        //    sum of all message counts / totalConversations
+        // Average Conversation Length
         const sumMessageCounts = Object.values(conversationMessageCount).reduce(
           (acc, c) => acc + c,
           0
@@ -284,27 +249,23 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
         avgConversationLength =
           conversationCount > 0 ? sumMessageCounts / conversationCount : 0;
 
-        // 4c) Role distribution => user vs. bot
+        // Role Distribution
         const roleDistData = {
           labels: ['User Messages', 'Bot Messages'],
           datasets: [
             {
               data: [userCount, botCount],
-              backgroundColor: ['#3B82F6', '#F59E0B'], // blue / amber
+              backgroundColor: ['#3B82F6', '#F59E0B'],
             },
           ],
         };
-
         setRoleDistChartData(roleDistData);
       }
 
-      // 4d) Word frequency => top 5
       const sortedWords = Object.entries(wordFreq).sort((a, b) => b[1] - a[1]);
       const top5Words = sortedWords.slice(0, 5);
 
-      // ----------------------------------------------------------------
-      // 5) Update state
-      // ----------------------------------------------------------------
+      // 5) Update State
       setMetrics({
         totalDocuments,
         totalConversations: conversationCount || 0,
@@ -332,11 +293,130 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
     }
   };
 
-  // Fetch data on mount
+  // ------------------ Lifecycle ------------------
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
+  // ------------------ Helper Functions for PDF ------------------
+  /**
+   * Adds text to the PDF, creating a new page if needed.
+   * @param {jsPDF} doc The jsPDF instance
+   * @param {string} text The text to add
+   * @param {number} x The X coordinate
+   * @param {number} y The current Y coordinate
+   * @param {number} lineHeight Vertical spacing after text
+   * @returns {number} The updated Y position
+   */
+  const addTextWithPageCheck = (doc, text, x, y, lineHeight = 10) => {
+    const pageHeight = doc.internal.pageSize.getHeight();
+    // If we're too close to the bottom, add a new page
+    if (y + lineHeight > pageHeight - 10) {
+      doc.addPage();
+      y = 20; // reset top margin
+    }
+    doc.text(text, x, y);
+    return y + lineHeight;
+  };
+
+  /**
+   * Adds a chart image to the PDF, creating a new page if needed.
+   * @param {jsPDF} doc The jsPDF instance
+   * @param {object} chartRef The ref for the chart
+   * @param {number} x The X coordinate
+   * @param {number} y The current Y coordinate
+   * @param {number} width Desired image width
+   * @param {number} height Desired image height
+   * @returns {number} The updated Y position
+   */
+  const addChartImageToPDF = (doc, chartRef, x, y, width, height) => {
+    if (!chartRef.current) return y; // no chart
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // If the chart won't fit on the current page, add a new page
+    if (y + height + 20 > pageHeight) {
+      doc.addPage();
+      y = 20;
+    }
+
+    const base64Image = chartRef.current.toBase64Image();
+    if (base64Image) {
+      doc.addImage(base64Image, 'PNG', x, y, width, height);
+      y += height + 10; // add spacing
+    }
+    return y;
+  };
+
+  // ------------------ Download PDF Handler ------------------
+  const handleDownloadReport = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+
+    // Title
+    let yPos = 20;
+    doc.text('Personal Data Report', 10, yPos);
+
+    doc.setFontSize(12);
+    yPos += 10;
+    yPos = addTextWithPageCheck(doc, `Total Documents: ${metrics.totalDocuments}`, 10, yPos);
+    yPos = addTextWithPageCheck(doc, `Total Conversations: ${metrics.totalConversations}`, 10, yPos);
+    yPos = addTextWithPageCheck(doc, `Total Messages: ${metrics.totalMessages}`, 10, yPos);
+    yPos = addTextWithPageCheck(doc, `Avg Conv Length: ${metrics.averageConversationLength}`, 10, yPos);
+    yPos = addTextWithPageCheck(doc, `Total User Word Count: ${metrics.totalUserWordCount}`, 10, yPos);
+
+    // Insert Documents Over Time Chart
+    doc.setFontSize(14);
+    yPos += 5;
+    yPos = addTextWithPageCheck(doc, 'Documents Uploaded Over Time:', 10, yPos);
+    doc.setFontSize(12);
+    yPos = addChartImageToPDF(doc, docChartRef, 10, yPos, 180, 80);
+
+    // Insert Conversations Chart
+    doc.setFontSize(14);
+    yPos = addTextWithPageCheck(doc, 'Conversations Started Over Time:', 10, yPos);
+    doc.setFontSize(12);
+    yPos = addChartImageToPDF(doc, convChartRef, 10, yPos, 180, 80);
+
+    // Insert Messages Chart
+    if (msgChartData) {
+      doc.setFontSize(14);
+      yPos = addTextWithPageCheck(doc, 'Messages Over Time:', 10, yPos);
+      doc.setFontSize(12);
+      yPos = addChartImageToPDF(doc, msgChartRef, 10, yPos, 180, 80);
+    }
+
+    // Insert Role Distribution
+    if (roleDistChartData) {
+      doc.setFontSize(14);
+      yPos = addTextWithPageCheck(doc, 'Role Distribution:', 10, yPos);
+      doc.setFontSize(12);
+      yPos = addChartImageToPDF(doc, roleDistChartRef, 10, yPos, 120, 80);
+    }
+
+    // Insert File Type Distribution
+    if (fileTypeDistChartData) {
+      doc.setFontSize(14);
+      yPos = addTextWithPageCheck(doc, 'File Type Distribution:', 10, yPos);
+      doc.setFontSize(12);
+      yPos = addChartImageToPDF(doc, fileTypeDistChartRef, 10, yPos, 120, 80);
+    }
+
+    // Insert Top Keywords
+    if (topKeywords.length > 0) {
+      doc.setFontSize(14);
+      yPos += 5;
+      yPos = addTextWithPageCheck(doc, 'Top 5 Keywords:', 10, yPos);
+      doc.setFontSize(12);
+      topKeywords.forEach(([word, count]) => {
+        yPos = addTextWithPageCheck(doc, `- ${word} (${count})`, 12, yPos, 8);
+      });
+    }
+
+    // Save the PDF
+    doc.save('personal_data_report.pdf');
+  };
+
+  // ------------------ Render ------------------
   const handleRefresh = () => {
     fetchDashboardData();
   };
@@ -364,14 +444,24 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
               Last updated: {lastUpdated.toLocaleString()}
             </p>
           )}
-          <button
-            onClick={handleRefresh}
-            className="mt-4 flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-md focus:outline-none"
-            disabled={loading}
-          >
-            <RefreshIcon className="h-5 w-5 mr-2" />
-            Refresh
-          </button>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap justify-center items-center gap-4 mt-4">
+            <button
+              onClick={handleRefresh}
+              className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-md focus:outline-none disabled:opacity-50"
+              disabled={loading}
+            >
+              <RefreshIcon className="h-5 w-5 mr-2" />
+              Refresh
+            </button>
+            <button
+              onClick={handleDownloadReport}
+              className="flex items-center justify-center bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-4 py-2 rounded-md focus:outline-none"
+            >
+              Download Personal Data Report (PDF)
+            </button>
+          </div>
         </div>
 
         {/* Error */}
@@ -381,7 +471,7 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
           </div>
         )}
 
-        {/* Loading */}
+        {/* Loading Spinner */}
         {loading && (
           <div className="flex justify-center items-center py-10">
             <svg
@@ -410,37 +500,26 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
         {/* Metric Cards */}
         {!loading && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {/* 1) Total Documents */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
               <DocumentIcon className="h-6 w-6 mb-2" />
               <h3 className="text-sm font-medium opacity-80">Total Documents</h3>
               <p className="text-xl font-bold">{metrics.totalDocuments}</p>
             </div>
-
-            {/* 2) Total Conversations */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-green-600 to-teal-600 text-white shadow-md">
               <ChatIcon className="h-6 w-6 mb-2" />
               <h3 className="text-sm font-medium opacity-80">Conversations</h3>
               <p className="text-xl font-bold">{metrics.totalConversations}</p>
             </div>
-
-            {/* 3) Total Messages */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-orange-500 to-yellow-500 text-white shadow-md">
               <ChatIcon className="h-6 w-6 mb-2" />
               <h3 className="text-sm font-medium opacity-80">Total Messages</h3>
               <p className="text-xl font-bold">{metrics.totalMessages}</p>
             </div>
-
-            {/* 4) Average Conversation Length */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-indigo-600 to-blue-600 text-white shadow-md">
               <ChatIcon className="h-6 w-6 mb-2" />
               <h3 className="text-sm font-medium opacity-80">Avg Conv Length</h3>
-              <p className="text-xl font-bold">
-                {metrics.averageConversationLength}
-              </p>
+              <p className="text-xl font-bold">{metrics.averageConversationLength}</p>
             </div>
-
-            {/* 5) Total User Word Count */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-pink-600 to-red-600 text-white shadow-md">
               <ChatIcon className="h-6 w-6 mb-2" />
               <h3 className="text-sm font-medium opacity-80">User Word Count</h3>
@@ -449,7 +528,7 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
           </div>
         )}
 
-        {/* 1) Documents / Conversations Charts */}
+        {/* Charts: Documents & Conversations */}
         {!loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Documents Over Time */}
@@ -460,6 +539,7 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
               {docChartData ? (
                 <div className="h-64">
                   <Line
+                    ref={docChartRef}
                     data={docChartData}
                     options={{ maintainAspectRatio: false, responsive: true }}
                   />
@@ -479,6 +559,7 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
               {convChartData ? (
                 <div className="h-64">
                   <Line
+                    ref={convChartRef}
                     data={convChartData}
                     options={{ maintainAspectRatio: false, responsive: true }}
                   />
@@ -492,23 +573,22 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
           </div>
         )}
 
-        {/* 2) Messages Over Time Chart + Role Distribution */}
+        {/* Messages Over Time & Role Distribution */}
         {!loading && msgChartData && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Messages Over Time */}
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                 Messages Over Time
               </h2>
               <div className="h-64">
                 <Line
+                  ref={msgChartRef}
                   data={msgChartData}
                   options={{ maintainAspectRatio: false, responsive: true }}
                 />
               </div>
             </div>
 
-            {/* Role Distribution (user vs bot) */}
             {roleDistChartData && (
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                 <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
@@ -516,11 +596,9 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
                 </h2>
                 <div className="h-64 flex items-center justify-center">
                   <Pie
+                    ref={roleDistChartRef}
                     data={roleDistChartData}
-                    options={{
-                      maintainAspectRatio: false,
-                      responsive: true,
-                    }}
+                    options={{ maintainAspectRatio: false, responsive: true }}
                   />
                 </div>
               </div>
@@ -528,7 +606,7 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
           </div>
         )}
 
-        {/* 3) File Type Distribution (Pie) */}
+        {/* File Type Distribution */}
         {!loading && fileTypeDistChartData && (
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
@@ -536,20 +614,17 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
             </h2>
             <div className="h-64 flex items-center justify-center">
               <Pie
+                ref={fileTypeDistChartRef}
                 data={fileTypeDistChartData}
-                options={{
-                  maintainAspectRatio: false,
-                  responsive: true,
-                }}
+                options={{ maintainAspectRatio: false, responsive: true }}
               />
             </div>
           </div>
         )}
 
-        {/* 4) Lists: Largest Files, Recent Files, Recent Conversations, Top Keywords */}
+        {/* 4) 2×2 Grid for Largest/Recent Files & Recent Convos/Top Keywords */}
         {!loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Largest Files */}
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                 Top 5 Largest Files
@@ -569,7 +644,6 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
               )}
             </div>
 
-            {/* Recent Files */}
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                 Top 5 Recent Files
@@ -578,8 +652,7 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
                 <ul className="space-y-2">
                   {recentFiles.map((f) => (
                     <li key={f.id} className="text-sm text-gray-700 dark:text-gray-200">
-                      <strong>{f.name}</strong> -{' '}
-                      {new Date(f.uploaded_at).toLocaleString()}
+                      <strong>{f.name}</strong> - {new Date(f.uploaded_at).toLocaleString()}
                     </li>
                   ))}
                 </ul>
@@ -590,7 +663,6 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
               )}
             </div>
 
-            {/* Recent Conversations */}
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                 Recent Conversations
@@ -599,9 +671,7 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
                 <ul className="space-y-2">
                   {recentConversations.map((c) => (
                     <li key={c.id} className="text-sm text-gray-700 dark:text-gray-200">
-                      <strong>
-                        {c.conversation_name || 'Untitled Conversation'}
-                      </strong>{' '}
+                      <strong>{c.conversation_name || 'Untitled Conversation'}</strong>{' '}
                       - {new Date(c.created_at).toLocaleString()}
                     </li>
                   ))}
@@ -613,7 +683,6 @@ function UserAnalyticsDashboard({ isSidebarCollapsed }) {
               )}
             </div>
 
-            {/* Top Keywords */}
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                 Top 5 Keywords (User Messages)

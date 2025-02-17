@@ -12,10 +12,28 @@ function UserProfilePage() {
     bio: '',
     avatarUrl: '',
     createdAt: '',
+    notes: '',    // Personal Goals / Notes
+    feedback: '', // User feedback
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [feedback, setFeedback] = useState('');
+  
+  // Snackbar state for confirmation messages
+  const [snackbar, setSnackbar] = useState({
+    visible: false,
+    message: '',
+    type: 'success', // or 'error'
+  });
 
-  // Fetch the user profile using the columns available in your table.
+  // Helper function to show snackbar
+  const showSnackbar = (message, type = 'success') => {
+    setSnackbar({ visible: true, message, type });
+    setTimeout(() => {
+      setSnackbar({ visible: false, message: '', type: 'success' });
+    }, 3000);
+  };
+
+  // Fetch the user profile including the new columns
   const fetchUserProfile = async () => {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -34,10 +52,12 @@ function UserProfilePage() {
         name: profileData.name || '',
         email: profileData.email || '',
         bio: profileData.bio || '',
-        // Use the "avatar" field from the table. In state we call it avatarUrl for clarity.
         avatarUrl: profileData.avatar || '',
         createdAt: profileData.created_at || '',
+        notes: profileData.notes || '',
+        feedback: profileData.feedback || '',
       });
+      setFeedback(profileData.feedback || '');
     } catch (error) {
       console.error('Error fetching user profile:', error.message);
     } finally {
@@ -45,7 +65,7 @@ function UserProfilePage() {
     }
   };
 
-  // Handle avatar upload (saves to storage and sets avatarUrl in state)
+  // Handle avatar upload
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -70,20 +90,19 @@ function UserProfilePage() {
     }
   };
 
-  // Save only the columns that exist: name, bio, and avatar.
+  // Save profile changes (update name, bio, avatar, notes, and feedback)
   const saveProfileChanges = async () => {
-    console.log('Attempting to save profile changes...');
     try {
       const { data, error } = await supabase
         .from('users')
         .update({
           name: profile.name,
           bio: profile.bio,
-          avatar: profile.avatarUrl, // update the "avatar" column using avatarUrl from state
+          avatar: profile.avatarUrl,
+          notes: profile.notes,
+          feedback: feedback, // Save the feedback field from the form below
         })
         .eq('id', profile.id);
-
-      console.log('Update response:', data, error);
 
       if (error) {
         console.error('Error updating user:', error);
@@ -91,9 +110,30 @@ function UserProfilePage() {
         return;
       }
       setEditing(false);
+      showSnackbar('Profile changes saved successfully!', 'success');
     } catch (err) {
       console.error('Error saving profile changes:', err.message);
       alert('Error saving changes: ' + err.message);
+    }
+  };
+
+  // Feedback submission handler that updates the profile's feedback
+  const handleFeedbackSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .update({ feedback })
+        .eq('id', profile.id);
+      if (error) {
+        console.error('Error saving feedback:', error);
+        showSnackbar('Failed to save feedback: ' + error.message, 'error');
+        return;
+      }
+      showSnackbar('Feedback submitted successfully!', 'success');
+    } catch (error) {
+      console.error('Error saving feedback:', error.message);
+      showSnackbar('Error saving feedback: ' + error.message, 'error');
     }
   };
 
@@ -117,7 +157,7 @@ function UserProfilePage() {
   }
 
   return (
-    <div className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900 px-8 py-10">
+    <div className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900 px-8 py-10 space-y-8">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -215,6 +255,52 @@ function UserProfilePage() {
               </p>
             )}
           </div>
+
+          {/* Personal Goals / Notes Section */}
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              Personal Goals / Notes
+            </h3>
+            {editing ? (
+              <textarea
+                value={profile.notes}
+                onChange={(e) =>
+                  setProfile((prev) => ({ ...prev, notes: e.target.value }))
+                }
+                className="w-full mt-2 px-4 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md text-gray-900 dark:text-white"
+                placeholder="Jot down your personal goals or reminders..."
+                rows="3"
+              />
+            ) : (
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                {profile.notes
+                  ? profile.notes
+                  : 'No personal notes. Add some goals or reminders for yourself!'}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Feedback & Support Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+            Feedback & Support
+          </h3>
+          <form onSubmit={handleFeedbackSubmit} className="space-y-3">
+            <textarea
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md text-gray-900 dark:text-white"
+              placeholder="Enter your feedback or support request..."
+              rows="3"
+            />
+            <button
+              type="submit"
+              className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-md hover:from-blue-700 hover:to-purple-700"
+            >
+              Send Feedback
+            </button>
+          </form>
         </div>
 
         {/* Action Buttons */}
@@ -245,6 +331,20 @@ function UserProfilePage() {
           </button>
         </div>
       </motion.div>
+
+      {/* Snackbar for confirming actions */}
+      {snackbar.visible && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className={`fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-md text-white ${
+            snackbar.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          }`}
+        >
+          {snackbar.message}
+        </motion.div>
+      )}
     </div>
   );
 }
