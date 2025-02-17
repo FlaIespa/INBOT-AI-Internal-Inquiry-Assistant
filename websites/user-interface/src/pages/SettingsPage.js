@@ -1,49 +1,65 @@
-// src/components/SettingsPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { CogIcon, SunIcon, GlobeIcon } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
+import { DarkModeContext } from '../contexts/DarkModeContext';
 
 function SettingsPage() {
-  const [darkMode, setDarkMode] = useState(false);
-  const [language, setLanguage] = useState('en'); // default language is English
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
+
+  // Track language in state
+  const [language, setLanguage] = useState('en');
   const [timezone, setTimezone] = useState('UTC-8');
   const [saveStatus, setSaveStatus] = useState(null);
 
-  // Toggle dark mode and update the class on the <html> element.
-  const toggleDarkMode = () => {
-    setDarkMode((prev) => {
-      const newMode = !prev;
-      document.documentElement.classList.toggle('dark', newMode);
-      localStorage.setItem('dark-mode', newMode);
-      return newMode;
-    });
-  };
-
-  // Load dark mode preference on mount.
+  // Hide or show the Google Translate banner depending on language
   useEffect(() => {
-    const savedMode = localStorage.getItem('dark-mode') === 'true';
-    setDarkMode(savedMode);
-    document.documentElement.classList.toggle('dark', savedMode);
-  }, []);
+    if (language === 'en') {
+      // Hide the banner for English
+      let styleTag = document.getElementById('hide-gt-banner');
+      if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'hide-gt-banner';
+        styleTag.innerHTML = `
+          .goog-te-banner-frame { display: none !important; }
+          body { top: 0px !important; }
+        `;
+        document.head.appendChild(styleTag);
+      }
+    } else {
+      // Remove the style so the banner can show if needed
+      const styleTag = document.getElementById('hide-gt-banner');
+      if (styleTag) {
+        styleTag.remove();
+      }
+    }
+  }, [language]);
 
-  // Save dark mode preference whenever it changes.
-  useEffect(() => {
-    localStorage.setItem('dark-mode', darkMode);
-  }, [darkMode]);
-
-  // Handle language changes for the Google Translate widget.
+  // Update language + set the Google Translate cookie
   const handleLanguageChange = (e) => {
     const newLang = e.target.value;
     setLanguage(newLang);
     localStorage.setItem('language', newLang);
-    // Set the Google Translate cookie.
-    // Assuming your site's original language is English, the cookie format is: "/en/{targetLanguage}"
-    document.cookie = "googtrans=/en/" + newLang + ";path=/";
-    // Reload the page so that the widget re-initializes in the new language.
+  
+    // 1. Clear the old cookie
+    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  
+    // 2. Set the new cookie
+    // If your original site text is in English:
+    //   "googtrans=/en/pt" means "Translate from EN to PT"
+    //   "googtrans=/en/en" means "Translate from EN to EN" (no translation)
+    if (newLang === 'pt') {
+      document.cookie = "googtrans=/en/pt; path=/;";
+    } else {
+      // newLang === 'en'
+      document.cookie = "googtrans=/en/en; path=/;";
+    }
+  
+    // 3. Reload to let Google Translate pick up the new cookie
     window.location.reload();
   };
+  
 
-  // Save changes with feedback.
+  // Simulate saving settings
   const handleSave = () => {
     setSaveStatus('saving');
     setTimeout(() => {
@@ -52,20 +68,20 @@ function SettingsPage() {
     }, 1000);
   };
 
-  // Reset to default settings.
+  // Reset everything to default
   const handleReset = () => {
     if (window.confirm('Are you sure you want to reset all settings to default?')) {
-      setDarkMode(false);
+      if (darkMode) toggleDarkMode();
       setLanguage('en');
       setTimezone('UTC-8');
-      localStorage.setItem('dark-mode', 'false');
       localStorage.setItem('language', 'en');
-      // Reset the Google Translate widget cookie to English.
-      document.cookie = "googtrans=/en/en;path=/";
-      document.documentElement.classList.remove('dark');
+
+      // Clear + set the cookie to no translation
+      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "googtrans=/en/en; path=/;";
+
       setSaveStatus('saved');
       setTimeout(() => setSaveStatus(null), 2000);
-      // Reload the page to apply changes.
       window.location.reload();
     }
   };
@@ -80,9 +96,7 @@ function SettingsPage() {
       >
         {/* Page Title */}
         <div className="text-center">
-          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">
-            Settings
-          </h1>
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">Settings</h1>
           <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
             Manage your preferences and application settings.
           </p>
@@ -95,7 +109,7 @@ function SettingsPage() {
             <div className="flex items-center gap-2 mb-4">
               <GlobeIcon className="h-6 w-6 text-white bg-gradient-to-br from-blue-600 to-purple-600 rounded-full p-1" />
               <h2 className="text-lg font-semibold text-gray-700 dark:text-white">
-                Language & Region
+                Language &amp; Region
               </h2>
             </div>
             <div className="space-y-3">
@@ -133,9 +147,7 @@ function SettingsPage() {
           <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <div className="flex items-center gap-2 mb-4">
               <SunIcon className="h-6 w-6 text-white bg-gradient-to-br from-blue-600 to-purple-600 rounded-full p-1" />
-              <h2 className="text-lg font-semibold text-gray-700 dark:text-white">
-                Appearance
-              </h2>
+              <h2 className="text-lg font-semibold text-gray-700 dark:text-white">Appearance</h2>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">Dark Mode</span>

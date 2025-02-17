@@ -4,10 +4,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const testimonials = [
   {
-    name: 'James Lin',
-    title: 'Med student at Harvard',
+    name: 'Lewis Kyron',
+    title: 'Software Engineer at Service Now',
     content:
-      'I began my premed journey as a "Power-User" of Anki. The premed hivemind was creating my lecture notes into cards. INBOT streamlines this process unlike anything else out there. It allows you to study while facilitating memorization and card creation without breaking flow. It\'s a priceless superpower for all students!',
+      'INBOT is the best way to organize my knowledge. I can use it to create a personal folders and manage my own files. I can query the bot on my own personal files. It’s the perfect tool for my personal knowledge management and',
   },
   {
     name: 'Danny Geitz',

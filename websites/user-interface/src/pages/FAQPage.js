@@ -1,3 +1,4 @@
+// src/components/FAQPage.js
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { QuestionMarkCircleIcon } from '@heroicons/react/solid';
@@ -13,27 +14,47 @@ function FAQPage() {
     {
       question: 'What is INBOT?',
       answer:
-        'INBOT is an AI-powered assistant designed to streamline workflows and enhance document and communication management.',
+        'INBOT is an AI-powered assistant designed to streamline workflows, manage documents, and facilitate seamless communication across your organization.',
     },
     {
       question: 'How do I upload a document?',
       answer:
-        'Navigate to the "File Management" page, click "Upload Document," and drag and drop your file or click to select one from your device.',
+        'Navigate to the File Management page, click the Upload Document button, and either drag and drop your file or click to select one from your device.',
+    },
+    {
+      question: 'What file formats are supported?',
+      answer:
+        'Currently, INBOT supports PDF and TXT files. These formats are processed to extract text and generate embeddings for AI-powered searches.',
     },
     {
       question: 'How secure is my data?',
       answer:
-        'We prioritize your privacy and security. All files and communications are encrypted and adhere to GDPR compliance standards.',
+        'Your data security is our top priority. All files and communications are encrypted and stored securely, following industry-standard practices and GDPR compliance.',
     },
     {
-      question: 'Can I integrate INBOT with other tools?',
+      question: 'How does the AI Chat Assistant work?',
       answer:
-        'Yes! INBOT can integrate with tools like Slack and Microsoft Teams to streamline collaboration.',
+        'The AI Chat Assistant uses embeddings generated from your documents to perform a similarity search with OpenAI’s API, allowing it to find and return the most relevant parts of your documents when you ask a question.',
     },
     {
-      question: 'How do I enable dark mode?',
+      question: 'Can I create custom categories for my files?',
       answer:
-        'Go to the "Settings" page, navigate to the "Appearance" section, and toggle the dark mode switch.',
+        'Yes! In the File Management section, you can create your own categories to organize your files. You can then drag and drop files to assign them to the appropriate category.',
+    },
+    {
+      question: 'How do I change the language of the interface?',
+      answer:
+        'You can change the interface language in the Settings page. We support English and Portuguese, and you can toggle between them as needed.',
+    },
+    {
+      question: 'What should I do if I need help?',
+      answer:
+        'If you have questions or need support, check out our Help/FAQ section for answers to common questions. You can also contact our support team through the contact form on our website.',
+    },
+    {
+      question: 'How are file embeddings generated?',
+      answer:
+        'When you upload a document, the text is extracted (using pdf.js for PDFs or built-in text extraction for TXT files), and then an embedding is generated using OpenAI’s API. This embedding is stored in the database to help with document search and retrieval.',
     },
   ];
 

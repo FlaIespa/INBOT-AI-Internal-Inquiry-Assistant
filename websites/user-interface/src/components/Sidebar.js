@@ -6,7 +6,6 @@ import {
   CogIcon,
   QuestionMarkCircleIcon,
   UserIcon,
-  BellIcon,
   ChartPieIcon,
   HomeIcon,
   ChevronLeftIcon,
@@ -14,7 +13,7 @@ import {
   LogoutIcon,
   ClockIcon,
 } from '@heroicons/react/solid';
-import { supabase } from '../supabaseClient'; // Import Supabase client
+import { supabase } from '../supabaseClient';
 
 function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -50,7 +49,7 @@ function Sidebar() {
       } = await supabase.auth.getUser();
       if (!currentUser) return;
       const { data: profile, error } = await supabase
-        .from('users') // Replace with your table name
+        .from('users')
         .select('name, email, avatar')
         .eq('id', currentUser.id)
         .single();
@@ -71,7 +70,7 @@ function Sidebar() {
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-screen 
+      className={`sidebar fixed left-0 top-0 h-screen 
         bg-gradient-to-b from-blue-600 via-purple-600 to-purple-800 
         dark:from-gray-800 dark:via-gray-900 dark:to-black 
         text-white flex flex-col 
@@ -88,7 +87,7 @@ function Sidebar() {
             </div>
             <button
               onClick={toggleSidebar}
-              className="text-white p-2 rounded-full hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-colors duration-200"
+              className="sidebar-toggle text-white p-2 rounded-full hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-colors duration-200"
             >
               {isCollapsed ? (
                 <ChevronRightIcon className="h-5 w-5" />
@@ -102,6 +101,7 @@ function Sidebar() {
         {/* Profile Section */}
         <Link
           to="/user-profile"
+          data-intro="This is your profile section. Click here to view or edit your profile."
           className="px-3 py-4 border-y border-white/10 hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-all duration-300 sidebar-profile"
         >
           <div className={`flex items-center space-x-3 ${isCollapsed ? 'justify-center' : ''}`}>
@@ -129,20 +129,60 @@ function Sidebar() {
         <nav className="flex-1 p-3">
           <ul className="space-y-4">
             {[
-              { to: '/home', Icon: HomeIcon, label: 'Home', tour: 'home' },
-              { to: '/chatbot', Icon: ChatAlt2Icon, label: 'Chatbot', tour: 'chatbot' },
-              { to: '/file-management', Icon: CloudUploadIcon, label: 'File Management', tour: 'fileManagement' },
-              { to: '/settings', Icon: CogIcon, label: 'Settings', tour: 'settings' },
-              { to: '/faq', Icon: QuestionMarkCircleIcon, label: 'Help/FAQ', tour: 'faq' },
-              { to: '/user-profile', Icon: UserIcon, label: 'User Profile', tour: 'userProfile' },
-              { to: '/notifications', Icon: BellIcon, label: 'Notifications', tour: 'notifications' },
-              { to: '/admin-dashboard', Icon: ChartPieIcon, label: 'Analytics', tour: 'analytics' },
-              { to: '/history', Icon: ClockIcon, label: 'History', tour: 'history' },
-            ].map(({ to, Icon, label, tour }) => (
+              {
+                to: '/home',
+                Icon: HomeIcon,
+                label: 'Home',
+                dataIntro: 'Go to the Home page for an overview of your dashboard.',
+              },
+              {
+                to: '/file-management',
+                Icon: CloudUploadIcon,
+                label: 'File Management',
+                dataIntro: 'Upload and manage your documents here.',
+              },
+              {
+                to: '/chatbot',
+                Icon: ChatAlt2Icon,
+                label: 'Chatbot',
+                dataIntro: 'Access the Chatbot to interact with INBOT.',
+              },
+              {
+                to: '/history',
+                Icon: ClockIcon,
+                label: 'History',
+                dataIntro: 'View and manage your past interactions and chat history.',
+              },
+              {
+                to: '/user-profile',
+                Icon: UserIcon,
+                label: 'User Profile',
+                dataIntro: 'View and update your user profile information here.',
+              },
+              {
+                to: '/admin-dashboard',
+                Icon: ChartPieIcon,
+                label: 'Analytics',
+                dataIntro: 'Check analytics and insights about your interactions.',
+              },
+              {
+                to: '/settings',
+                Icon: CogIcon,
+                label: 'Settings',
+                dataIntro: 'Modify your settings, including preferences and dark mode.',
+              },
+              {
+                to: '/faq',
+                Icon: QuestionMarkCircleIcon,
+                label: 'Help/FAQ',
+                dataIntro: 'Find help, documentation, and frequently asked questions.',
+              },
+            ].map(({ to, Icon, label, dataIntro }) => (
               <li key={to}>
                 <Link
                   to={to}
-                  className={`flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-all duration-300 sidebar-link-${tour}`}
+                  data-intro={dataIntro}
+                  className="flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-all duration-300"
                 >
                   <Icon className="h-5 w-5" />
                   {!isCollapsed && <span className="text-sm font-medium">{label}</span>}
@@ -156,6 +196,7 @@ function Sidebar() {
         <div className="p-3">
           <button
             onClick={handleLogout}
+            data-intro="Click here to log out of your account safely."
             className="w-full flex items-center justify-center space-x-2 p-2 rounded-md bg-white/10 hover:bg-white/20 dark:bg-gray-700/50 dark:hover:bg-gray-600/50 transition-colors duration-200 sidebar-logout"
           >
             <LogoutIcon className="h-4 w-4" />
