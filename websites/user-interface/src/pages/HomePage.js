@@ -45,7 +45,7 @@ function GettingStartedPage() {
           },
           {
             element: '.sidebar-link-analytics',
-            intro: 'View analytics and insights about your activity here.',
+            intro: 'View analytics and insights about your activity.',
           },
           {
             element: '.sidebar-link-history',
@@ -79,7 +79,7 @@ function GettingStartedPage() {
       variants={containerVariants}
     >
       {/* Hero Section */}
-      <section className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-20 px-4">
+      <section className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-gray-800 dark:to-gray-900 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-extrabold mb-6 tracking-tight">
             Welcome to INBOT
@@ -88,7 +88,7 @@ function GettingStartedPage() {
             Your intelligent assistant for seamless communication and efficient document management.
           </p>
           <div className="flex justify-center">
-            <button 
+            <button
               onClick={startSidebarTour}
               className="px-8 py-4 bg-white text-indigo-600 font-bold rounded-full shadow-lg transition-all hover:bg-gray-100"
             >

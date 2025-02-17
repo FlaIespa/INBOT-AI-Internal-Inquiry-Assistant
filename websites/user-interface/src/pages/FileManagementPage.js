@@ -125,9 +125,9 @@ function FileManagementPage() {
     return `${(totalBytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  // Utility: Get unique file types from the file names
+  // Updated: Get unique file types from the stored file_type column
   const getUniqueFileTypes = (files) => {
-    const fileTypes = [...new Set(files.map((file) => file.name.split('.').pop()))];
+    const fileTypes = [...new Set(files.map((file) => file.file_type).filter(Boolean))];
     return {
       count: fileTypes.length,
       types: fileTypes,

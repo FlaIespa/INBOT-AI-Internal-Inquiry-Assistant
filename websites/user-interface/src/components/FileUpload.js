@@ -128,8 +128,11 @@ function FileUpload({ onFileUpload }) {
       return;
     }
     setIsUploading(true);
+    // Generate a unique filename for storage
     const fileName = `${Date.now()}_${selectedFile.name}`;
     const bucketName = 'files';
+    // Extract file type (extension) from the original file name
+    const fileType = selectedFile.name.split('.').pop();
 
     try {
       // 1. Upload the file to Supabase Storage
@@ -145,7 +148,7 @@ function FileUpload({ onFileUpload }) {
       if (publicUrlError) throw publicUrlError;
       if (!publicUrlData?.publicUrl) throw new Error('Unable to generate file URL.');
 
-      // 3. Insert file metadata into the "files" table
+      // 3. Insert file metadata into the "files" table, including the file type
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error("User not authenticated.");
       const { data: fileData, error: dbError } = await supabase
@@ -155,6 +158,7 @@ function FileUpload({ onFileUpload }) {
           name: selectedFile.name,
           size: selectedFile.size,
           url: publicUrlData.publicUrl,
+          file_type: fileType,  // Save the file type in the new column
         })
         .select();
       if (dbError) throw dbError;

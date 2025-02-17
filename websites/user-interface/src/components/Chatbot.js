@@ -33,16 +33,20 @@ async function extractTextFromPDFFromURL(url) {
 
 // --- Helper: Fetch document content from URL ---
 async function fetchDocumentContent(fileRecord) {
-  const { url, name } = fileRecord;
-  if (name.toLowerCase().endsWith('.pdf')) {
+  const { url, name, file_type } = fileRecord;
+  // Determine the extension using file_type if available, or fallback to the file name.
+  let extension = file_type ? file_type.toLowerCase() : name.split('.').pop().toLowerCase();
+
+  if (extension === 'pdf') {
     return await extractTextFromPDFFromURL(url);
-  } else if (name.toLowerCase().endsWith('.txt')) {
+  } else if (extension === 'txt') {
     const res = await fetch(url);
     return await res.text();
   } else {
     throw new Error("Unsupported file type for content extraction.");
   }
 }
+
 
 // --- Helper: Aggregate content from all files ---
 async function aggregateAllFilesContent(files) {
