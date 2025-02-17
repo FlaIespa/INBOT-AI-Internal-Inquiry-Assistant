@@ -462,7 +462,7 @@ function Chatbot() {
                 disabled={isLoading || !input.trim()}
                 className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed self-end chatbot-send-btn"
               >
-                <PaperAirplaneIcon className="h-5 w-5 transform rotate-45 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600" />
+                <PaperAirplaneIcon className="h-5 w-5 transform rotate-45 bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600" />
               </button>
             </form>
           </div>

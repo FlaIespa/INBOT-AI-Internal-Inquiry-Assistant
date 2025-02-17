@@ -191,7 +191,7 @@ function UploadedFiles({ files, onFileDelete, onFileRename, onFolderChange, fold
                             handleRename(file.id);
                           }
                         }}
-                        onBlur={() => handleRename(file.id)}
+                        // onBlur={() => handleRename(file.id)}
                         className="text-sm font-medium text-gray-900 dark:text-white border-b border-gray-300 dark:border-gray-600 focus:outline-none"
                       />
                     ) : (
