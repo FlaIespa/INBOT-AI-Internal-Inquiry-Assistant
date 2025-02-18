@@ -9,7 +9,7 @@ const pdfStyles = StyleSheet.create({
   page: {
     padding: 50,
     fontSize: 12,
-    fontFamily: 'Times-Roman',
+    fontFamily: 'Roboto',
     lineHeight: 1.15,
   },
   text: {
@@ -34,13 +34,18 @@ function formatFileSize(size) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function TranslatedDocumentsList({ translations, onSelect, onDelete, onDownloadPDF }) {
+function TranslatedDocumentsList({ translations, onSelect, onDelete }) {
   if (!translations || translations.length === 0) {
     return <p className="text-center text-sm text-gray-500 dark:text-gray-400">No translations found.</p>;
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-3">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-3"
+    >
       {translations.map((translationRow) => {
         const { id, translation, translated_language, file } = translationRow;
         return (

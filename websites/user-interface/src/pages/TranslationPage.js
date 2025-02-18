@@ -8,7 +8,9 @@ import {
   Document,
   Page,
   Text,
+  View,
   StyleSheet,
+  Font,
 } from '@react-pdf/renderer';
 
 // Example list of target languages
@@ -24,24 +26,80 @@ const LANGUAGES = [
   'Russian',
 ];
 
+// Register a custom font (Roboto)
+Font.register({
+  family: 'Roboto',
+  src: 'https://fonts.gstatic.com/s/roboto/v27/KFOmCnqEu92Fr1Mu4mxK.woff2',
+});
+
 // Define PDF styles for react-pdf
 const pdfStyles = StyleSheet.create({
   page: {
-    padding: 50,
+    paddingTop: 60,
+    paddingBottom: 60,
+    paddingHorizontal: 50,
     fontSize: 12,
-    fontFamily: 'Times-Roman',
+    fontFamily: 'Roboto',
     lineHeight: 1.15,
   },
-  text: {
-    whiteSpace: 'pre-wrap',
+  header: {
+    position: 'absolute',
+    top: 20,
+    left: 50,
+    right: 50,
+    textAlign: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#cccccc',
+    paddingBottom: 5,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 50,
+    right: 50,
+    textAlign: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#cccccc',
+    paddingTop: 5,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  content: {
+    marginTop: 20,
+  },
+  paragraph: {
+    marginBottom: 10,
+    textAlign: 'justify',
   },
 });
 
-// TranslationPDF component for generating the PDF
+// TranslationPDF component for generating the PDF document
 const TranslationPDF = ({ translation }) => (
   <Document>
     <Page style={pdfStyles.page}>
-      <Text style={pdfStyles.text}>{translation}</Text>
+      {/* Header */}
+      <View style={pdfStyles.header} fixed>
+        <Text style={pdfStyles.title}>Translated Document</Text>
+      </View>
+      {/* Content */}
+      <View style={pdfStyles.content}>
+        {translation.split('\n\n').map((para, index) => (
+          <Text key={index} style={pdfStyles.paragraph}>
+            {para}
+          </Text>
+        ))}
+      </View>
+      {/* Footer with page number */}
+      <View style={pdfStyles.footer} fixed>
+        <Text
+          render={({ pageNumber, totalPages }) =>
+            `Page ${pageNumber} of ${totalPages}`
+          }
+          fixed
+        />
+      </View>
     </Page>
   </Document>
 );
@@ -180,7 +238,7 @@ function TranslationPage() {
     setTimeout(() => setTranslationMessage(''), 3000);
   };
 
-  // Handle translation (calculate full translation but do NOT save it yet)
+  // Handle translation: Calculate full translation but do NOT save it yet
   const handleTranslate = async () => {
     if (!selectedFile || !targetLanguage) {
       showSnackbar('Please select a file and a target language.', 'error');
@@ -377,7 +435,9 @@ function TranslationPage() {
                     fileName={`translated_${selectedFile?.name || 'document'}.pdf`}
                     className="py-2 px-4 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
                   >
-                    {({ loading }) => (loading ? 'Preparing document...' : 'Download PDF')}
+                    {({ loading }) =>
+                      loading ? 'Preparing document...' : 'Download PDF'
+                    }
                   </PDFDownloadLink>
                 </>
               )}
@@ -391,10 +451,6 @@ function TranslationPage() {
           <TranslatedDocumentsList
             translations={translations}
             onSelect={handleSelectTranslatedFile}
-            onDownloadPDF={(translationText, originalFileName) => {
-              // Use PDFDownloadLink inside the list or call our react-pdf method as needed.
-              // Here we let the TranslatedDocumentsList handle the download via react-pdf.
-            }}
             onDelete={handleDeleteTranslation}
           />
         </div>
