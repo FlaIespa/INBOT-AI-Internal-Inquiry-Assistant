@@ -17,27 +17,23 @@ function GettingStartedPage() {
           },
           {
             element: '.sidebar-link-home',
-            intro: 'This link takes you to the Home page, where you can see an overview of your dashboard.',
-          },
-          {
-            element: '.sidebar-link-chatbot',
-            intro: 'Access the Chatbot to interact with INBOT.',
+            intro: 'Go to the Home page for an overview of your dashboard.',
           },
           {
             element: '.sidebar-link-fileManagement',
             intro: 'Use this to upload and manage your documents.',
           },
           {
-            element: '.sidebar-link-settings',
-            intro: 'Change your settings and preferences here.',
+            element: '.sidebar-link-chatbot',
+            intro: 'Access the Chatbot to interact with INBOT.',
           },
           {
-            element: '.sidebar-link-faq',
-            intro: 'Find help and FAQs in this section.',
+            element: '.sidebar-link-history',
+            intro: 'View and manage your past interactions and chat history.',
           },
           {
             element: '.sidebar-link-userProfile',
-            intro: 'View and update your user profile here.',
+            intro: 'View and update your user profile information here.',
           },
           {
             element: '.sidebar-link-notifications',
@@ -45,15 +41,19 @@ function GettingStartedPage() {
           },
           {
             element: '.sidebar-link-analytics',
-            intro: 'View analytics and insights about your activity.',
+            intro: 'View analytics and insights about your interactions.',
           },
           {
-            element: '.sidebar-link-history',
-            intro: 'Access your chat history here.',
+            element: '.sidebar-link-settings',
+            intro: 'Modify your settings, including preferences and dark mode.',
+          },
+          {
+            element: '.sidebar-link-faq',
+            intro: 'Find help, documentation, and frequently asked questions.',
           },
           {
             element: '.sidebar-logout',
-            intro: 'Click here to log out of your account.',
+            intro: 'Click here to log out of your account safely.',
           },
         ],
         showProgress: true,

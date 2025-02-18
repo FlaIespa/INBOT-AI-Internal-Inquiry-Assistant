@@ -12,6 +12,7 @@ import {
   ChevronRightIcon,
   LogoutIcon,
   ClockIcon,
+  BellIcon, // imported for notifications
 } from '@heroicons/react/solid';
 import { supabase } from '../supabaseClient';
 
@@ -67,6 +68,66 @@ function Sidebar() {
   useEffect(() => {
     fetchUserProfile();
   }, []);
+
+  // Define nav items along with the custom class names to target in the tour
+  const navItems = [
+    {
+      to: '/home',
+      Icon: HomeIcon,
+      label: 'Home',
+      dataIntro: 'Go to the Home page for an overview of your dashboard.',
+      linkClass: 'sidebar-link-home',
+    },
+    {
+      to: '/file-management',
+      Icon: CloudUploadIcon,
+      label: 'File Management',
+      dataIntro: 'Upload and manage your documents here.',
+      linkClass: 'sidebar-link-fileManagement',
+    },
+    {
+      to: '/chatbot',
+      Icon: ChatAlt2Icon,
+      label: 'Chatbot',
+      dataIntro: 'Access the Chatbot to interact with INBOT.',
+      linkClass: 'sidebar-link-chatbot',
+    },
+    {
+      to: '/history',
+      Icon: ClockIcon,
+      label: 'History',
+      dataIntro: 'View and manage your past interactions and chat history.',
+      linkClass: 'sidebar-link-history',
+    },
+    {
+      to: '/user-profile',
+      Icon: UserIcon,
+      label: 'User Profile',
+      dataIntro: 'View and update your user profile information here.',
+      linkClass: 'sidebar-link-userProfile',
+    },
+    {
+      to: '/admin-dashboard',
+      Icon: ChartPieIcon,
+      label: 'Analytics',
+      dataIntro: 'Check analytics and insights about your interactions.',
+      linkClass: 'sidebar-link-analytics',
+    },
+    {
+      to: '/settings',
+      Icon: CogIcon,
+      label: 'Settings',
+      dataIntro: 'Modify your settings, including preferences and dark mode.',
+      linkClass: 'sidebar-link-settings',
+    },
+    {
+      to: '/faq',
+      Icon: QuestionMarkCircleIcon,
+      label: 'Help/FAQ',
+      dataIntro: 'Find help, documentation, and frequently asked questions.',
+      linkClass: 'sidebar-link-faq',
+    },
+  ];
 
   return (
     <aside
@@ -128,61 +189,13 @@ function Sidebar() {
         {/* Navigation Links */}
         <nav className="flex-1 p-3">
           <ul className="space-y-4">
-            {[
-              {
-                to: '/home',
-                Icon: HomeIcon,
-                label: 'Home',
-                dataIntro: 'Go to the Home page for an overview of your dashboard.',
-              },
-              {
-                to: '/file-management',
-                Icon: CloudUploadIcon,
-                label: 'File Management',
-                dataIntro: 'Upload and manage your documents here.',
-              },
-              {
-                to: '/chatbot',
-                Icon: ChatAlt2Icon,
-                label: 'Chatbot',
-                dataIntro: 'Access the Chatbot to interact with INBOT.',
-              },
-              {
-                to: '/history',
-                Icon: ClockIcon,
-                label: 'History',
-                dataIntro: 'View and manage your past interactions and chat history.',
-              },
-              {
-                to: '/user-profile',
-                Icon: UserIcon,
-                label: 'User Profile',
-                dataIntro: 'View and update your user profile information here.',
-              },
-              {
-                to: '/admin-dashboard',
-                Icon: ChartPieIcon,
-                label: 'Analytics',
-                dataIntro: 'Check analytics and insights about your interactions.',
-              },
-              {
-                to: '/settings',
-                Icon: CogIcon,
-                label: 'Settings',
-                dataIntro: 'Modify your settings, including preferences and dark mode.',
-              },
-              {
-                to: '/faq',
-                Icon: QuestionMarkCircleIcon,
-                label: 'Help/FAQ',
-                dataIntro: 'Find help, documentation, and frequently asked questions.',
-              },
-            ].map(({ to, Icon, label, dataIntro }) => (
+            {navItems.map(({ to, Icon, label, dataIntro, linkClass }) => (
               <li key={to}>
                 <Link
                   to={to}
                   data-intro={dataIntro}
-                  className="flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-all duration-300"
+                  // Append the custom link class for targeting the tour step
+                  className={`flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-all duration-300 ${linkClass}`}
                 >
                   <Icon className="h-5 w-5" />
                   {!isCollapsed && <span className="text-sm font-medium">{label}</span>}

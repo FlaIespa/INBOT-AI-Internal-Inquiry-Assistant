@@ -4,7 +4,9 @@ import 'intro.js/introjs.css';
 
 const SidebarTour = () => {
   useEffect(() => {
-    // Expand the sidebar if it's collapsed
+    let intervalId;
+
+    // Function to expand the sidebar if it's collapsed
     const expandSidebarIfCollapsed = () => {
       const sidebar = document.querySelector('.sidebar');
       if (sidebar && sidebar.classList.contains('w-16')) {
@@ -18,19 +20,30 @@ const SidebarTour = () => {
     };
 
     const wasCollapsed = expandSidebarIfCollapsed();
-    // Wait for the sidebar animation to complete if it was collapsed
-    const delay = wasCollapsed ? 350 : 0;
+    const delay = wasCollapsed ? 500 : 0;
 
     const timeoutId = setTimeout(() => {
-      // Ensure that all tour elements are present (we expect 10 elements with data-intro)
-      const checkElementsExist = () =>
-        document.querySelectorAll('[data-intro]').length >= 10;
+      // Check that at least one tour element exists
+      const checkElementsExist = () => document.querySelectorAll('[data-intro]').length > 0;
 
-      const interval = setInterval(() => {
+      intervalId = setInterval(() => {
         if (checkElementsExist()) {
-          clearInterval(interval);
+          clearInterval(intervalId);
+
+          // Dynamically build steps by sorting elements by their vertical position (top)
+          const steps = Array.from(document.querySelectorAll('[data-intro]'))
+            .sort(
+              (a, b) =>
+                a.getBoundingClientRect().top - b.getBoundingClientRect().top
+            )
+            .map((element) => ({
+              element,
+              intro: element.getAttribute('data-intro'),
+            }));
+
           const tour = introJs();
           tour.setOptions({
+            steps,
             showProgress: true,
             exitOnOverlayClick: false,
             disableInteraction: true,
@@ -42,6 +55,7 @@ const SidebarTour = () => {
 
     return () => {
       clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
     };
   }, []);
 
