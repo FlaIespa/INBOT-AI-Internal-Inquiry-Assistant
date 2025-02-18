@@ -3,6 +3,7 @@ import WelcomeHero from '../components/WelcomeHero';
 import WelcomeContent from '../components/WelcomeContent';
 import WelcomeTestimonials from '../components/WelcomeTestimonials';
 import WelcomeFooter from '../components/WelcomeFooter';
+import WelcomeCompare from '../components/WelcomeCompare'; // <-- Import here
 
 const WelcomePage = () => {
   return (
@@ -10,6 +11,10 @@ const WelcomePage = () => {
       <WelcomeHero />
       <div className="space-y-20">
         <WelcomeContent />
+
+        {/* Compare Section */}
+        <WelcomeCompare />
+
         <WelcomeTestimonials />
       </div>
       <WelcomeFooter />
