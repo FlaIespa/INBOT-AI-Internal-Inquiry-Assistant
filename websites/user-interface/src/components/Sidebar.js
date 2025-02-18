@@ -12,7 +12,8 @@ import {
   ChevronRightIcon,
   LogoutIcon,
   ClockIcon,
-  BellIcon, // imported for notifications
+  BellIcon,
+  GlobeIcon,
 } from '@heroicons/react/solid';
 import { supabase } from '../supabaseClient';
 
@@ -98,6 +99,13 @@ function Sidebar() {
       label: 'History',
       dataIntro: 'View and manage your past interactions and chat history.',
       linkClass: 'sidebar-link-history',
+    },
+    {
+      to: '/translation',
+      Icon: GlobeIcon,
+      label: 'Translation',
+      dataIntro: 'Translate your documents here.',
+      linkClass: 'sidebar-link-translation',
     },
     {
       to: '/user-profile',
