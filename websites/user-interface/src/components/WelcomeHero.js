@@ -34,23 +34,17 @@ const WelcomeHero = () => {
           and enhance productivity.
         </motion.p>
 
-        {/* Interactive Container (now full width, no aspect-square) */}
+        {/* Interactive Container with enhanced gradient border */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
           className="relative mx-auto mt-8 mb-16 w-full"
         >
-          <div
-            className="w-full bg-white dark:bg-gray-800 
-                       rounded-2xl shadow-lg border border-gray-100 
-                       dark:border-gray-700 overflow-hidden"
-          >
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-600/10" />
-
-            {/* Video filling entire container width */}
-            <div className="relative w-full h-full">
+          {/* Outer wrapper with increased padding and gradient background */}
+          <div className="p-8 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-2xl">
+            {/* Video container */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
               <video
                 className="w-full h-auto object-cover"
                 autoPlay
@@ -65,10 +59,9 @@ const WelcomeHero = () => {
             </div>
           </div>
 
-          {/* Decorative Elements */}
+          {/* Decorative blurred gradient behind the container */}
           <div
-            className="absolute -z-10 inset-0 blur-3xl 
-                       opacity-20 bg-gradient-to-r from-blue-600 to-purple-600"
+            className="absolute -z-10 inset-0 blur-3xl opacity-20 bg-gradient-to-r from-blue-600 to-purple-600"
           />
         </motion.div>
       </main>

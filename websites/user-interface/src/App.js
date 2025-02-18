@@ -1,4 +1,5 @@
 // src/App.js
+
 import React, { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
@@ -18,6 +19,9 @@ import LandingPage from './pages/WelcomePage';
 import HistoryPage from './pages/HistoryPage';
 import ConversationDetail from './pages/ConversationDetailPage';
 import { DarkModeProvider, DarkModeContext } from './contexts/DarkModeContext';
+
+// NEW: Import the TranslationPage
+import TranslationPage from './pages/TranslationPage';
 
 function AppContent() {
   const authToken = localStorage.getItem('authToken');
@@ -45,9 +49,7 @@ function AppContent() {
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-grow transition-colors duration-200 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        <div className="p-8 max-w-7xl mx-auto">
-          {children}
-        </div>
+        <div className="p-8 max-w-7xl mx-auto">{children}</div>
       </main>
     </div>
   );
@@ -63,23 +65,164 @@ function AppContent() {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/login" element={<PublicLayout><LoginPage setAuthToken={() => {}} /></PublicLayout>} />
-        <Route path="/signup" element={<PublicLayout><SignupPage setAuthToken={() => {}} /></PublicLayout>} />
-        <Route path="/" element={<PublicLayout><LandingPage /></PublicLayout>} />
+        <Route
+          path="/login"
+          element={
+            <PublicLayout>
+              <LoginPage setAuthToken={() => {}} />
+            </PublicLayout>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicLayout>
+              <SignupPage setAuthToken={() => {}} />
+            </PublicLayout>
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <PublicLayout>
+              <LandingPage />
+            </PublicLayout>
+          }
+        />
 
         {/* Protected Routes */}
-        <Route path="/home" element={<ProtectedRoute><ProtectedLayout><HomePage /></ProtectedLayout></ProtectedRoute>} />
-        <Route path="/chatbot" element={<ProtectedRoute><ProtectedLayout><ChatbotPage /></ProtectedLayout></ProtectedRoute>} />
-        <Route path="/chatbot-tour" element={<ProtectedRoute><ProtectedLayout><ChatbotTour /></ProtectedLayout></ProtectedRoute>} />
-        <Route path="/file-management" element={<ProtectedRoute><ProtectedLayout><FileManagementPage /></ProtectedLayout></ProtectedRoute>} />
-        <Route path="/faq" element={<ProtectedRoute><ProtectedLayout><FAQPage /></ProtectedLayout></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><ProtectedLayout><SettingsPage /></ProtectedLayout></ProtectedRoute>} />
-        <Route path="/user-profile" element={<ProtectedRoute><ProtectedLayout><UserProfilePage /></ProtectedLayout></ProtectedRoute>} />
-        <Route path="/notifications" element={<ProtectedRoute><ProtectedLayout><NotificationsPage /></ProtectedLayout></ProtectedRoute>} />
-        <Route path="/admin-dashboard" element={<ProtectedRoute><ProtectedLayout><AdminDashboard /></ProtectedLayout></ProtectedRoute>} />
-        <Route path="/history" element={<ProtectedRoute><ProtectedLayout><HistoryPage /></ProtectedLayout></ProtectedRoute>} />
-        <Route path="/conversation/:conversationId" element={<ProtectedRoute><ProtectedLayout><ConversationDetail /></ProtectedLayout></ProtectedRoute>} />
-        <Route path="/tour" element={<ProtectedRoute><ProtectedLayout><SidebarTour /></ProtectedLayout></ProtectedRoute>} />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <HomePage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chatbot"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <ChatbotPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chatbot-tour"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <ChatbotTour />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/file-management"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <FileManagementPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/faq"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <FAQPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <SettingsPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user-profile"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <UserProfilePage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <NotificationsPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <AdminDashboard />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <HistoryPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/conversation/:conversationId"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <ConversationDetail />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tour"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <SidebarTour />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* NEW: Protected Translation Route */}
+        <Route
+          path="/translation"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <TranslationPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
