@@ -107,13 +107,6 @@ function Sidebar() {
       linkClass: 'sidebar-link-userProfile',
     },
     {
-      to: '/notifications',
-      Icon: BellIcon,
-      label: 'Notifications',
-      dataIntro: 'Check your notifications here.',
-      linkClass: 'sidebar-link-notifications',
-    },
-    {
       to: '/admin-dashboard',
       Icon: ChartPieIcon,
       label: 'Analytics',
