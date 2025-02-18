@@ -1,12 +1,30 @@
 // src/components/TranslatedDocumentsList.js
 import React from 'react';
-import {
-  PencilIcon,
-  DocumentDownloadIcon,
-  TrashIcon,
-  DocumentTextIcon,
-} from '@heroicons/react/solid';
+import { PencilIcon, TrashIcon, DocumentDownloadIcon, DocumentTextIcon } from '@heroicons/react/solid';
 import { motion } from 'framer-motion';
+import { PDFDownloadLink, Document, Page, Text, StyleSheet } from '@react-pdf/renderer';
+
+// Define PDF styles for react-pdf
+const pdfStyles = StyleSheet.create({
+  page: {
+    padding: 50,
+    fontSize: 12,
+    fontFamily: 'Times-Roman',
+    lineHeight: 1.15,
+  },
+  text: {
+    whiteSpace: 'pre-wrap',
+  },
+});
+
+// TranslationPDF component for each translation card
+const TranslationPDF = ({ translation }) => (
+  <Document>
+    <Page style={pdfStyles.page}>
+      <Text style={pdfStyles.text}>{translation}</Text>
+    </Page>
+  </Document>
+);
 
 // Optional helper to format file size
 function formatFileSize(size) {
@@ -16,32 +34,21 @@ function formatFileSize(size) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function TranslatedDocumentsList({
-  translations,       // Array of translation rows from file_translations
-  onSelect,           // Called when user clicks the Edit button
-  onDownloadPDF,      // Called when user clicks the Download button
-  onDelete,           // Optional: Called when user clicks the Delete button
-}) {
+function TranslatedDocumentsList({ translations, onSelect, onDelete, onDownloadPDF }) {
   if (!translations || translations.length === 0) {
     return <p className="text-center text-sm text-gray-500 dark:text-gray-400">No translations found.</p>;
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-3"
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-3">
       {translations.map((translationRow) => {
-        // Assume our translation row includes an embedded "file" object from a join.
-        const { id, translation, translated_language, created_at, file } = translationRow;
+        const { id, translation, translated_language, file } = translationRow;
         return (
           <div
             key={id}
             className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition"
           >
-            {/* Left side: Icon and file info */}
+            {/* Left side: File info */}
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-full bg-gradient-to-br from-blue-600 to-purple-600">
                 <DocumentTextIcon className="h-6 w-6 text-white" />
@@ -69,22 +76,20 @@ function TranslatedDocumentsList({
               >
                 <PencilIcon className="h-5 w-5" />
               </button>
-              <button
-                onClick={() => onDownloadPDF(translation, file?.name)}
-                title="Download PDF"
+              <PDFDownloadLink
+                document={<TranslationPDF translation={translation} />}
+                fileName={`translated_${file?.name || 'document'}.pdf`}
                 className="p-2 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md hover:opacity-90"
               >
-                <DocumentDownloadIcon className="h-5 w-5" />
+                {({ loading }) => (loading ? '...' : <DocumentDownloadIcon className="h-5 w-5" />)}
+              </PDFDownloadLink>
+              <button
+                onClick={() => onDelete(id)}
+                title="Delete Translation"
+                className="p-2 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white shadow-md hover:opacity-90"
+              >
+                <TrashIcon className="h-5 w-5" />
               </button>
-              {onDelete && (
-                <button
-                  onClick={() => onDelete(id)}
-                  title="Delete Translation"
-                  className="p-2 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white shadow-md hover:opacity-90"
-                >
-                  <TrashIcon className="h-5 w-5" />
-                </button>
-              )}
             </div>
           </div>
         );

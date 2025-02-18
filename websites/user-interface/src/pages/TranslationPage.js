@@ -2,8 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../supabaseClient';
-import { jsPDF } from 'jspdf';
 import TranslatedDocumentsList from '../components/TranslatedDocumentsList';
+import {
+  PDFDownloadLink,
+  Document,
+  Page,
+  Text,
+  StyleSheet,
+} from '@react-pdf/renderer';
 
 // Example list of target languages
 const LANGUAGES = [
@@ -17,6 +23,28 @@ const LANGUAGES = [
   'Arabic',
   'Russian',
 ];
+
+// Define PDF styles for react-pdf
+const pdfStyles = StyleSheet.create({
+  page: {
+    padding: 50,
+    fontSize: 12,
+    fontFamily: 'Times-Roman',
+    lineHeight: 1.15,
+  },
+  text: {
+    whiteSpace: 'pre-wrap',
+  },
+});
+
+// TranslationPDF component for generating the PDF
+const TranslationPDF = ({ translation }) => (
+  <Document>
+    <Page style={pdfStyles.page}>
+      <Text style={pdfStyles.text}>{translation}</Text>
+    </Page>
+  </Document>
+);
 
 // Helper to fetch text from a PDF or TXT file in Supabase
 async function fetchDocumentContent(fileRecord) {
@@ -149,9 +177,7 @@ function TranslationPage() {
   // Snackbar logic
   const showSnackbar = (message, type) => {
     setTranslationMessage(`${type.toUpperCase()}: ${message}`);
-    setTimeout(() => {
-      setTranslationMessage('');
-    }, 3000);
+    setTimeout(() => setTranslationMessage(''), 3000);
   };
 
   // Handle translation (calculate full translation but do NOT save it yet)
@@ -206,29 +232,23 @@ function TranslationPage() {
     }
   };
 
-  // Download PDF with multi-page support and improved formatting.
-  // Added a check for setAutoPageBreak.
-  const handleDownloadPDF = (translationText, originalFileName = 'document') => {
-    if (!translationText) return;
-    const doc = new jsPDF({
-      unit: 'pt',
-      format: 'letter',
-    });
-    doc.setFont('times', 'normal');
-    doc.setFontSize(12);
-    doc.setLineHeightFactor(1.15);
-    if (typeof doc.setAutoPageBreak === 'function') {
-      doc.setAutoPageBreak(true, 40);
+  // Delete a translation from the file_translations table
+  const handleDeleteTranslation = async (translationId) => {
+    try {
+      const { error } = await supabase
+        .from('file_translations')
+        .delete()
+        .eq('id', translationId);
+      if (error) throw error;
+      showSnackbar('Translation deleted successfully!', 'success');
+      await refreshTranslations(userId);
+    } catch (error) {
+      console.error('Error deleting translation:', error.message);
+      showSnackbar('Error deleting translation.', 'error');
     }
-    const marginLeft = 50;
-    const marginTop = 50;
-    const maxWidth = 500;
-    const lines = doc.splitTextToSize(translationText, maxWidth);
-    doc.text(lines, marginLeft, marginTop);
-    doc.save(`translated_${originalFileName}.pdf`);
   };
 
-  // When a translated file is selected from the list, load its data
+  // When a translated file is selected from the list, load its data for viewing/editing.
   const handleSelectTranslatedFile = (translationRow) => {
     setSelectedFile({ id: translationRow.file_id });
     setTranslation(translationRow.translation || '');
@@ -239,12 +259,7 @@ function TranslationPage() {
 
   return (
     <div className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900 px-4 py-6">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-5xl mx-auto space-y-6"
-      >
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="max-w-5xl mx-auto space-y-6">
         {/* Title Section */}
         <div className="text-center">
           <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
@@ -351,19 +366,19 @@ function TranslationPage() {
                   >
                     Edit Translation
                   </button>
-                  {/* Dedicated Save button to upsert the translation */}
                   <button
                     onClick={handleSaveTranslation}
                     className="py-2 px-4 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700"
                   >
                     Save Translation
                   </button>
-                  <button
-                    onClick={() => handleDownloadPDF(translation, selectedFile?.name)}
+                  <PDFDownloadLink
+                    document={<TranslationPDF translation={translation} />}
+                    fileName={`translated_${selectedFile?.name || 'document'}.pdf`}
                     className="py-2 px-4 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
                   >
-                    Download PDF
-                  </button>
+                    {({ loading }) => (loading ? 'Preparing document...' : 'Download PDF')}
+                  </PDFDownloadLink>
                 </>
               )}
             </div>
@@ -376,7 +391,11 @@ function TranslationPage() {
           <TranslatedDocumentsList
             translations={translations}
             onSelect={handleSelectTranslatedFile}
-            onDownloadPDF={handleDownloadPDF}
+            onDownloadPDF={(translationText, originalFileName) => {
+              // Use PDFDownloadLink inside the list or call our react-pdf method as needed.
+              // Here we let the TranslatedDocumentsList handle the download via react-pdf.
+            }}
+            onDelete={handleDeleteTranslation}
           />
         </div>
       </motion.div>
