@@ -62,6 +62,7 @@ function GettingStartedPage() {
       .start();
   };
 
+  // Framer Motion container animations
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.95 },
     visible: {
@@ -73,13 +74,13 @@ function GettingStartedPage() {
 
   return (
     <motion.div
-      className="ml-56 min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center"
+      className="ml-56 min-h-screen bg-gray-50 text-gray-800 flex flex-col items-center"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      {/* Hero Section */}
-      <section className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-gray-800 dark:to-gray-900 text-white py-20 px-4">
+      {/* Hero Section - White background */}
+      <section className="w-full bg-white text-gray-800 py-20 px-4 border-b border-gray-200">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-extrabold mb-6 tracking-tight">
             Welcome to INBOT
@@ -90,7 +91,7 @@ function GettingStartedPage() {
           <div className="flex justify-center">
             <button
               onClick={startSidebarTour}
-              className="px-8 py-4 bg-white text-indigo-600 font-bold rounded-full shadow-lg transition-all hover:bg-gray-100"
+              className="px-8 py-4 bg-purple-600 text-white font-bold rounded-full shadow-lg transition-all hover:bg-purple-700"
             >
               Sidebar Tour
             </button>
@@ -104,45 +105,47 @@ function GettingStartedPage() {
           {/* AI Chat Assistant Card */}
           <Link
             to="/chatbot"
-            className="group block bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 hover:shadow-2xl transform hover:-translate-y-1 transition"
+            className="block bg-white rounded-xl shadow-lg border border-gray-200 p-8 hover:shadow-2xl transform hover:-translate-y-1 transition"
           >
             <div className="flex justify-center mb-4">
-              <ChatAlt2Icon className="w-12 h-12 text-indigo-600" />
+              <ChatAlt2Icon className="w-12 h-12 text-purple-600" />
             </div>
-            <h2 className="mt-2 text-xl font-bold text-center text-gray-900 dark:text-white">
+            <h2 className="mt-2 text-xl font-bold text-center">
               AI Chat Assistant
             </h2>
-            <p className="mt-1 text-center text-gray-600 dark:text-gray-300">
+            <p className="mt-1 text-center text-gray-600">
               Ask questions and receive intelligent responses.
             </p>
           </Link>
+
           {/* Document Manager Card */}
           <Link
             to="/file-management"
-            className="group block bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 hover:shadow-2xl transform hover:-translate-y-1 transition"
+            className="block bg-white rounded-xl shadow-lg border border-gray-200 p-8 hover:shadow-2xl transform hover:-translate-y-1 transition"
           >
             <div className="flex justify-center mb-4">
-              <CloudUploadIcon className="w-12 h-12 text-indigo-600" />
+              <CloudUploadIcon className="w-12 h-12 text-purple-600" />
             </div>
-            <h2 className="mt-2 text-xl font-bold text-center text-gray-900 dark:text-white">
+            <h2 className="mt-2 text-xl font-bold text-center">
               Document Manager
             </h2>
-            <p className="mt-1 text-center text-gray-600 dark:text-gray-300">
+            <p className="mt-1 text-center text-gray-600">
               Upload, organize, and manage your files.
             </p>
           </Link>
+
           {/* Analytics Dashboard Card */}
           <Link
             to="/admin-dashboard"
-            className="group block bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 hover:shadow-2xl transform hover:-translate-y-1 transition"
+            className="block bg-white rounded-xl shadow-lg border border-gray-200 p-8 hover:shadow-2xl transform hover:-translate-y-1 transition"
           >
             <div className="flex justify-center mb-4">
-              <ChartBarIcon className="w-12 h-12 text-indigo-600" />
+              <ChartBarIcon className="w-12 h-12 text-purple-600" />
             </div>
-            <h2 className="mt-2 text-xl font-bold text-center text-gray-900 dark:text-white">
+            <h2 className="mt-2 text-xl font-bold text-center">
               Analytics Dashboard
             </h2>
-            <p className="mt-1 text-center text-gray-600 dark:text-gray-300">
+            <p className="mt-1 text-center text-gray-600">
               Gain insights into your document activity.
             </p>
           </Link>

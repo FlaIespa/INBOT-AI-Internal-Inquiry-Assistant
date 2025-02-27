@@ -12,7 +12,6 @@ import {
   ChevronRightIcon,
   LogoutIcon,
   ClockIcon,
-  BellIcon,
   GlobeIcon,
 } from '@heroicons/react/solid';
 import { supabase } from '../supabaseClient';
@@ -139,29 +138,30 @@ function Sidebar() {
 
   return (
     <aside
-      className={`sidebar fixed left-0 top-0 h-screen 
-        bg-gradient-to-b from-blue-600 via-purple-600 to-purple-800 
-        dark:from-gray-800 dark:via-gray-900 dark:to-black 
-        text-white flex flex-col 
-        ${isCollapsed ? 'w-16' : 'w-56'} 
-        transition-all duration-300 z-10 shadow-md`}
+      className={`sidebar fixed left-0 top-0 h-screen
+        bg-white text-gray-800 border-r border-gray-200
+        flex flex-col
+        ${isCollapsed ? 'w-16' : 'w-56'}
+        transition-all duration-300 z-10 shadow-md
+      `}
     >
       <div className="flex flex-col flex-1">
         {/* Top Section with Logo and Toggle */}
         <div className="p-3">
           <div className="flex items-center justify-between mb-2">
             <div className={`flex items-center ${isCollapsed ? 'hidden' : ''}`}>
-              <ChatAlt2Icon className="h-6 w-6 text-white" />
+              {/* Main Logo/Icon */}
+              <ChatAlt2Icon className="h-6 w-6 text-purple-600" />
               <h2 className="text-lg font-bold ml-2 tracking-wide">INBOT</h2>
             </div>
             <button
               onClick={toggleSidebar}
-              className="sidebar-toggle text-white p-2 rounded-full hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-colors duration-200"
+              className="sidebar-toggle text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
             >
               {isCollapsed ? (
-                <ChevronRightIcon className="h-5 w-5" />
+                <ChevronRightIcon className="h-5 w-5 text-purple-600" />
               ) : (
-                <ChevronLeftIcon className="h-5 w-5" />
+                <ChevronLeftIcon className="h-5 w-5 text-purple-600" />
               )}
             </button>
           </div>
@@ -171,10 +171,14 @@ function Sidebar() {
         <Link
           to="/user-profile"
           data-intro="This is your profile section. Click here to view or edit your profile."
-          className="px-3 py-4 border-y border-white/10 hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-all duration-300 sidebar-profile"
+          className="px-3 py-4 border-y border-gray-200 hover:bg-gray-100 transition-all duration-300 sidebar-profile"
         >
-          <div className={`flex items-center space-x-3 ${isCollapsed ? 'justify-center' : ''}`}>
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+          <div
+            className={`flex items-center space-x-3 ${
+              isCollapsed ? 'justify-center' : ''
+            }`}
+          >
+            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
               {user.avatarUrl ? (
                 <img
                   src={user.avatarUrl}
@@ -182,13 +186,15 @@ function Sidebar() {
                   className="w-10 h-10 rounded-full"
                 />
               ) : (
-                <span className="text-lg font-medium">{user.name.charAt(0)}</span>
+                <span className="text-lg font-medium text-gray-700">
+                  {user.name.charAt(0)}
+                </span>
               )}
             </div>
             {!isCollapsed && (
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate">{user.name}</p>
-                <p className="text-xs text-white/70 truncate">{user.email}</p>
+                <p className="text-xs text-gray-500 truncate">{user.email}</p>
               </div>
             )}
           </div>
@@ -202,11 +208,12 @@ function Sidebar() {
                 <Link
                   to={to}
                   data-intro={dataIntro}
-                  // Append the custom link class for targeting the tour step
-                  className={`flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 dark:hover:bg-gray-700 hover:bg-opacity-50 transition-all duration-300 ${linkClass}`}
+                  className={`flex items-center space-x-3 p-3 rounded-md hover:bg-gray-100 transition-all duration-300 ${linkClass}`}
                 >
-                  <Icon className="h-5 w-5" />
-                  {!isCollapsed && <span className="text-sm font-medium">{label}</span>}
+                  <Icon className="h-5 w-5 text-purple-600" />
+                  {!isCollapsed && (
+                    <span className="text-sm font-medium">{label}</span>
+                  )}
                 </Link>
               </li>
             ))}
@@ -218,17 +225,17 @@ function Sidebar() {
           <button
             onClick={handleLogout}
             data-intro="Click here to log out of your account safely."
-            className="w-full flex items-center justify-center space-x-2 p-2 rounded-md bg-white/10 hover:bg-white/20 dark:bg-gray-700/50 dark:hover:bg-gray-600/50 transition-colors duration-200 sidebar-logout"
+            className="w-full flex items-center justify-center space-x-2 p-2 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors duration-200 sidebar-logout"
           >
-            <LogoutIcon className="h-4 w-4" />
+            <LogoutIcon className="h-4 w-4 text-purple-600" />
             {!isCollapsed && <span className="text-xs">Logout</span>}
           </button>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="p-3 text-center text-xs bg-opacity-20">
-        <p className="text-gray-300 dark:text-gray-400">&copy; 2025 INBOT</p>
+      <footer className="p-3 text-center text-xs">
+        <p className="text-gray-400">&copy; 2025 INBOT</p>
       </footer>
     </aside>
   );
