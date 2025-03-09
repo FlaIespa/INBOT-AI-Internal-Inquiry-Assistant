@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { PaperAirplaneIcon, ChatAlt2Icon, DocumentTextIcon } from '@heroicons/react/solid';
 import { supabase } from '../supabaseClient';
 import { useLocation } from 'react-router-dom';
@@ -34,7 +35,6 @@ async function extractTextFromPDFFromURL(url) {
 // --- Helper: Fetch document content from URL ---
 async function fetchDocumentContent(fileRecord) {
   const { url, name, file_type } = fileRecord;
-  // Determine the extension using file_type if available, or fallback to the file name.
   let extension = file_type ? file_type.toLowerCase() : name.split('.').pop().toLowerCase();
 
   if (extension === 'pdf') {
@@ -46,7 +46,6 @@ async function fetchDocumentContent(fileRecord) {
     throw new Error("Unsupported file type for content extraction.");
   }
 }
-
 
 // --- Helper: Aggregate content from all files ---
 async function aggregateAllFilesContent(files) {
@@ -62,8 +61,8 @@ async function aggregateAllFilesContent(files) {
   return aggregated;
 }
 
-// --- Helper: Ask OpenAI with a prompt including document content ---
-async function askQuestion(documentContent, question) {
+// --- Helper: Ask OpenAI with streaming prompt including document content ---
+async function askQuestion(documentContent, question, setMessages) {
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -72,9 +71,13 @@ async function askQuestion(documentContent, question) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4",
+        stream: true, // enable streaming
         messages: [
-          { role: "system", content: "You are a helpful assistant." },
+          { 
+            role: "system", 
+            content: "You are a helpful assistant. Please provide your responses in valid Markdown, using bullet points (`- ` or `* `) and **bold text** where relevant." 
+          },
           { role: "system", content: `Document Content: ${documentContent}` },
           { role: "user", content: question }
         ],
@@ -86,8 +89,45 @@ async function askQuestion(documentContent, question) {
       const errData = await response.json().catch(() => ({}));
       throw new Error(errData.error?.message || response.statusText);
     }
-    const data = await response.json();
-    return data.choices[0].message.content;
+    
+    // Prepare for streaming
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let done = false;
+    let result = "";
+    
+    // Append an empty bot message to be updated with streamed content
+    setMessages(prev => [...prev, { role: "bot", message: "" }]);
+    
+    while (!done) {
+      const { value, done: doneReading } = await reader.read();
+      done = doneReading;
+      const chunk = decoder.decode(value, { stream: true });
+      // OpenAI returns data in chunks prefixed with "data:"; split by newline
+      const lines = chunk.split("\n").filter(line => line.trim().length > 0);
+      for (const line of lines) {
+        if (line.trim() === "data: [DONE]") {
+          done = true;
+          break;
+        }
+        const jsonStr = line.replace(/^data:\s*/, '');
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const delta = parsed.choices[0].delta.content || "";
+          result += delta;
+          // Update the last bot message in state with the streamed content
+          setMessages(prev => {
+            const newMessages = [...prev];
+            newMessages[newMessages.length - 1].message = result;
+            return newMessages;
+          });
+        } catch (error) {
+          console.error("Error parsing stream chunk:", error);
+        }
+      }
+    }
+    
+    return result;
   } catch (error) {
     console.error("Error from OpenAI:", error);
     throw error;
@@ -168,7 +208,6 @@ function Chatbot() {
 
   const query = useQuery();
 
-  // On mount: Check session, fetch files, and load conversation if provided.
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -205,7 +244,6 @@ function Chatbot() {
       });
   };
 
-  // When a file is selected, load its content and start a new conversation if needed.
   const handleFileSelect = async (file) => {
     setSelectedFile(file);
     setMessages([]);
@@ -214,7 +252,6 @@ function Chatbot() {
     try {
       const content = await fetchDocumentContent(file);
       setDocumentContent(content);
-      // If no conversation is active, start one using the conversation name input.
       let convIdToUse = conversationId;
       if (!convIdToUse) {
         const convName = conversationNameInput.trim() || `Conversation on ${new Date().toLocaleString()}`;
@@ -236,7 +273,6 @@ function Chatbot() {
     }
   };
 
-  // Option to aggregate all files
   const handleAskAllFiles = async () => {
     setSelectedFile(null);
     setMessages([]);
@@ -270,7 +306,6 @@ function Chatbot() {
     e.preventDefault();
     if (!input.trim() || !documentContent) return;
     const userQuestion = input.trim();
-    // Append the user message and save it.
     setMessages(prev => [...prev, { role: "user", message: userQuestion }]);
     if (conversationId) {
       await saveMessage(conversationId, "user", userQuestion);
@@ -278,8 +313,8 @@ function Chatbot() {
     setInput("");
     setIsLoading(true);
     try {
-      const answer = await askQuestion(documentContent, userQuestion);
-      setMessages(prev => [...prev, { role: "bot", message: answer }]);
+      // Call the streaming version of askQuestion with setMessages
+      const answer = await askQuestion(documentContent, userQuestion, setMessages);
       if (conversationId) {
         await saveMessage(conversationId, "bot", answer);
       }
@@ -295,14 +330,12 @@ function Chatbot() {
     }
   };
 
-  // Handler to update conversation name on blur
   const handleConversationNameBlur = async () => {
     if (conversationId && conversationNameInput.trim()) {
       await updateConversationName(conversationId, conversationNameInput.trim());
     }
   };
 
-  // Handler for manually starting the chatbot tour (only in conversation state)
   const startChatbotTour = () => {
     introJs()
       .setOptions({
@@ -332,7 +365,6 @@ function Chatbot() {
 
   return (
     <div className="flex flex-col h-[800px] bg-gray-50 dark:bg-gray-800 rounded-3xl shadow-xl m-6">
-      {/* Header with editable conversation name and tour button */}
       <header className="flex flex-col items-center justify-center py-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-3xl chatbot-header">
         <div className="flex items-center space-x-4">
           <ChatAlt2Icon className="h-6 w-6" />
@@ -344,7 +376,6 @@ function Chatbot() {
             className="text-lg font-bold text-center bg-transparent border-b border-white focus:outline-none"
             placeholder="Name your conversation"
           />
-          {/* Show Chatbot Tour if a document is loaded, otherwise show File Selection Tour */}
           {documentContent ? (
             <button 
               onClick={startChatbotTour}
@@ -379,7 +410,6 @@ function Chatbot() {
         </div>
       </header>
 
-      {/* File Selection / All Files Option */}
       {!documentContent && (
         <div className="flex-1 overflow-y-auto p-6 file-selection-container">
           <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
@@ -393,7 +423,6 @@ function Chatbot() {
                 disabled={isLoading}
                 className="flex items-center p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200 text-left disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {/* Circle with gradient background */}
                 <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
                   <DocumentTextIcon className="h-6 w-6 text-white" />
                 </div>
@@ -421,24 +450,42 @@ function Chatbot() {
         </div>
       )}
 
-      {/* Chat Interface */}
       {documentContent && (
         <>
           <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-700 p-6 chatbot-messages">
             {messages.map((msg, index) => (
-              <div key={index} className={`flex ${msg.role === 'bot' ? 'justify-start' : 'justify-end'} mb-4`}>
-                <div className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-md ${msg.role === 'bot' ? 'bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100' : 'bg-blue-500 dark:bg-blue-600 text-white'}`}>
-                  <p className="text-sm">{msg.message}</p>
+              <div 
+                key={index} 
+                className={`flex ${msg.role === 'bot' ? 'justify-start' : 'justify-end'} mb-4`}
+              >
+                <div 
+                  className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-md 
+                    ${msg.role === 'bot' 
+                      ? 'bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100' 
+                      : 'bg-blue-500 dark:bg-blue-600 text-white'
+                    }`}
+                >
+                  <div className="text-sm">
+                    <ReactMarkdown
+                      components={{
+                        ul: ({ children, ...props }) => (
+                          <ul style={{ listStyleType: 'disc', marginLeft: '1.5em' }} {...props}>
+                            {children}
+                          </ul>
+                        ),
+                        ol: ({ children, ...props }) => (
+                          <ol style={{ listStyleType: 'decimal', marginLeft: '1.5em' }} {...props}>
+                            {children}
+                          </ol>
+                        ),
+                      }}
+                    >
+                      {msg.message}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
             ))}
-            {isLoading && (
-              <div className="flex justify-start mb-4">
-                <div className="px-4 py-3 rounded-2xl bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100 shadow-md">
-                  <p className="text-sm">Processing...</p>
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="p-4 bg-gray-100 dark:bg-gray-800 border-t dark:border-gray-700 rounded-b-3xl">
