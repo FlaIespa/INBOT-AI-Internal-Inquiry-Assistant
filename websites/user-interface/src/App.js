@@ -1,6 +1,4 @@
-// src/App.js
-
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import SidebarTour from './components/SidebarTour';
@@ -18,16 +16,44 @@ import SignupPage from './pages/SignupPage';
 import LandingPage from './pages/WelcomePage';
 import HistoryPage from './pages/HistoryPage';
 import ConversationDetail from './pages/ConversationDetailPage';
-import { DarkModeProvider, DarkModeContext } from './contexts/DarkModeContext';
-
-// NEW: Import the TranslationPage
 import TranslationPage from './pages/TranslationPage';
+import { DarkModeProvider, DarkModeContext } from './contexts/DarkModeContext';
+import { supabase } from './supabaseClient';
 
 function AppContent() {
-  const authToken = localStorage.getItem('authToken');
-  const { darkMode } = useContext(DarkModeContext);
+  // State for the auth token; initially null.
+  const [authToken, setAuthToken] = useState(null);
+  // New state to track when the session has been checked.
+  const [sessionChecked, setSessionChecked] = useState(false);
 
-  // Apply dark mode class to <html> to persist dark mode across reloads
+  // Setter that updates both localStorage and state.
+  const handleSetAuthToken = (token) => {
+    if (token) {
+      localStorage.setItem('authToken', token);
+    } else {
+      localStorage.removeItem('authToken');
+    }
+    setAuthToken(token);
+  };
+
+  // On mount, check Supabase session and update state.
+  useEffect(() => {
+    const fetchSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      console.log('Fetched session in AppContent:', session);
+      if (session) {
+        handleSetAuthToken(session.access_token);
+      }
+      // Mark that the session has been checked, even if it's null.
+      setSessionChecked(true);
+    };
+    fetchSession();
+  }, []);
+
+  // Dark Mode setup
+  const { darkMode } = useContext(DarkModeContext);
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
@@ -36,15 +62,19 @@ function AppContent() {
     }
   }, [darkMode]);
 
-  // Protected Route Wrapper
+  // Updated ProtectedRoute: wait for session check before redirecting.
   const ProtectedRoute = ({ children }) => {
+    if (!sessionChecked) {
+      // Optionally, show a loading spinner or message here.
+      return <div>Loading...</div>;
+    }
     if (!authToken) {
       return <Navigate to="/login" replace />;
     }
     return children;
   };
 
-  // Protected Layout with dark mode support
+  // Layout components for public vs. protected routes.
   const ProtectedLayout = ({ children }) => (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -54,7 +84,6 @@ function AppContent() {
     </div>
   );
 
-  // Public Layout with dark mode support
   const PublicLayout = ({ children }) => (
     <div className="min-h-screen transition-colors duration-200 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {children}
@@ -69,7 +98,7 @@ function AppContent() {
           path="/login"
           element={
             <PublicLayout>
-              <LoginPage setAuthToken={() => {}} />
+              <LoginPage setAuthToken={handleSetAuthToken} />
             </PublicLayout>
           }
         />
@@ -77,7 +106,7 @@ function AppContent() {
           path="/signup"
           element={
             <PublicLayout>
-              <SignupPage setAuthToken={() => {}} />
+              <SignupPage setAuthToken={handleSetAuthToken} />
             </PublicLayout>
           }
         />
@@ -211,8 +240,6 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-
-        {/* NEW: Protected Translation Route */}
         <Route
           path="/translation"
           element={
