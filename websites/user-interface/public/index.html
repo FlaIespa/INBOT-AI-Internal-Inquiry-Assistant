@@ -5,30 +5,42 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-
-    <!-- Standard HTML meta tags -->
-    <meta
-      name="description"
-      content="Inbot is an AI-powered platform designed to streamline workflows and boost productivity."
-    />
-
-    <!-- Open Graph / Facebook / WhatsApp -->
-    <meta property="og:title" content="Inbot Software" />
-    <meta
-      property="og:description"
-      content="Inbot is an AI-powered platform designed to streamline workflows and boost productivity."
-    />
-    <meta
-      property="og:image"
-      content="https://www.inbot.software/og-image.jpg"
-    />
-    <meta property="og:url" content="https://www.inbot.software" />
-    <meta property="og:type" content="website" />
-
-    <title>Inbot Software</title>
+    <meta name="description" content="Web site created using create-react-app" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>INBOT</title>
+    <style>
+      /* Hide the Google Translate widget container by default */
+      #google_translate_element {
+        display: none; /* Hidden by default */
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 9999;
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    
+    <!-- Google Translate Widget Container -->
+    <div id="google_translate_element"></div>
+    
     <div id="root"></div>
+    
+    <!-- Initialize Google Translate -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        console.log("Google Translate Initialized");
+        new google.translate.TranslateElement({
+          pageLanguage: 'en',  // Original language of your site
+          includedLanguages: 'en,pt',  // Languages to support (English and Portuguese)
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false  // Do not automatically show the widget
+        }, 'google_translate_element');
+      }
+    </script>
+    <!-- Load the Google Translate script using HTTPS -->
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
   </body>
 </html>
